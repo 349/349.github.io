@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="wrap">
+  <header class="page-head">
+    <h1>Tags</h1>
+    <p class="lede">Wander the garden by theme.</p>
+  </header>
+  <ul class="taglist" style="gap:.7rem">
+    {{- range .Data.Terms.Alphabetical }}
+    <li><a class="tag" href="{{ .Page.RelPermalink }}">{{ .Page.Title }} <span class="muted">{{ .Count }}</span></a></li>
+    {{- end }}
+  </ul>
+</div>
+{{ end }}

@@ -1,0 +1,24 @@
+{{ define "main" }}
+<article class="wrap">
+  <header class="page-head">
+    {{- with .Params.kicker }}<p class="entry-meta"><span class="kicker">{{ . }}</span></p>{{ end -}}
+    <h1>{{ .Title }}</h1>
+    {{- with .Params.lede }}<p class="lede">{{ . }}</p>{{ end -}}
+    <div class="entry-meta">
+      {{- if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format (site.Params.dateFormat | default "2 January 2006") }}</time>{{ end -}}
+      {{- if and (not .Date.IsZero) .ReadingTime }}<span class="dot"></span>{{ end -}}
+      {{- if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end -}}
+    </div>
+  </header>
+
+  <div class="prose">
+    {{ .Content }}
+  </div>
+
+  {{- with .Params.tags }}
+  <footer style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--rule)">
+    {{ partial "tags.html" $ }}
+  </footer>
+  {{- end }}
+</article>
+{{ end }}

@@ -1,0 +1,74 @@
+# =============================================================================
+#  John Smith — personal website (Hugo config)
+#  Public by construction. See _brief/RFP-Personal-Website.md.
+# =============================================================================
+
+# When the repo is named "<username>.github.io" the site is served at the root,
+# so baseURL is "https://<username>.github.io/". Update <USERNAME> before first
+# deploy. To attach a custom domain later, change this to "https://example.com/"
+# and add a CNAME (see README) — no other rework needed.
+baseURL = "https://349.github.io/"
+languageCode = "en"
+defaultContentLanguage = "en"
+title = "John Smith"
+
+# Pretty, shareable URLs; no trailing index.html noise.
+enableRobotsTXT = true
+enableEmoji = false
+summaryLength = 30
+
+# RSS + HTML for lists so the garden is followable without a social feed.
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  taxonomy = ["HTML", "RSS"]
+
+[taxonomies]
+  tag = "tags"
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true            # allow inline HTML in Markdown (audio embeds, figures)
+  [markup.highlight]
+    noClasses = false        # use CSS classes so highlighting matches the theme
+    style = "native"
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel   = 3
+
+[params]
+  description = "A curated public commonplace book — music, writing, languages, the sciences, photography, and liturgy, gathered in one considered place."
+  author = "John Smith"
+  # Reading-experience defaults (referenced by templates).
+  dateFormat = "2 January 2006"
+
+# Main navigation. Order = weight. Links page is deliberately deferred.
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+  [[menu.main]]
+    name = "Essays"
+    url = "/essays/"
+    weight = 2
+  [[menu.main]]
+    name = "Poems"
+    url = "/poems/"
+    weight = 3
+  [[menu.main]]
+    name = "Vulgate"
+    url = "/vulgate/"
+    weight = 4
+  [[menu.main]]
+    name = "Etymology"
+    url = "/etymology/"
+    weight = 5
+  [[menu.main]]
+    name = "Photography"
+    url = "/photography/"
+    weight = 6
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 7

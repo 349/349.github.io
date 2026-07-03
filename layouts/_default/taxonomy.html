@@ -1,0 +1,11 @@
+{{ define "main" }}
+<div class="wrap">
+  <header class="page-head">
+    <p class="entry-meta"><span class="kicker">Tag</span></p>
+    <h1>{{ .Title }}</h1>
+    <p class="lede">{{ len .Pages }} {{ cond (eq (len .Pages) 1) "entry" "entries" }} tagged “{{ .Title }}”.</p>
+  </header>
+  {{ partial "entry-list.html" .Pages.ByDate.Reverse }}
+  <p style="margin-top:2.5rem"><a href="{{ "/tags/" | relURL }}">← All tags</a></p>
+</div>
+{{ end }}

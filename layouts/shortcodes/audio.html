@@ -1,0 +1,10 @@
+{{- /* Sticky audio player for Vulgate text + sound entries.
+       Usage: {{< audio src="/audio/psalm-23.mp3" title="Psalmus 22 (Vulgata)" >}}
+       Place audio files in /static/audio/ and reference with a leading slash. */ -}}
+<div class="textaudio__player" role="group" aria-label="{{ .Get "title" | default "Audio" }}">
+  {{- with .Get "title" }}<p class="filter-bar__label" style="margin:0 0 .5rem">{{ . }}</p>{{ end -}}
+  <audio controls preload="none" src="{{ .Get "src" | relURL }}">
+    Your browser does not support the audio element.
+    <a href="{{ .Get "src" | relURL }}">Download the audio</a>.
+  </audio>
+</div>

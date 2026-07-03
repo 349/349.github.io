@@ -1,0 +1,20 @@
+{{- /* Renders a list of pages as garden entries. Pass a slice of pages as the context. */ -}}
+<ul class="entry-list js-entry-list">
+  {{- range . -}}
+  {{- $slugs := slice -}}
+  {{- range .Params.tags }}{{ $slugs = $slugs | append (. | urlize) }}{{ end -}}
+  <li class="js-entry" data-tags="{{ delimit $slugs "," }}">
+    <p class="entry-item__meta">
+      <span class="entry-item__section">{{ .Section | humanize }}</span>
+      {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format (site.Params.dateFormat | default "2 January 2006") }}</time>{{ end }}
+    </p>
+    <h2 class="entry-item__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    {{- with (or .Params.summary .Summary) }}<p class="entry-item__summary">{{ . }}</p>{{ end -}}
+    {{- with .Params.tags }}
+    <ul class="taglist" style="margin-top:.6rem">
+      {{- range . -}}<li><a class="tag" href="{{ (printf "/tags/%s/" (. | urlize)) | relURL }}">{{ . }}</a></li>{{- end -}}
+    </ul>
+    {{- end }}
+  </li>
+  {{- end -}}
+</ul>

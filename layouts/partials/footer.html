@@ -1,0 +1,9 @@
+<footer class="site-footer">
+  <div class="wrap wrap--wide">
+    <span>© {{ now.Year }} {{ site.Params.author }}</span>
+    <span>
+      A commonplace book.
+      {{ with .OutputFormats.Get "rss" }}<a href="{{ .RelPermalink }}">RSS</a>{{ end }}
+    </span>
+  </div>
+</footer>

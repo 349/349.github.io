@@ -1,0 +1,20 @@
+{{- /* Photo gallery from the entry's own page bundle.
+       Put images in the entry folder (e.g. content/photography/venice/*.jpg) and
+       call {{< gallery >}} — every image resource is shown, sorted by name.
+       Optional: {{< gallery match="*.jpg" >}} to filter. Thumbnails are
+       generated and lazy-loaded; clicking opens the full image. */ -}}
+{{- $match := .Get "match" | default "**.{jpg,jpeg,png,webp,gif}" -}}
+{{- $images := .Page.Resources.Match $match -}}
+{{- if $images }}
+<div class="gallery">
+  {{- range $images.ByName }}
+  {{- $thumb := (.Resize "560x webp q82") -}}
+  <a href="{{ .RelPermalink }}" aria-label="{{ .Title | default .Name }}">
+    <img src="{{ $thumb.RelPermalink }}" width="{{ $thumb.Width }}" height="{{ $thumb.Height }}"
+         alt="{{ .Title | default "" }}" loading="lazy" decoding="async">
+  </a>
+  {{- end }}
+</div>
+{{- else }}
+<p class="muted">No images found for this gallery yet.</p>
+{{- end -}}

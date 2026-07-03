@@ -1,0 +1,8 @@
+{{- /* Preserves line breaks and stanza spacing for verse.
+       Usage:
+       {{< poem attribution="George Herbert, ‘The Elixir’ (1633) · public domain" >}}
+       Teach me, my God and King,
+       In all things Thee to see,
+       {{< /poem >}} */ -}}
+<div class="poem">{{ trim .Inner "\n" | htmlEscape | safeHTML }}</div>
+{{- with .Get "attribution" }}<p class="poem-attr">{{ . | markdownify }}</p>{{ end -}}

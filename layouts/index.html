@@ -1,0 +1,85 @@
+{{ define "main" }}
+{{- $entries := where site.RegularPages "Section" "!=" "" -}}
+{{- $entries = $entries.ByDate.Reverse -}}
+
+<div class="wrap">
+  <header class="page-head">
+    <h1>{{ site.Title }}</h1>
+    <p class="lede">{{ site.Params.description }}</p>
+  </header>
+
+  {{- /* Collect every tag actually in use, for the filter bar */ -}}
+  {{- $allTags := slice -}}
+  {{- range $name, $taxonomy := site.Taxonomies.tags -}}
+    {{- with site.GetPage (printf "/tags/%s" $name) -}}
+      {{- $allTags = $allTags | append (dict "name" .Title "slug" ($name | urlize) "url" .RelPermalink "count" (len $taxonomy)) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if $allTags }}
+  <nav class="filter-bar" aria-label="Filter entries by tag">
+    <p class="filter-bar__label">Filter by tag <span class="filter-count js-filter-count" hidden></span></p>
+    <ul class="taglist js-filter">
+      <li><a class="tag js-filter-all is-active" href="{{ "/" | relURL }}" data-filter="*" aria-pressed="true">All</a></li>
+      {{- range $allTags }}
+      <li><a class="tag js-filter-tag" href="{{ .url }}" data-filter="{{ .slug }}" aria-pressed="false">{{ .name }} <span class="muted">{{ .count }}</span></a></li>
+      {{- end }}
+    </ul>
+  </nav>
+  {{- end }}
+
+  {{ partial "entry-list.html" $entries }}
+
+  <p class="js-empty muted" hidden style="padding:2rem 0">No entries match that tag.</p>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script>
+/* Progressive-enhancement tag filter. No JS? The tag links still work as /tags/<tag>/ pages. */
+(function () {
+  var bar = document.querySelector('.js-filter');
+  var entries = Array.prototype.slice.call(document.querySelectorAll('.js-entry'));
+  if (!bar || !entries.length) return;
+
+  var buttons = Array.prototype.slice.call(bar.querySelectorAll('[data-filter]'));
+  var countEl = document.querySelector('.js-filter-count');
+  var emptyEl = document.querySelector('.js-empty');
+
+  function apply(filter, push) {
+    var shown = 0;
+    entries.forEach(function (li) {
+      var tags = (li.getAttribute('data-tags') || '').split(',');
+      var match = filter === '*' || tags.indexOf(filter) !== -1;
+      li.hidden = !match;
+      if (match) shown++;
+    });
+    buttons.forEach(function (b) {
+      var on = b.getAttribute('data-filter') === filter;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    if (countEl) {
+      if (filter === '*') { countEl.hidden = true; }
+      else { countEl.hidden = false; countEl.textContent = '· ' + shown + ' shown'; }
+    }
+    if (emptyEl) emptyEl.hidden = shown !== 0;
+    if (push) {
+      var url = filter === '*' ? location.pathname : location.pathname + '#tag=' + filter;
+      history.replaceState(null, '', url);
+    }
+  }
+
+  bar.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-filter]');
+    if (!btn) return;
+    e.preventDefault();               /* keep it on-page; links remain for no-JS */
+    apply(btn.getAttribute('data-filter'), true);
+  });
+
+  /* Deep-link support: /#tag=anglican-music filters on load */
+  var m = location.hash.match(/tag=([^&]+)/);
+  if (m) apply(decodeURIComponent(m[1]), false);
+})();
+</script>
+{{ end }}

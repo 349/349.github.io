@@ -1,0 +1,17 @@
+{{ define "main" }}
+<div class="wrap">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{- with .Params.lede }}<p class="lede">{{ . }}</p>{{ end -}}
+  </header>
+
+  {{- with .Content }}<div class="prose section-intro">{{ . }}</div>{{ end }}
+
+  {{- $pages := .Pages.ByDate.Reverse -}}
+  {{- if $pages }}
+    {{ partial "entry-list.html" $pages }}
+  {{- else }}
+    <p class="muted">Nothing here yet — this part of the garden is still being planted.</p>
+  {{- end }}
+</div>
+{{ end }}

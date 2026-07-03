@@ -1,0 +1,7 @@
+{{- with .Params.tags -}}
+<ul class="taglist" aria-label="Tags">
+  {{- range . -}}
+  <li><a class="tag" href="{{ (printf "/tags/%s/" (. | urlize)) | relURL }}">{{ . }}</a></li>
+  {{- end -}}
+</ul>
+{{- end -}}

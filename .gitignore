@@ -1,0 +1,10 @@
+# Hugo build output & caches
+/public/
+/resources/_gen/
+.hugo_build.lock
+.DS_Store
+node_modules/
+
+# Operating brief — local orders, not website content. Kept out of the public repo
+# because it references the private vault's structure. Do NOT commit.
+/_brief/
