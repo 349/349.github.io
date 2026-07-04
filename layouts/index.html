@@ -1,5 +1,8 @@
 {{ define "main" }}
-{{- $entries := where site.RegularPages "Section" "!=" "" -}}
+{{- /* The garden feed: entries from the commonplace-book sections.
+       The Office/Psalter is its own world and is excluded here. */ -}}
+{{- $exclude := slice "" "psalmi" "officium" -}}
+{{- $entries := where site.RegularPages "Section" "not in" $exclude -}}
 {{- $entries = $entries.ByDate.Reverse -}}
 
 <div class="wrap">
@@ -8,21 +11,18 @@
     <p class="lede">{{ site.Params.description }}</p>
   </header>
 
-  {{- /* Collect every tag actually in use, for the filter bar */ -}}
-  {{- $allTags := slice -}}
-  {{- range $name, $taxonomy := site.Taxonomies.tags -}}
-    {{- with site.GetPage (printf "/tags/%s" $name) -}}
-      {{- $allTags = $allTags | append (dict "name" .Title "slug" ($name | urlize) "url" .RelPermalink "count" (len $taxonomy)) -}}
-    {{- end -}}
-  {{- end -}}
+  {{- /* Filter bar built only from tags used by the entries actually shown here */ -}}
+  {{- $feedTags := slice -}}
+  {{- range $entries }}{{ range .Params.tags }}{{ $feedTags = $feedTags | append . }}{{ end }}{{ end -}}
+  {{- $feedTags = $feedTags | uniq | sort -}}
 
-  {{- if $allTags }}
+  {{- if $feedTags }}
   <nav class="filter-bar" aria-label="Filter entries by tag">
     <p class="filter-bar__label">Filter by tag <span class="filter-count js-filter-count" hidden></span></p>
     <ul class="taglist js-filter">
       <li><a class="tag js-filter-all is-active" href="{{ "/" | relURL }}" data-filter="*" aria-pressed="true">All</a></li>
-      {{- range $allTags }}
-      <li><a class="tag js-filter-tag" href="{{ .url }}" data-filter="{{ .slug }}" aria-pressed="false">{{ .name }} <span class="muted">{{ .count }}</span></a></li>
+      {{- range $feedTags }}
+      <li><a class="tag js-filter-tag" href="{{ (printf "/tags/%s/" (. | urlize)) | relURL }}" data-filter="{{ . | urlize }}" aria-pressed="false">{{ . }}</a></li>
       {{- end }}
     </ul>
   </nav>

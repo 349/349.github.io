@@ -1,0 +1,32 @@
+{{ define "main" }}
+{{- $n := .Params.number -}}
+<article class="wrap">
+  <header class="page-head">
+    <p class="entry-meta">
+      <span class="kicker">Psalmus {{ $n }}</span>
+      {{- with .Params.penitential }} <span class="dot"></span> <span>{{ . }}</span>{{ end -}}
+    </p>
+    <h1>{{ .Params.incipit | default .Title }}</h1>
+    {{- with .Params.argument }}<p class="lede">{{ . }}</p>{{ end -}}
+    <div class="entry-meta"><span>{{ .Params.source | default "Clementine Vulgate (Gallican)" }}</span></div>
+  </header>
+
+  <div class="psalm-text">
+    {{- range $i, $v := .Params.verses }}
+    <p class="psalm-verse"><span class="v-num">{{ add $i 1 }}</span><span class="v-text">{{ $v }}</span></p>
+    {{- end }}
+  </div>
+
+  <nav class="psalm-nav" aria-label="Adjacent psalms">
+    {{- with site.GetPage (printf "/psalmi/%d" (sub $n 1)) }}<a href="{{ .RelPermalink }}">← Psalmus {{ .Params.number }}</a>{{ else }}<span></span>{{ end }}
+    <a href="{{ "/psalmi/" | relURL }}">All psalms</a>
+    {{- with site.GetPage (printf "/psalmi/%d" (add $n 1)) }}<a href="{{ .RelPermalink }}">Psalmus {{ .Params.number }} →</a>{{ else }}<span></span>{{ end }}
+  </nav>
+
+  {{- with .Params.tags }}
+  <footer style="margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--rule)">
+    {{ partial "tags.html" $ }}
+  </footer>
+  {{- end }}
+</article>
+{{ end }}

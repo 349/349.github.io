@@ -1,0 +1,45 @@
+{{ define "main" }}
+<div class="wrap wrap--wide">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{- with .Params.lede }}<p class="lede">{{ . }}</p>{{ end -}}
+  </header>
+
+  {{- with .Content }}<div class="prose section-intro">{{ . }}</div>{{ end }}
+
+  {{- /* Liturgical groupings defined in data/psalm_groups.yaml */ -}}
+  {{- with site.Data.psalm_groups }}
+  <section class="psalm-groups">
+    {{- range . }}
+    <div class="psalm-group">
+      <h2>{{ .name }}</h2>
+      {{- with .note }}<p class="muted">{{ . }}</p>{{ end }}
+      <ul class="psalm-chips">
+        {{- range .psalms }}
+        {{- with site.GetPage (printf "/psalmi/%d" .) }}
+        <li><a class="psalm-chip" href="{{ .RelPermalink }}">{{ .Params.number }}</a></li>
+        {{- else }}
+        <li><span class="psalm-chip is-missing" title="not yet added">{{ . }}</span></li>
+        {{- end }}
+        {{- end }}
+      </ul>
+    </div>
+    {{- end }}
+  </section>
+  {{- end }}
+
+  <section class="psalm-all">
+    <h2>All 150 psalms</h2>
+    <p class="muted">Vulgate numbering. Live psalms are linked; the rest are on the way.</p>
+    <ul class="psalm-grid">
+      {{- range seq 1 150 }}
+      {{- with site.GetPage (printf "/psalmi/%d" .) }}
+      <li><a class="psalm-chip" href="{{ .RelPermalink }}">{{ .Params.number }}</a></li>
+      {{- else }}
+      <li><span class="psalm-chip is-missing">{{ . }}</span></li>
+      {{- end }}
+      {{- end }}
+    </ul>
+  </section>
+</div>
+{{ end }}

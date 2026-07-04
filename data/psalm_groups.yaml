@@ -1,0 +1,9 @@
+# Liturgical / devotional groupings of psalms (Vulgate numbering).
+# Used by the psalter landing page for navigation "by use".
+- name: "Penitential Psalms"
+  note: "The seven psalms of repentance — 6, 31, 37, 50, 101, 129, 142."
+  psalms: [6, 31, 37, 50, 101, 129, 142]
+
+- name: "Gradual Psalms"
+  note: "The fifteen Cantica graduum, 119–133 (added as they come online)."
+  psalms: [119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133]

@@ -1,0 +1,29 @@
+{{ define "main" }}
+<div class="wrap wrap--wide">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{- with .Params.lede }}<p class="lede">{{ . }}</p>{{ end -}}
+  </header>
+
+  {{- with .Content }}<div class="prose section-intro">{{ . }}</div>{{ end }}
+
+  <div id="office-app" class="office">
+    <div id="office-date" class="office-date"></div>
+    <nav id="office-hours" class="office-hours" aria-label="Hours of the Office"></nav>
+    <section id="office-view" class="office-view" aria-live="polite"></section>
+    <noscript><p class="muted">The dynamic office requires JavaScript. The psalms themselves are all available under <a href="{{ "/psalmi/" | relURL }}">the Psalter</a>.</p></noscript>
+  </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script>
+  window.PSALTER = {{ site.Data.psalter | jsonify }};
+  window.ORDINARY = {{ site.Data.office_ordinary | jsonify }};
+  window.SCHEME = {{ site.Data.ferial_psalter | jsonify }};
+  window.PSALTER_BASE = {{ "/psalmi/" | relURL | jsonify }};
+</script>
+{{- $js := resources.Get "js/office.js" -}}
+{{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
+<script>{{ $js.Content | safeJS }}</script>
+{{ end }}
