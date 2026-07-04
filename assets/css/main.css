@@ -410,6 +410,23 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 .off-gloria .v-text { color: var(--ink-muted); font-style: italic; }
 .off-hymn { line-height: 1.7; font-style: italic; color: var(--ink); }
 .off-canticle { margin: 0.5rem 0 1.5rem; }
+.off-chant {
+  background: #f4efe2; color: #1a1a1a; border-radius: var(--radius);
+  padding: 0.5rem 0.75rem; margin: 0.3rem 0; overflow-x: auto;
+}
+.off-chant svg { max-width: 100%; height: auto; display: block; }
+.off-verses--pointed { margin: 0.4rem 0; }
+.off-pverse {
+  margin: 0 0 0.35rem; padding-left: 1.3rem; text-indent: -1.3rem;
+  line-height: 1.6; max-width: var(--measure);
+}
+.off-pverse.off-gloria { color: var(--ink-muted); font-style: italic; }
+.off-med { color: var(--accent); font-weight: 600; padding: 0 0.05em; }
+.off-pointed {
+  font-family: var(--font-sans); font-size: 0.6rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: #16171b; background: var(--accent-dim);
+  padding: 0.1em 0.5em; border-radius: 100px; vertical-align: 0.15em;
+}
 .office-todo {
   color: var(--ink-muted); background: var(--bg-elev);
   border: 1px dashed var(--rule); border-radius: var(--radius);

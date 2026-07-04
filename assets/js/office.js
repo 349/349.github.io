@@ -9,6 +9,7 @@
 
   var PS = {};
   (window.PSALTER || []).forEach(function (p) { PS[p.n] = p.verses; });
+  var PT = window.POINTED || {};        // pointed (accented, mediant-marked) verses, by number
   var ORD = window.ORDINARY || {};
   var SCHEME = window.SCHEME || {};
 
@@ -90,30 +91,73 @@
   }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
+  // --- Gregorian notation via Exsurge (GABC -> SVG). Fails silently to text. ---
+  function renderChant(gabc, container, width) {
+    try {
+      if (typeof exsurge === "undefined" || !exsurge.Gabc) return false;
+      var ctxt = new exsurge.ChantContext();
+      var mappings = exsurge.Gabc.createMappingsFromSource(ctxt, gabc);
+      var score = new exsurge.ChantScore(ctxt, mappings, false);
+      score.performLayoutAsync(ctxt, function () {
+        try {
+          score.layoutChantLines(ctxt, width || 520, function () {
+            try { container.innerHTML = score.createSvg(ctxt); }
+            catch (e) { var p = container.parentNode; if (p) p.parentNode && p.parentNode.removeChild(p); }
+          });
+        } catch (e) {}
+      });
+      return true;
+    } catch (e) { return false; }
+  }
+  function chantBlock(gabc, label) {
+    var c = el("div", "off-chant");
+    if (!renderChant(gabc, c, 520)) return null;
+    var b = el("div", "off-block");
+    if (label) b.appendChild(el("p", "off-label", label));
+    b.appendChild(c);
+    return b;
+  }
+  // Provisional psalm-tone example (Tone VIII, ending G) shown as the traditional
+  // E-u-o-u-a-e cadence. Real per-mode tones + antiphon melodies come next.
+  var TONE_DEMO = "(c4) E(h) u(h) o(h) u(g) a(h) e.(g) (::)";
+
+  function pointMarks(v) {
+    // style the mediant (*) and flex (‡) marks in pointed text
+    return esc(v).replace(/\s\*/g, ' <span class="off-med">*</span>')
+                 .replace(/‡/g, '<span class="off-med">‡</span>');
+  }
+
   function renderPsalm(num, antiphonHtml, gloria) {
-    var verses = PS[num];
+    var pointed = PT[num];                 // accented, mediant-marked (verified) verses
+    var verses = pointed || PS[num];       // fall back to plain text
+    var isPointed = !!pointed;
     var wrap = el("div", "off-psalm");
-    var head = el("p", "off-psalm__title", "Psalmus " + num +
-      ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full &rsaquo;</a>');
-    wrap.appendChild(head);
+    wrap.appendChild(el("p", "off-psalm__title", "Psalmus " + num +
+      (isPointed ? ' <span class="off-pointed">pointed</span>' : '') +
+      ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full &rsaquo;</a>'));
     if (antiphonHtml) wrap.appendChild(el("p", "off-ant", "Ant. " + antiphonHtml));
     if (!verses) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
-    var body = el("div", "off-verses");
-    // Long psalms (esp. 118, prayed in portions) show an incipit + link, not all verses.
+    var body = el("div", "off-verses" + (isPointed ? " off-verses--pointed" : ""));
     var shown = verses.length > 30 ? verses.slice(0, 3) : verses;
     shown.forEach(function (v, i) {
-      body.appendChild(el("p", "psalm-verse",
-        '<span class="v-num">' + (i + 1) + '</span><span class="v-text">' + esc(v) + "</span>"));
+      if (isPointed) {
+        body.appendChild(el("p", "off-pverse", pointMarks(v)));
+      } else {
+        body.appendChild(el("p", "psalm-verse",
+          '<span class="v-num">' + (i + 1) + '</span><span class="v-text">' + esc(v) + "</span>"));
+      }
     });
     if (verses.length > 30) {
-      body.appendChild(el("p", "psalm-verse",
-        '<span class="v-num"></span><span class="v-text muted">… (' + verses.length +
+      body.appendChild(el("p", isPointed ? "off-pverse muted" : "psalm-verse",
+        (isPointed ? '' : '<span class="v-num"></span>') + '<span class="v-text muted">… (' + verses.length +
         ' verses; prayed here in portions) — <a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a></span>'));
       gloria = false;
     }
     if (gloria !== false) {
-      body.appendChild(el("p", "psalm-verse off-gloria",
-        '<span class="v-num"></span><span class="v-text">Gloria Patri, et Filio, et Spiritui Sancto. * Sicut erat in principio, et nunc, et semper, et in saecula saeculorum. Amen.</span>'));
+      var g = "Glória Patri, et Fílio, et Spirítui Sancto. * Sicut erat in princípio, et nunc, et semper, et in sæcula sæculórum. Amen.";
+      body.appendChild(isPointed
+        ? el("p", "off-pverse off-gloria", pointMarks(g))
+        : el("p", "psalm-verse off-gloria", '<span class="v-num"></span><span class="v-text">' + esc(g) + "</span>"));
     }
     wrap.appendChild(body);
     return wrap;
@@ -143,6 +187,8 @@
     var ant = li.paschal ? "Alleluia, alleluia, alleluia." : (c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
     var psSection = el("div", "off-psalms");
     psSection.appendChild(el("p", "off-ant", "Ant. " + ant));
+    var toneEl = chantBlock(TONE_DEMO, "Psalm tone");
+    if (toneEl) psSection.appendChild(toneEl);
     // Compline psalms follow the weekly cycle (Pius X), not a fixed set.
     var psalms = (SCHEME.completorium && SCHEME.completorium[li.weekdayKey]) || [4, 90, 133];
     psalms.forEach(function (n) { psSection.appendChild(renderPsalm(n, null, true)); });
