@@ -226,6 +226,7 @@
   // recitation substitute "Domine, exaudi orationem meam / Et clamor meus...".
   var ROLE = "priest";
   var SUNG = false;   // said (pointed text) vs sung (chant notation)
+  var CHANT_W = 660;  // available px width for chant flow (set from the view width)
   function roleize(html) {
     if (ROLE !== "lay") return html;
     return String(html)
@@ -371,29 +372,63 @@
   }
   function verseItems(pointed, intone) {
     var h = String(pointed).split(/\s*\*\s*/);
-    return stichItems(h[0], { intone: intone }).concat([{ bar: true }]).concat(stichItems(h.slice(1).join(" "), { final: true }));
+    return stichItems(h[0], { intone: intone })
+      .concat([{ bar: "half" }])
+      .concat(stichItems(h.slice(1).join(" "), { final: true }));
   }
-  // Render items to a Gregorian 4-line staff as inline SVG (no external library).
-  var STEP = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 10, l: 11, m: 12 };
-  function chantSvg(items) {
+  // One continuous item stream for a whole psalm: the first syllable of each verse
+  // is flagged (rendered bold, to mark the verse) and each verse ends with a full bar.
+  function chantStream(verses) {
+    var out = [];
+    verses.forEach(function (v, vi) {
+      var it = verseItems(v, vi === 0);
+      for (var k = 0; k < it.length; k++) { if (!it[k].bar) { it[k].vs = true; break; } }
+      out = out.concat(it, [{ bar: "verse" }]);
+    });
+    return out;
+  }
+  var STEP = { f: 5, g: 6, h: 7, i: 8, j: 9, k: 10 };
+  function itemAdv(it) { return it.bar ? (it.bar === "verse" ? 16 : 13) : Math.max(16, it.t.length * 7.4 + 8); }
+  // Greedily wrap the stream into staff lines no wider than W px (reflows to width).
+  function flowChant(items, W) {
+    var lines = [], cur = [], x = 30;
+    items.forEach(function (it) {
+      var a = itemAdv(it);
+      if (x + a > W && cur.length) { lines.push(cur); cur = []; x = 30; }
+      cur.push(it); x += a;
+    });
+    if (cur.length) lines.push(cur);
+    return lines;
+  }
+  // One staff line → dark-mode SVG (light staff/notes/text on the page ground).
+  function chantSystem(line) {
     var HS = 5, topY = 12;
     function y(p) { return topY + (10 - p) * HS; }
-    var padL = 34, x = padL, fs = 15, notes = [], texts = [], bars = [], hys = [];
-    items.forEach(function (it, i) {
-      if (it.bar) { bars.push('<line x1="' + (x + 4) + '" y1="' + y(10) + '" x2="' + (x + 4) + '" y2="' + y(4) + '" stroke="#3a3733" stroke-width="1.4"/>'); x += 16; return; }
-      var adv = Math.max(18, it.t.length * 8 + 6), cx = x + adv / 2;
-      var p = STEP[it.note] != null ? STEP[it.note] : 7, ny = y(p);
-      notes.push('<rect x="' + (cx - 4) + '" y="' + (ny - 4) + '" width="8" height="7" rx="1" fill="#1a1a1a"/>');
-      texts.push('<text x="' + cx + '" y="' + (y(4) + 18) + '" text-anchor="middle" font-family="Georgia,serif" font-size="' + fs + '" fill="#1a1a1a">' + esc(it.t) + "</text>");
-      var nx = items[i + 1];
-      if (nx && !nx.bar && !nx.ws) hys.push('<text x="' + (x + adv) + '" y="' + (y(4) + 18) + '" text-anchor="middle" font-family="Georgia,serif" font-size="' + fs + '" fill="#9a938a">-</text>');
-      x += adv;
+    var x = 30, notes = [], texts = [], bars = [], hys = [];
+    line.forEach(function (it, i) {
+      if (it.bar) {
+        var full = it.bar === "verse";
+        bars.push('<line x1="' + (x + 4) + '" y1="' + y(full ? 10 : 9) + '" x2="' + (x + 4) + '" y2="' + y(full ? 4 : 6) +
+          '" stroke="#8a837a" stroke-width="' + (full ? 1.5 : 1.2) + '"/>');
+        x += itemAdv(it); return;
+      }
+      var a = itemAdv(it), cx = x + a / 2, p = STEP[it.note] != null ? STEP[it.note] : 7, ny = y(p);
+      notes.push('<rect x="' + (cx - 4) + '" y="' + (ny - 4) + '" width="8" height="7" rx="1" fill="#e8e5dd"/>');
+      texts.push('<text x="' + cx + '" y="' + (y(4) + 17) + '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="' +
+        (it.vs ? "#e0c384" : "#d9d5cc") + '"' + (it.vs ? ' font-weight="700"' : "") + ">" + esc(it.t) + "</text>");
+      var nx = line[i + 1];
+      if (nx && !nx.bar && !nx.ws) hys.push('<text x="' + (x + a) + '" y="' + (y(4) + 17) +
+        '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#6f6e69">-</text>');
+      x += a;
     });
-    var W = x + 10, H = y(4) + 28;
-    var lines = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (W - 6) + '" y2="' + y(p) + '" stroke="#c9bfa8" stroke-width="1"/>'; }).join("");
-    var cy = y(8), clef = '<rect x="10" y="' + (cy - 9) + '" width="7" height="7" fill="#1a1a1a"/><rect x="10" y="' + (cy + 1) + '" width="7" height="7" fill="#1a1a1a"/>';
-    return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">' +
-      lines + clef + bars.join("") + notes.join("") + hys.join("") + texts.join("") + "</svg>";
+    var Wl = x + 8;
+    var st = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (Wl - 6) + '" y2="' + y(p) + '" stroke="#4d4842" stroke-width="1"/>'; }).join("");
+    var cy = y(8), clef = '<rect x="8" y="' + (cy - 9) + '" width="6" height="7" fill="#c9bfa8"/><rect x="8" y="' + (cy + 1) + '" width="6" height="7" fill="#c9bfa8"/>';
+    return '<svg viewBox="0 0 ' + Wl + ' ' + (y(4) + 24) + '" width="' + Wl + '" xmlns="http://www.w3.org/2000/svg" class="off-staff">' +
+      st + clef + bars.join("") + notes.join("") + hys.join("") + texts.join("") + "</svg>";
+  }
+  function psalmChant(verses) {
+    return flowChant(chantStream(verses), CHANT_W).map(chantSystem).join("");
   }
 
   function renderPsalm(num, antiphonHtml, gloria) {
@@ -407,19 +442,14 @@
     if (antiphonHtml) wrap.appendChild(antLine(antiphonHtml));
     if (!verses.length) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
 
-    // Sung mode: set each pointed verse to the psalm tone as staff notation.
+    // Sung mode: the whole psalm as continuous, wrapping chant lines (dark mode).
     if (SUNG && isPointed) {
-      var sungVerses = verses.length > 12 ? verses.slice(0, 8) : verses;
-      sungVerses.forEach(function (v, i) {
-        wrap.appendChild(el("div", "off-chant off-chant--verse", chantSvg(verseItems(v, i === 0))));
-      });
-      if (verses.length <= 12 && gloria !== false) {
-        GLORIA2.forEach(function (g) {
-          wrap.appendChild(el("div", "off-chant off-chant--verse", chantSvg(verseItems(g, false))));
-        });
-      }
-      if (verses.length > 12) wrap.appendChild(el("p", "muted off-chant-more",
-        "… " + verses.length + " verses; first 8 shown sung — " +
+      var many = verses.length > 20;
+      var sungVerses = many ? verses.slice(0, 14) : verses.slice();
+      if (!many && gloria !== false) sungVerses = sungVerses.concat(GLORIA2);
+      wrap.appendChild(el("div", "off-chant-flow", psalmChant(sungVerses)));
+      if (many) wrap.appendChild(el("p", "muted off-chant-more",
+        "… " + verses.length + " verses; first 14 shown sung — " +
         '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
       return wrap;
     }
@@ -683,6 +713,7 @@
     if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(modeEl, viewEl);
 
     function renderHour(scroll) {
+      CHANT_W = Math.max(300, Math.min(viewEl.clientWidth || 680, 760)) - 4;
       viewEl.innerHTML = "";
       try {
         viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
@@ -692,6 +723,12 @@
       }
       if (scroll) viewEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    // Re-flow the chant when the width changes.
+    var rzTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(rzTimer);
+      rzTimer = setTimeout(function () { if (SUNG) renderHour(false); }, 200);
+    });
     renderHour(false);
   }
 
