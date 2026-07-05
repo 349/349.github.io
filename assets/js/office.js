@@ -42,6 +42,8 @@
   var SCHEME = dearray(window.SCHEME) || {};
   var PS = {};
   PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
+  // Coerce any value to a real array (belt-and-suspenders at every array site).
+  function A(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.keys(x).map(function (k) { return x[k]; }) : []); }
 
   /* ---------- calendar ---------- */
   function dateOnly(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -102,12 +104,35 @@
     else if (d > feb2 && d < E) marian = "ave_regina";
     else marian = "salve";
 
+    // Count the Sunday/week within the season (e.g. "Dominica VI post Pentecosten").
     var dow = d.getDay();
+    var curSun = addDays(d, -dow);                 // Sunday that begins this week
+    function wk(a) { return Math.round((curSun - a) / 6048e5); }
+    function roman(n) {
+      if (n <= 0) return "";
+      var t = [["XL", 40], ["X", 10], ["IX", 9], ["V", 5], ["IV", 4], ["I", 1]], s = "";
+      t.forEach(function (p) { while (n >= p[1]) { s += p[0]; n -= p[1]; } });
+      return s;
+    }
+    var week = 0, weekPhrase = "";
+    if (season === "Adventus") { week = wk(advStart) + 1; weekPhrase = "Adventus"; }
+    else if (season === "Post Epiphaniam") { week = wk(addDays(epiphany, ((7 - epiphany.getDay()) % 7) || 7)) + 1; weekPhrase = "post Epiphaniam"; }
+    else if (season === "Septuagesima") { week = wk(septua) + 1; weekPhrase = "Septuagesimae"; }
+    else if (season === "Quadragesima") { week = wk(addDays(ash, 4)) + 1; weekPhrase = "Quadragesimae"; }
+    else if (season === "Tempus Passionis") { week = wk(passion) + 1; weekPhrase = "Passionis"; }
+    else if (season === "Tempus Paschale") { week = wk(E); weekPhrase = "post Pascha"; }
+    else if (season === "Post Pentecosten") { week = wk(pent); weekPhrase = "post Pentecosten"; }
+    var wr = roman(week);
+    var title = dow === 0
+      ? "Dominica" + (wr ? " " + wr : "") + (weekPhrase ? " " + weekPhrase : (season ? " · " + season : ""))
+      : WD_LAT[dow] + " · " + (wr ? "hebd. " + wr + " " + weekPhrase : season);
+
     return {
       date: d, iso: fmtISO(d),
       englishDate: WD_EN[dow] + ", " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(),
       weekdayIndex: dow, weekdayLat: WD_LAT[dow], weekdayEn: WD_EN[dow], weekdayKey: WD_KEY[dow],
       season: season, seasonEn: seasonEn, color: color, paschal: paschal, marian: marian,
+      title: title, week: week, weekRoman: wr,
       isSunday: dow === 0
     };
   }
@@ -158,15 +183,15 @@
   }
 
   function renderPsalm(num, antiphonHtml, gloria) {
-    var pointed = PT[num];                 // accented, mediant-marked (verified) verses
-    var verses = pointed || PS[num];       // fall back to plain text
-    var isPointed = !!pointed;
+    var pointed = A(PT[num]);              // accented, mediant-marked (verified) verses
+    var isPointed = pointed.length > 0;
+    var verses = isPointed ? pointed : A(PS[num]);  // fall back to plain text
     var wrap = el("div", "off-psalm");
     wrap.appendChild(el("p", "off-psalm__title", "Psalmus " + num +
       (isPointed ? ' <span class="off-pointed">pointed</span>' : '') +
       ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full &rsaquo;</a>'));
     if (antiphonHtml) wrap.appendChild(el("p", "off-ant", "Ant. " + antiphonHtml));
-    if (!verses) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
+    if (!verses.length) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
     var body = el("div", "off-verses" + (isPointed ? " off-verses--pointed" : ""));
     var shown = verses.length > 30 ? verses.slice(0, 3) : verses;
     shown.forEach(function (v, i) {
@@ -225,7 +250,8 @@
     var toneEl = chantBlock(TONE_DEMO, "Psalm tone");
     if (toneEl) psSection.appendChild(toneEl);
     // Compline psalms follow the weekly cycle (Pius X), not a fixed set.
-    var psalms = (SCHEME.completorium && SCHEME.completorium[li.weekdayKey]) || [4, 90, 133];
+    var psalms = A(SCHEME.completorium && SCHEME.completorium[li.weekdayKey]);
+    if (!psalms.length) psalms = [4, 90, 133];
     psalms.forEach(function (n) { psSection.appendChild(renderPsalm(n, null, true)); });
     psSection.appendChild(el("p", "off-ant", "Ant. " + ant));
     view.appendChild(psSection);
@@ -239,7 +265,7 @@
       var nd = el("div", "off-canticle");
       nd.appendChild(el("p", "off-ant", "Ant. " + (li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant)));
       var body = el("div", "off-verses");
-      c.nunc_dimittis.forEach(function (v) {
+      A(c.nunc_dimittis).forEach(function (v) {
         body.appendChild(el("p", "psalm-verse", '<span class="v-num"></span><span class="v-text">' + esc(v) + "</span>"));
       });
       nd.appendChild(body);
@@ -265,8 +291,8 @@
     var view = el("div", "office-hour");
     view.appendChild(el("h2", "office-hour__title", meta.lat + " <span class='muted'>· " + meta.en + "</span>"));
     var scheme = SCHEME[hourKey];
-    var psalms = scheme ? (scheme[li.weekdayKey] || scheme.all) : null;
-    if (psalms && psalms.length) {
+    var psalms = A(scheme ? (scheme[li.weekdayKey] || scheme.all) : null);
+    if (psalms.length) {
       view.appendChild(block(null,
         "Pater noster. Ave María. <span class='muted'>(secreto)</span><br>" +
         "V. Deus, in adjutórium meum inténde.<br>R. Dómine, ad adjuvándum me festína.<br>" +
@@ -321,9 +347,9 @@
 
     dateEl.innerHTML =
       '<div class="office-date__pill office-color--' + li.color + '">' + li.color + '</div>' +
-      '<div><div class="office-date__lat">' + li.weekdayLat + " &middot; " + li.season + "</div>" +
+      '<div><div class="office-date__lat">' + li.title + "</div>" +
       '<div class="office-date__en">' + li.englishDate + " &mdash; " + li.seasonEn +
-      (li.paschal ? " (Paschaltide)" : "") + "</div></div>";
+      (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "") + "</div></div>";
 
     // hour nav
     navEl.innerHTML = "";
