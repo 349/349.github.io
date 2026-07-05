@@ -400,6 +400,11 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 .off-text { color: var(--ink); line-height: 1.65; }
 .off-text, .off-hymn { max-width: var(--measure); }
 .off-ant { color: var(--accent); font-style: italic; margin: 0.6rem 0; }
+.off-ant-label {
+  color: var(--rubric); font-style: normal; font-family: var(--font-sans);
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em;
+  margin-right: 0.35em; vertical-align: 0.06em;
+}
 .off-psalms { margin: 1.5rem 0; }
 .off-psalm { margin: 1.2rem 0; }
 .off-psalm__title {
@@ -416,6 +421,8 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
   padding: 0.5rem 0.75rem; margin: 0.3rem 0; overflow-x: auto;
 }
 .off-chant svg { max-width: 100%; height: auto; display: block; }
+.off-chant--verse { margin: 0.25rem 0; padding: 0.4rem 0.7rem; }
+.off-chant-more { margin: 0.5rem 0 0; }
 .off-verses--pointed { margin: 0.4rem 0; }
 .off-pverse {
   position: relative; margin: 0 0 0.4rem; padding-left: 2.1rem;
@@ -460,6 +467,24 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
   margin: 0.7rem 0; max-width: var(--measure);
 }
 .off-hour-note { color: var(--ink-muted); font-style: italic; margin: -0.4rem 0 0.4rem; }
+
+/* sign-of-the-cross glyph, in rubric red */
+.off-cross { color: var(--rubric); font-weight: 400; padding: 0 0.05em; }
+
+/* decorative initial (drop cap) on hymns, canticles, antiphons of the BVM */
+.off-dropcap {
+  float: left; font-family: var(--font-serif); font-style: normal; font-weight: 600;
+  font-size: 3.1em; line-height: 0.78; color: var(--accent);
+  margin: 0.06em 0.14em 0 0;
+}
+
+/* prayers said silently (secreto): a quiet, set-apart style */
+.off-secreto { border-left: 2px solid var(--rule); padding-left: 1rem; }
+.off-secreto .off-text { color: var(--ink-muted); font-style: italic; }
+.off-secreto-label {
+  font-family: var(--font-sans); font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--rubric); margin: 0 0 0.4rem; font-style: normal;
+}
 
 /* priest / lay recitation toggle */
 .office-roles { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: -0.6rem 0 1.8rem; }

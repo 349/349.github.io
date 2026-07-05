@@ -187,20 +187,42 @@
   function rubricate(html) {
     if (html == null) return "";
     var s = String(html);
-    s = s.replace(/\bV\.(?=\s|<|$)/g, '<span class="rub-vr">℣</span>');
-    s = s.replace(/\bR\.(?=\s|<|$)/g, '<span class="rub-vr">℟</span>');
+    // Sign-of-the-cross glyph.
+    s = s.replace(/✠/g, '<span class="off-cross" aria-hidden="true">✠</span>');
+    // Parenthetical directions/citations and rubric lead-words.
     s = s.replace(/\(([^)]*)\)/g, '<span class="rub">($1)</span>');
     s = s.replace(/\b(Benedictio|Absolutio|Oremus|Lectio brevis)\b/g, '<span class="rub">$1</span>');
-    // Bold the response (what all say together) after each ℟, up to a break/next marker.
-    s = s.replace(/(<span class="rub-vr">℟<\/span>)(\s*)([^<]*?)(?=<br>|<span class="rub-vr">|$)/g,
-      '$1$2<strong class="off-resp">$3</strong>');
-    return s;
+    // Mediant/repetenda asterisk in gold, glued to the preceding word so it never wraps alone.
+    s = s.replace(/\s\*(?=\s|<|$)/g, '&nbsp;<span class="off-med">*</span>');
+    // Give every versicle/response its own line for readability.
+    s = s.replace(/([^>\n])\s+(?=[VR]\.\s)/g, "$1<br>");
+    // Line by line: style ℣/℟; bold a response only when it actually answers a
+    // versicle (so a responsory's opening intonation stays unbolded).
+    var out = [], prevV = false;
+    s.split(/<br>/).forEach(function (ln) {
+      if (/^\s*V\.\s/.test(ln)) {
+        ln = ln.replace(/^(\s*)V\.\s/, '$1<span class="rub-vr">℣</span> ');
+        prevV = true;
+      } else if (/^\s*R\.\s/.test(ln)) {
+        var bold = prevV;
+        ln = ln.replace(/^(\s*)R\.\s/, '$1<span class="rub-vr">℟</span> ');
+        if (bold) ln = ln.replace(/(<span class="rub-vr">℟<\/span>\s*)([\s\S]+)$/, '$1<strong class="off-resp">$2</strong>');
+        prevV = false;
+      } else {
+        ln = ln.replace(/\bV\.(?=\s|<|$)/g, '<span class="rub-vr">℣</span>')
+               .replace(/\bR\.(?=\s|<|$)/g, '<span class="rub-vr">℟</span>');
+        if (ln.replace(/<[^>]*>/g, "").trim()) prevV = false;
+      }
+      out.push(ln);
+    });
+    return out.join("<br>");
   }
 
   // Priest vs. non-priest recitation. When a priest (or deacon) presides,
   // "Dominus vobiscum / Et cum spiritu tuo" is used; laypeople and private
   // recitation substitute "Domine, exaudi orationem meam / Et clamor meus...".
   var ROLE = "priest";
+  var SUNG = false;   // said (pointed text) vs sung (chant notation)
   function roleize(html) {
     if (ROLE !== "lay") return html;
     return String(html)
@@ -215,6 +237,28 @@
   }
   // A red italic direction: tells the person what to do; never said aloud.
   function direction(text) { return el("p", "off-direction", text); }
+  // An antiphon line: the "Ant." marker set apart from the antiphon text itself.
+  function antLine(text) { return el("p", "off-ant", '<span class="off-ant-label">Ant.</span> ' + text); }
+  // The doxology, pointed as two verses, with the seasonal Alleluia appended.
+  function gloriaBlock(li) {
+    var wrap = el("div", "off-verses off-verses--pointed");
+    var gv = GLORIA2.slice();
+    gv[gv.length - 1] += " " + alleluiaTag(li);
+    gv.forEach(function (g) { wrap.appendChild(el("p", "off-pverse off-gloria", pointedHtml(g))); });
+    return wrap;
+  }
+  // Wrap the first letter of a text as a decorative initial (drop cap).
+  function dropCap(s) {
+    var m = String(s).match(/^(\s*)([A-Za-zÆŒÁÉÍÓÚÝ])([\s\S]*)$/);
+    return m ? m[1] + '<span class="off-dropcap">' + m[2] + "</span>" + m[3] : String(s);
+  }
+  // Prayers said silently: a "secreto" marker plus the text in a quiet style.
+  function secretoBlock(html) {
+    var b = el("div", "off-block off-secreto");
+    b.appendChild(el("p", "off-secreto-label", "dicitur secreto · said silently"));
+    b.appendChild(el("div", "off-text", html));
+    return b;
+  }
 
   // --- Gregorian notation via Exsurge (GABC -> SVG). Fails silently to text. ---
   function renderChant(gabc, container, width) {
@@ -251,14 +295,15 @@
     return esc(v).replace(/\s\*/g, ' <span class="off-med">*</span>')
                  .replace(/‡/g, '<span class="off-med">‡</span>');
   }
-  // Escape a hemistich and style any flex (‡) inline (a minor pause, no line break).
-  function pointFlex(s) { return esc(s).replace(/\s*‡/g, ' <span class="off-med">‡</span>'); }
+  // Escape a hemistich and style any flex (‡) inline, glued to the preceding word.
+  function pointFlex(s) { return esc(s).replace(/\s*‡/g, '&nbsp;<span class="off-med">‡</span>'); }
   // Render a pointed verse as hemistichs: split at the mediant (*), the first half
-  // ending with the gold asterisk, the later half on its own indented line.
+  // ending with the gold asterisk (glued on with a non-breaking space so it never
+  // wraps alone), the later half on its own indented line.
   function pointedHtml(v) {
     var parts = String(v).split(/\s*\*\s*/);
     if (parts.length < 2) return '<span class="off-stich">' + pointFlex(parts[0] || "") + "</span>";
-    var out = '<span class="off-stich">' + pointFlex(parts[0]) + ' <span class="off-med">*</span></span>';
+    var out = '<span class="off-stich">' + pointFlex(parts[0]) + '&nbsp;<span class="off-med">*</span></span>';
     for (var i = 1; i < parts.length; i++) {
       out += '<span class="off-stich off-stich2">' + pointFlex(parts[i]) + "</span>";
     }
@@ -270,6 +315,62 @@
     "Sicut erat in princípio, et nunc, et semper, * et in sæcula sæculórum. Amen."
   ];
 
+  /* ---------- psalm-tone engine (said ⇄ sung) ---------- */
+  // Sets a pointed verse to a Gregorian psalm tone as GABC, which Exsurge renders
+  // to notation. The accents already in the text place the recitation; the tone's
+  // cadence formulas fall on the closing syllables. Tones are provisional (a clean
+  // Tone VIII shape) — accent-exact cadences and all eight tones come next.
+  var VOWELS = "aeiouyáéíóúýæœ";
+  function isVowelCh(c) { return VOWELS.indexOf(c.toLowerCase()) >= 0; }
+  function isAccentCh(c) { return "áéíóúýǽ".indexOf(c.toLowerCase()) >= 0; }
+  function syllabify(word) {
+    var w = word;
+    if (w.length < 2) return [w];
+    var nuclei = [];
+    for (var i = 0; i < w.length; i++) {
+      if (isVowelCh(w[i])) {
+        var start = i, pair = w.substr(i, 2).toLowerCase();
+        if (["ae", "oe", "au"].indexOf(pair) >= 0 && !isAccentCh(w[i])) i++;
+        nuclei.push([start, i]);
+      }
+    }
+    if (nuclei.length <= 1) return [w];
+    var cuts = [];
+    for (var n = 0; n < nuclei.length - 1; n++) {
+      var endV = nuclei[n][1], nextV = nuclei[n + 1][0];
+      var cons = w.substring(endV + 1, nextV), cut;
+      if (cons.length === 0) cut = nextV;
+      else if (cons.length === 1) cut = nextV - 1;
+      else {
+        var l2 = cons.slice(-2).toLowerCase();
+        cut = (/^[bcdgpt][lr]$/.test(l2) || ["ph", "ch", "th", "gn"].indexOf(l2) >= 0) ? nextV - 2 : nextV - 1;
+      }
+      cuts.push(cut);
+    }
+    var parts = [], prev = 0;
+    cuts.forEach(function (ci) { parts.push(w.substring(prev, ci)); prev = ci; });
+    parts.push(w.substring(prev));
+    return parts.filter(function (s) { return s.length; });
+  }
+  var PTONE = { clef: "c4", tenor: "h", intonation: ["g", "h"], mediant: ["g", "h"], termination: ["h", "g", "g"] };
+  function setHemistich(text, opts) {
+    opts = opts || {};
+    var words = String(text).replace(/[*‡]/g, "").trim().split(/\s+/).filter(Boolean);
+    var syls = [];
+    words.forEach(function (word) { syllabify(word).forEach(function (s, si) { syls.push({ t: s, ws: si === 0 }); }); });
+    var N = syls.length; if (!N) return "";
+    var notes = syls.map(function () { return PTONE.tenor; });
+    if (opts.intone) for (var i = 0; i < PTONE.intonation.length && i < N; i++) notes[i] = PTONE.intonation[i];
+    var cad = opts.final ? PTONE.termination : PTONE.mediant;
+    for (var j = 0; j < cad.length && j < N; j++) { var idx = N - cad.length + j; if (idx >= 0) notes[idx] = cad[j]; }
+    return syls.map(function (s, i) { return (i > 0 && s.ws ? " " : "") + s.t + "(" + notes[i] + ")"; }).join("");
+  }
+  function verseGabc(pointed, intone) {
+    var halves = String(pointed).split(/\s*\*\s*/);
+    return "(" + PTONE.clef + ") " + setHemistich(halves[0], { intone: intone }) +
+           " (,) " + setHemistich(halves.slice(1).join(" "), { final: true }) + " (::)";
+  }
+
   function renderPsalm(num, antiphonHtml, gloria) {
     var pointed = A(PT[num]);              // accented, mediant-marked (verified) verses
     var isPointed = pointed.length > 0;
@@ -278,8 +379,30 @@
     wrap.appendChild(el("p", "off-psalm__title", "Psalmus " + num +
       (isPointed ? ' <span class="off-pointed">pointed</span>' : '') +
       ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full &rsaquo;</a>'));
-    if (antiphonHtml) wrap.appendChild(el("p", "off-ant", "Ant. " + antiphonHtml));
+    if (antiphonHtml) wrap.appendChild(antLine(antiphonHtml));
     if (!verses.length) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
+
+    // Sung mode: set each pointed verse to the psalm tone as notation.
+    if (SUNG && isPointed && typeof exsurge !== "undefined" && exsurge.Gabc) {
+      var sungVerses = verses.length > 12 ? verses.slice(0, 8) : verses;
+      sungVerses.forEach(function (v, i) {
+        var st = el("div", "off-chant off-chant--verse");
+        renderChant(verseGabc(v, i === 0), st, 560);
+        wrap.appendChild(st);
+      });
+      if (verses.length <= 12 && gloria !== false) {
+        GLORIA2.forEach(function (g) {
+          var st = el("div", "off-chant off-chant--verse");
+          renderChant(verseGabc(g, false), st, 560);
+          wrap.appendChild(st);
+        });
+      }
+      if (verses.length > 12) wrap.appendChild(el("p", "muted off-chant-more",
+        "… " + verses.length + " verses; first 8 shown sung — " +
+        '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
+      return wrap;
+    }
+
     var body = el("div", "off-verses" + (isPointed ? " off-verses--pointed" : ""));
     var shown = verses.length > 30 ? verses.slice(0, 3) : verses;
     shown.forEach(function (v, i) {
@@ -317,7 +440,7 @@
   // "Alleluia" is said all year EXCEPT Septuagesima through Holy Saturday.
   function alleluiaTag(li) {
     var pen = li.season === "Septuagesima" || li.season === "Quadragesima" || li.season === "Tempus Passionis";
-    return pen ? "Laus tibi, Dómine, Rex ætérnæ glóriæ." : "Allelúja.";
+    return pen ? "Laus tibi, Dómine, Rex ætérnæ glóriæ." : "Allelúia.";
   }
 
   /* ---------- Compline (fully assembled) ---------- */
@@ -340,21 +463,18 @@
 
     // — Opening versicles —
     view.appendChild(section("Versus", "Opening Versicles"));
-    view.appendChild(direction("At ℣ Deus, in adiutórium, all make the sign of the cross."));
+    view.appendChild(direction("At ✠ Deus, in adiutórium, all make the sign of the cross."));
     view.appendChild(block(null, rubricate(
       "V. Converte nos, Deus, salutaris noster.<br>R. Et averte iram tuam a nobis.<br>" +
-      "V. Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.<br>" +
-      "Gloria Patri, et Filio, et Spiritui Sancto. Sicut erat in principio, et nunc, et semper, " +
-      "et in saecula saeculorum. Amen. " + alleluiaTag(li))));
+      "V. ✠ Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.")));
+    view.appendChild(gloriaBlock(li));
 
     // — Psalmody —
     view.appendChild(section("Psalmódia", "Psalms"));
     view.appendChild(direction("The psalms are sung under a single antiphon, repeated at the end."));
     var ant = li.paschal ? "Alleluia, alleluia, alleluia." : (c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
     var psSection = el("div", "off-psalms");
-    psSection.appendChild(el("p", "off-ant", "Ant. " + ant));
-    var toneEl = chantBlock(TONE_DEMO, "Psalm tone");
-    if (toneEl) psSection.appendChild(toneEl);
+    psSection.appendChild(antLine(ant));
     // Compline psalms follow the weekly cycle (Pius X), not a fixed set.
     var psalms = A(SCHEME.completorium && SCHEME.completorium[li.weekdayKey]);
     if (!psalms.length) psalms = [4, 90, 133];
@@ -364,7 +484,7 @@
 
     // — Hymn —
     view.appendChild(section("Hymnus", "Hymn — Te lucis ante términum"));
-    if (c.hymn) view.appendChild(block(null, '<div class="off-hymn">' + c.hymn + "</div>"));
+    if (c.hymn) view.appendChild(block(null, '<div class="off-hymn">' + dropCap(c.hymn) + "</div>"));
 
     // — Little chapter —
     view.appendChild(section("Capítulum", "Little Chapter — Ier. 14, 9"));
@@ -380,19 +500,20 @@
     if (c.nunc_dimittis) {
       var nd = el("div", "off-canticle");
       var ndAnt = li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant;
-      nd.appendChild(el("p", "off-ant", "Ant. " + ndAnt));
+      nd.appendChild(antLine(ndAnt));
       var body = el("div", "off-verses off-verses--pointed");
       var ndv = A(c.nunc_dimittis);
       // The stored final line is the doxology; render the Gloria as its two verses.
       if (ndv.length && /^Gloria Patri/i.test(String(ndv[ndv.length - 1]))) ndv = ndv.slice(0, -1);
       ndv.forEach(function (v, i) {
-        body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v)));
+        var cross = i === 0 ? '<span class="off-cross" aria-hidden="true">✠</span> ' : "";
+        body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + cross + pointedHtml(v)));
       });
       GLORIA2.forEach(function (g) {
         body.appendChild(el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g)));
       });
       nd.appendChild(body);
-      nd.appendChild(el("p", "off-ant", "Ant. " + ndAnt));
+      nd.appendChild(antLine(ndAnt));
       view.appendChild(nd);
     }
 
@@ -406,16 +527,17 @@
     // — Blessing —
     view.appendChild(section("Benedíctio", "Blessing"));
     view.appendChild(direction(ROLE === "lay"
-      ? "Said by all, each signing himself."
+      ? "Said by all, each signing himself with the sign of the cross."
       : "The priest gives the blessing, making the sign of the cross over those present."));
-    if (c.blessing) view.appendChild(block(null, rubricate(c.blessing)));
+    if (c.blessing) view.appendChild(block(null, rubricate(
+      c.blessing.replace(/Dominus, Pater/, "Dominus, ✠ Pater"))));
 
     // — Marian antiphon —
     var m = (ORD.marian || {})[li.marian];
     if (m) {
       view.appendChild(section("Antíphona finális B.M.V.", m.title));
       view.appendChild(direction("The seasonal antiphon of the Blessed Virgin Mary concludes the day."));
-      view.appendChild(block(null, '<div class="off-hymn">' + m.text + "</div>"));
+      view.appendChild(block(null, '<div class="off-hymn">' + dropCap(m.text) + "</div>"));
     }
 
     return view;
@@ -430,16 +552,17 @@
     var psalms = A(scheme ? (scheme[li.weekdayKey] || scheme.all) : null);
     if (psalms.length) {
       view.appendChild(section("Introductio", "Opening"));
-      view.appendChild(direction("Said silently at the beginning, then the versicle aloud."));
+      view.appendChild(direction("The Pater noster and Ave Maria are said silently; then the versicle aloud."));
+      view.appendChild(secretoBlock(
+        "Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum quotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen.<br>" +
+        "Ave María, grátia plena, Dóminus tecum: benedícta tu in muliéribus, et benedíctus fructus ventris tui Iesus. Sancta María, Mater Dei, ora pro nobis peccatóribus, nunc et in hora mortis nostræ. Amen."));
       view.appendChild(block(null, rubricate(
-        "Pater noster. Ave Maria. (secreto)<br>" +
-        "V. Deus, in adjutórium meum inténde.<br>R. Dómine, ad adjuvándum me festína.<br>" +
-        "Glória Patri, et Fílio, et Spirítui Sancto. Sicut erat in princípio, et nunc, et semper, et in sæcula sæculórum. Amen. " +
-        alleluiaTag(li))));
+        "V. ✠ Deus, in adiutórium meum inténde.<br>R. Dómine, ad adiuvándum me festína.")));
+      view.appendChild(gloriaBlock(li));
       var hy = (ORD.hours || {})[hourKey];
       if (hy && hy.hymn) {
         view.appendChild(section("Hymnus", "Hymn — " + hy.hymnName));
-        view.appendChild(block(null, '<div class="off-hymn">' + hy.hymn + "</div>"));
+        view.appendChild(block(null, '<div class="off-hymn">' + dropCap(hy.hymn) + "</div>"));
       }
       view.appendChild(section("Psalmódia", "Psalms — 1960 ferial cycle, " + li.weekdayLat));
       var sec = el("div", "off-psalms");
@@ -513,15 +636,29 @@
     var roleEl = el("div", "office-roles");
     function paintRoles() {
       roleEl.innerHTML =
-        '<span class="office-roles__label">Recited</span>' +
-        '<button class="office-role-btn' + (ROLE === "priest" ? " is-active" : "") + '" data-role="priest">With a priest / in choir</button>' +
-        '<button class="office-role-btn' + (ROLE === "lay" ? " is-active" : "") + '" data-role="lay">Alone or without a priest</button>';
+        '<span class="office-roles__label">Led by</span>' +
+        '<button class="office-role-btn' + (ROLE === "priest" ? " is-active" : "") + '" data-role="priest">A priest or deacon</button>' +
+        '<button class="office-role-btn' + (ROLE === "lay" ? " is-active" : "") + '" data-role="lay">No ordained minister</button>';
       Array.prototype.forEach.call(roleEl.querySelectorAll("button"), function (b) {
         b.onclick = function () { ROLE = b.getAttribute("data-role"); paintRoles(); renderHour(false); };
       });
     }
     paintRoles();
     if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(roleEl, viewEl);
+
+    // Said / Sung toggle — text-and-pointing vs. chant notation.
+    var modeEl = el("div", "office-roles");
+    function paintMode() {
+      modeEl.innerHTML =
+        '<span class="office-roles__label">Mode</span>' +
+        '<button class="office-role-btn' + (!SUNG ? " is-active" : "") + '" data-mode="said">Said · pointed text</button>' +
+        '<button class="office-role-btn' + (SUNG ? " is-active" : "") + '" data-mode="sung">Sung · chant</button>';
+      Array.prototype.forEach.call(modeEl.querySelectorAll("button"), function (b) {
+        b.onclick = function () { SUNG = b.getAttribute("data-mode") === "sung"; paintMode(); renderHour(false); };
+      });
+    }
+    paintMode();
+    if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(modeEl, viewEl);
 
     function renderHour(scroll) {
       viewEl.innerHTML = "";
