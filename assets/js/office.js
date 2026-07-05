@@ -21,8 +21,15 @@
     return false;
   };
 
+  // Hugo may serialize the psalter data file as either an array or an
+  // index-keyed object; accept both.
+  function toArray(x) {
+    if (Array.isArray(x)) return x;
+    if (x && typeof x === "object") return Object.keys(x).map(function (k) { return x[k]; });
+    return [];
+  }
   var PS = {};
-  (window.PSALTER || []).forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
+  toArray(window.PSALTER).forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
   var PT = window.POINTED || {};        // pointed (accented, mediant-marked) verses, by number
   var ORD = window.ORDINARY || {};
   var SCHEME = window.SCHEME || {};
