@@ -181,6 +181,19 @@
   }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
+  // Rubrication: set directions, citations, and the versicle/response markers in
+  // red — the traditional way of distinguishing what is *done/indicated* from the
+  // words actually said or sung. Input is trusted HTML from our own data files.
+  function rubricate(html) {
+    if (html == null) return "";
+    var s = String(html);
+    s = s.replace(/\bV\.(?=\s|<|$)/g, '<span class="rub-vr">℣</span>');
+    s = s.replace(/\bR\.(?=\s|<|$)/g, '<span class="rub-vr">℟</span>');
+    s = s.replace(/\(([^)]*)\)/g, '<span class="rub">($1)</span>');
+    s = s.replace(/\b(Benedictio|Absolutio|Oremus|Lectio brevis)\b/g, '<span class="rub">$1</span>');
+    return s;
+  }
+
   // --- Gregorian notation via Exsurge (GABC -> SVG). Fails silently to text. ---
   function renderChant(gabc, container, width) {
     try {
@@ -231,7 +244,8 @@
     var shown = verses.length > 30 ? verses.slice(0, 3) : verses;
     shown.forEach(function (v, i) {
       if (isPointed) {
-        body.appendChild(el("p", "off-pverse", pointMarks(v)));
+        body.appendChild(el("p", "off-pverse",
+          '<span class="off-vn">' + (i + 1) + "</span>" + pointMarks(v)));
       } else {
         body.appendChild(el("p", "psalm-verse",
           '<span class="v-num">' + (i + 1) + '</span><span class="v-text">' + esc(v) + "</span>"));
@@ -271,12 +285,13 @@
     var view = el("div", "office-hour");
     view.appendChild(el("h2", "office-hour__title", "Completorium <span class='muted'>· Compline</span>"));
 
-    if (c.opening) view.appendChild(block(null, c.opening));
-    if (c.examen) view.appendChild(block("Confession", c.examen));
-    view.appendChild(block(null,
+    if (c.opening) view.appendChild(block(null, rubricate(c.opening)));
+    if (c.examen) view.appendChild(block("Confession", rubricate(c.examen)));
+    view.appendChild(block(null, rubricate(
       "V. Converte nos, Deus, salutaris noster.<br>R. Et averte iram tuam a nobis.<br>" +
       "V. Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.<br>" +
-      "Gloria Patri&hellip; " + alleluiaTag(li)));
+      "Gloria Patri, et Filio, et Spiritui Sancto. Sicut erat in principio, et nunc, et semper, " +
+      "et in saecula saeculorum. Amen. " + alleluiaTag(li))));
 
     // Psalms under one antiphon
     var ant = li.paschal ? "Alleluia, alleluia, alleluia." : (c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
@@ -292,16 +307,19 @@
     view.appendChild(psSection);
 
     if (c.hymn) view.appendChild(block("Hymnus — Te lucis ante terminum", '<div class="off-hymn">' + c.hymn + "</div>"));
-    if (c.chapter) view.appendChild(block("Capitulum (Ier. 14, 9)", c.chapter + "<br>R. Deo gratias."));
-    if (c.responsory) view.appendChild(block("Responsorium breve", c.responsory));
+    if (c.chapter) view.appendChild(block("Capitulum (Ier. 14, 9)", rubricate(c.chapter + "<br>R. Deo gratias.")));
+    if (c.responsory) view.appendChild(block("Responsorium breve", rubricate(c.responsory)));
 
     // Nunc dimittis
     if (c.nunc_dimittis) {
       var nd = el("div", "off-canticle");
       nd.appendChild(el("p", "off-ant", "Ant. " + (li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant)));
       var body = el("div", "off-verses");
-      A(c.nunc_dimittis).forEach(function (v) {
-        body.appendChild(el("p", "psalm-verse", '<span class="v-num"></span><span class="v-text">' + esc(v) + "</span>"));
+      var ndv = A(c.nunc_dimittis);
+      ndv.forEach(function (v, i) {
+        var isG = i === ndv.length - 1;
+        body.appendChild(el("p", "psalm-verse" + (isG ? " off-gloria" : ""),
+          '<span class="v-num">' + (isG ? "" : (i + 1)) + '</span><span class="v-text">' + pointMarks(v) + "</span>"));
       });
       nd.appendChild(body);
       nd.appendChild(el("p", "off-ant", "Ant. " + (li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant)));
@@ -309,8 +327,8 @@
       view.appendChild(nd);
     }
 
-    if (c.collect) view.appendChild(block("Oratio", c.collect));
-    if (c.blessing) view.appendChild(block(null, c.blessing));
+    if (c.collect) view.appendChild(block("Oratio", rubricate(c.collect)));
+    if (c.blessing) view.appendChild(block(null, rubricate(c.blessing)));
 
     // Seasonal Marian antiphon
     var m = (ORD.marian || {})[li.marian];
@@ -328,11 +346,11 @@
     var scheme = SCHEME[hourKey];
     var psalms = A(scheme ? (scheme[li.weekdayKey] || scheme.all) : null);
     if (psalms.length) {
-      view.appendChild(block(null,
-        "Pater noster. Ave María. <span class='muted'>(secreto)</span><br>" +
+      view.appendChild(block(null, rubricate(
+        "Pater noster. Ave Maria. (secreto)<br>" +
         "V. Deus, in adjutórium meum inténde.<br>R. Dómine, ad adjuvándum me festína.<br>" +
         "Glória Patri, et Fílio, et Spirítui Sancto. Sicut erat in princípio, et nunc, et semper, et in sæcula sæculórum. Amen. " +
-        alleluiaTag(li)));
+        alleluiaTag(li))));
       var hy = (ORD.hours || {})[hourKey];
       if (hy && hy.hymn) view.appendChild(block("Hymnus — " + hy.hymnName, '<div class="off-hymn">' + hy.hymn + "</div>"));
       var sec = el("div", "off-psalms");
@@ -341,10 +359,10 @@
       view.appendChild(block("Capitulum · Responsorium · Oratio",
         "The little chapter, brief responsory, and collect for this Hour are <em>proper</em> — they change with the day and season, and are being wired in from the propers next. " +
         "(The psalms above are the 1960 ferial distribution for " + li.weekdayLat + ".)"));
-      view.appendChild(block(null,
+      view.appendChild(block(null, rubricate(
         "V. Dóminus vobíscum. R. Et cum spíritu tuo.<br>" +
         "V. Benedicámus Dómino. R. Deo grátias.<br>" +
-        "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen."));
+        "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen.")));
     } else {
       view.appendChild(el("p", "office-todo",
         "No psalter data yet for " + meta.en + " on " + li.weekdayLat + "."));

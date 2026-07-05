@@ -22,6 +22,7 @@
   --accent:      #c8a862;   /* illuminated-manuscript gold */
   --accent-hi:   #e0c384;   /* hover */
   --accent-dim:  #8f7942;
+  --rubric:      #cf8871;   /* red rubric ink: directions, ℣/℟, citations */
   --selection:   #3a3320;
 
   /* Type */
@@ -417,11 +418,24 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 .off-chant svg { max-width: 100%; height: auto; display: block; }
 .off-verses--pointed { margin: 0.4rem 0; }
 .off-pverse {
-  margin: 0 0 0.35rem; padding-left: 1.3rem; text-indent: -1.3rem;
-  line-height: 1.6; max-width: var(--measure);
+  position: relative; margin: 0 0 0.4rem; padding-left: 2.1rem;
+  line-height: 1.62; max-width: var(--measure);
 }
 .off-pverse.off-gloria { color: var(--ink-muted); font-style: italic; }
 .off-med { color: var(--accent); font-weight: 600; padding: 0 0.05em; }
+
+/* subtle verse numbers in the left gutter */
+.off-vn {
+  position: absolute; left: 0; top: 0.3em; width: 1.5rem; text-align: right;
+  font-family: var(--font-sans); font-size: 0.64rem; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums; user-select: none;
+}
+
+/* rubrics: directions, citations, and versicle/response markers in red ink,
+   set apart from the words actually said or sung (which stay in reading ink) */
+.rub { color: var(--rubric); font-style: normal; }
+.rub-vr { color: var(--rubric); font-weight: 700; font-style: normal; padding-right: 0.15em; }
+.off-text .rub, .off-canticle .rub { font-size: 0.98em; }
 .off-pointed {
   font-family: var(--font-sans); font-size: 0.6rem; text-transform: uppercase;
   letter-spacing: 0.1em; color: #16171b; background: var(--accent-dim);

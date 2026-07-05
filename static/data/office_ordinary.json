@@ -1,11 +1,11 @@
 {
  "compline": {
   "opening": "V. Iube, domne, benedicere.<br>Benedictio: Noctem quietam et finem perfectum concedat nobis Dominus omnipotens. R. Amen.<br><br>Lectio brevis (1 Pet. 5, 8-9): Fratres: Sobrii estote, et vigilate: quia adversarius vester diabolus tamquam leo rugiens circuit, quaerens quem devoret: cui resistite fortes in fide. Tu autem, Domine, miserere nobis. R. Deo gratias.<br><br>V. Adiutorium nostrum in nomine Domini. R. Qui fecit caelum et terram.",
-  "examen": "Pater noster (secreto). Confiteor Deo omnipotenti&hellip; Misereatur nostri omnipotens Deus&hellip; Indulgentiam, absolutionem, et remissionem peccatorum nostrorum tribuat nobis omnipotens et misericors Dominus. R. Amen.",
+  "examen": "Pater noster. (secreto)<br>Confiteor Deo omnipotenti, beatae Mariae semper Virgini, beato Michaeli Archangelo, beato Ioanni Baptistae, sanctis Apostolis Petro et Paulo, omnibus Sanctis, et tibi, pater: quia peccavi nimis cogitatione, verbo et opere: mea culpa, mea culpa, mea maxima culpa. Ideo precor beatam Mariam semper Virginem, beatum Michaelem Archangelum, beatum Ioannem Baptistam, sanctos Apostolos Petrum et Paulum, omnes Sanctos, et te, pater, orare pro me ad Dominum Deum nostrum.<br>Misereatur nostri omnipotens Deus, et dimissis peccatis nostris, perducat nos ad vitam aeternam. R. Amen.<br>Indulgentiam, absolutionem, et remissionem peccatorum nostrorum tribuat nobis omnipotens et misericors Dominus. R. Amen.",
   "antiphon": "Miserere mihi, Domine, et exaudi orationem meam.",
   "hymn": "Te lucis ante terminum,<br>rerum Creator, poscimus,<br>ut solita clementia<br>sis praesul ad custodiam.<br><br>Procul recedant somnia,<br>et noctium phantasmata;<br>hostemque nostrum comprime,<br>ne polluantur corpora.<br><br>Praesta, Pater piissime,<br>Patrique compar Unice,<br>cum Spiritu Paraclito<br>regnans per omne saeculum. Amen.",
   "chapter": "Tu autem in nobis es, Domine, et nomen sanctum tuum invocatum est super nos: ne derelinquas nos, Domine Deus noster.",
-  "responsory": "R. In manus tuas, Domine, commendo spiritum meum. * In manus tuas&hellip;<br>V. Redemisti nos, Domine, Deus veritatis. * Commendo spiritum meum.<br>V. Gloria Patri&hellip; * In manus tuas&hellip;<br><br>V. Custodi nos, Domine, ut pupillam oculi. R. Sub umbra alarum tuarum protege nos.",
+  "responsory": "R. In manus tuas, Domine, * commendo spiritum meum.<br>R. In manus tuas, Domine, * commendo spiritum meum.<br>V. Redemisti nos, Domine, Deus veritatis. R. Commendo spiritum meum.<br>V. Gloria Patri, et Filio, et Spiritui Sancto. R. In manus tuas, Domine, * commendo spiritum meum.<br><br>V. Custodi nos, Domine, ut pupillam oculi. R. Sub umbra alarum tuarum protege nos.",
   "nunc_ant": "Salva nos, Domine, vigilantes, custodi nos dormientes; ut vigilemus cum Christo, et requiescamus in pace.",
   "nunc_dimittis": [
    "Nunc dimittis servum tuum, Domine, * secundum verbum tuum in pace:",
@@ -14,7 +14,7 @@
    "Lumen ad revelationem gentium, * et gloriam plebis tuae Israel.",
    "Gloria Patri, et Filio, et Spiritui Sancto. * Sicut erat in principio, et nunc, et semper, et in saecula saeculorum. Amen."
   ],
-  "collect": "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>Oremus. Visita, quaesumus, Domine, habitationem istam, et omnes insidias inimici ab ea longe repelle: Angeli tui sancti habitent in ea, qui nos in pace custodiant; et benedictio tua sit super nos semper. Per Dominum nostrum Iesum Christum&hellip; R. Amen.",
+  "collect": "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>Oremus. Visita, quaesumus, Domine, habitationem istam, et omnes insidias inimici ab ea longe repelle: Angeli tui sancti habitent in ea, qui nos in pace custodiant; et benedictio tua sit super nos semper. Per Dominum nostrum Iesum Christum Filium tuum, qui tecum vivit et regnat in unitate Spiritus Sancti Deus, per omnia saecula saeculorum. R. Amen.",
   "blessing": "V. Benedicamus Domino. R. Deo gratias.<br>Benedictio: Benedicat et custodiat nos omnipotens et misericors Dominus, Pater, et Filius, et Spiritus Sanctus. R. Amen."
  },
  "marian": {
