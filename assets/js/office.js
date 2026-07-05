@@ -7,6 +7,13 @@
 (function () {
   "use strict";
 
+  // Immediate proof-of-execution: if this inline script runs at all, the
+  // "Loading…" fallback becomes "Office script running…" right away.
+  try {
+    var _mk = document.getElementById("office-view");
+    if (_mk) _mk.innerHTML = '<p class="muted">Office script running…</p>';
+  } catch (_e) {}
+
   var PS = {};
   (window.PSALTER || []).forEach(function (p) { PS[p.n] = p.verses; });
   var PT = window.POINTED || {};        // pointed (accented, mediant-marked) verses, by number
