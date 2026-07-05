@@ -376,22 +376,24 @@
       .concat([{ bar: "half" }])
       .concat(stichItems(h.slice(1).join(" "), { final: true }));
   }
-  // One continuous item stream for a whole psalm: the first syllable of each verse
-  // is flagged (rendered bold, to mark the verse) and each verse ends with a full bar.
+  // One continuous item stream for a whole psalm. Whole verses alternate bold /
+  // normal (the two sides of the choir); each verse ends with a bar, the psalm
+  // with a double (final) bar.
   function chantStream(verses) {
     var out = [];
     verses.forEach(function (v, vi) {
-      var it = verseItems(v, vi === 0);
-      for (var k = 0; k < it.length; k++) { if (!it[k].bar) { it[k].vs = true; break; } }
+      var it = verseItems(v, vi === 0), bold = vi % 2 === 1;
+      it.forEach(function (x) { if (!x.bar) x.bold = bold; });
       out = out.concat(it, [{ bar: "verse" }]);
     });
+    if (out.length) out[out.length - 1] = { bar: "final" };
     return out;
   }
   var STEP = { f: 5, g: 6, h: 7, i: 8, j: 9, k: 10 };
-  function itemAdv(it) { return it.bar ? (it.bar === "verse" ? 16 : 13) : Math.max(16, it.t.length * 7.4 + 8); }
+  function itemAdv(it) { return it.bar ? 15 : Math.max(16, it.t.length * 7.4 + 8); }
   // Greedily wrap the stream into staff lines no wider than W px (reflows to width).
-  function flowChant(items, W) {
-    var lines = [], cur = [], x = 30;
+  function flowChant(items, W, firstIndent) {
+    var lines = [], cur = [], x = firstIndent || 30;
     items.forEach(function (it) {
       var a = itemAdv(it);
       if (x + a > W && cur.length) { lines.push(cur); cur = []; x = 30; }
@@ -400,35 +402,54 @@
     if (cur.length) lines.push(cur);
     return lines;
   }
-  // One staff line → dark-mode SVG (light staff/notes/text on the page ground).
-  function chantSystem(line) {
-    var HS = 5, topY = 12;
+  // One staff line → SVG in the singtheoffice manner, tuned for dark mode: red
+  // staff, light notes/text, alternating bold verses, drop cap and mode label.
+  function chantSystem(line, opts) {
+    opts = opts || {};
+    var HS = 5, topY = 16, startX = opts.startX || 30;
     function y(p) { return topY + (10 - p) * HS; }
-    var x = 30, notes = [], texts = [], bars = [], hys = [];
+    var x = startX, notes = [], texts = [], bars = [], hys = [];
     line.forEach(function (it, i) {
       if (it.bar) {
-        var full = it.bar === "verse";
-        bars.push('<line x1="' + (x + 4) + '" y1="' + y(full ? 10 : 9) + '" x2="' + (x + 4) + '" y2="' + y(full ? 4 : 6) +
-          '" stroke="#8a837a" stroke-width="' + (full ? 1.5 : 1.2) + '"/>');
+        if (it.bar === "final") {
+          bars.push('<line x1="' + (x + 3) + '" y1="' + y(10) + '" x2="' + (x + 3) + '" y2="' + y(4) + '" stroke="#c2bcb1" stroke-width="1.3"/>' +
+            '<line x1="' + (x + 6.5) + '" y1="' + y(10) + '" x2="' + (x + 6.5) + '" y2="' + y(4) + '" stroke="#c2bcb1" stroke-width="1.3"/>');
+        } else {
+          var full = it.bar === "verse";
+          bars.push('<line x1="' + (x + 4) + '" y1="' + y(full ? 10 : 9) + '" x2="' + (x + 4) + '" y2="' + y(full ? 4 : 6) + '" stroke="#c2bcb1" stroke-width="1.2"/>');
+        }
         x += itemAdv(it); return;
       }
       var a = itemAdv(it), cx = x + a / 2, p = STEP[it.note] != null ? STEP[it.note] : 7, ny = y(p);
-      notes.push('<rect x="' + (cx - 4) + '" y="' + (ny - 4) + '" width="8" height="7" rx="1" fill="#e8e5dd"/>');
-      texts.push('<text x="' + cx + '" y="' + (y(4) + 17) + '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="' +
-        (it.vs ? "#e0c384" : "#d9d5cc") + '"' + (it.vs ? ' font-weight="700"' : "") + ">" + esc(it.t) + "</text>");
+      notes.push('<rect x="' + (cx - 4) + '" y="' + (ny - 4) + '" width="8" height="7" rx="1" fill="#ece8df"/>');
+      texts.push('<text x="' + cx + '" y="' + (y(4) + 18) + '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="' +
+        (it.bold ? "#f6f4ee" : "#ded9cf") + '"' + (it.bold ? ' font-weight="700"' : "") + ">" + esc(it.t) + "</text>");
       var nx = line[i + 1];
-      if (nx && !nx.bar && !nx.ws) hys.push('<text x="' + (x + a) + '" y="' + (y(4) + 17) +
+      if (nx && !nx.bar && !nx.ws) hys.push('<text x="' + (x + a) + '" y="' + (y(4) + 18) +
         '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#6f6e69">-</text>');
       x += a;
     });
     var Wl = x + 8;
-    var st = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (Wl - 6) + '" y2="' + y(p) + '" stroke="#4d4842" stroke-width="1"/>'; }).join("");
-    var cy = y(8), clef = '<rect x="8" y="' + (cy - 9) + '" width="6" height="7" fill="#c9bfa8"/><rect x="8" y="' + (cy + 1) + '" width="6" height="7" fill="#c9bfa8"/>';
-    return '<svg viewBox="0 0 ' + Wl + ' ' + (y(4) + 24) + '" width="' + Wl + '" xmlns="http://www.w3.org/2000/svg" class="off-staff">' +
-      st + clef + bars.join("") + notes.join("") + hys.join("") + texts.join("") + "</svg>";
+    var st = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (Wl - 6) + '" y2="' + y(p) + '" stroke="#b6503c" stroke-width="1"/>'; }).join("");
+    var clefX = opts.clefX || 10, cy = y(8);
+    var clef = '<rect x="' + clefX + '" y="' + (cy - 9) + '" width="6" height="7" fill="#ece8df"/><rect x="' + clefX + '" y="' + (cy + 1) + '" width="6" height="7" fill="#ece8df"/>';
+    var extra = "";
+    if (opts.dropcap) extra += '<text x="6" y="' + (y(4) + 14) + '" font-family="Georgia,serif" font-weight="700" font-size="42" fill="#cf5442">' + esc(opts.dropcap) + "</text>";
+    if (opts.mode) extra += '<text x="6" y="10" font-family="Georgia,serif" font-style="italic" font-size="11" fill="#cf5442">' + esc(opts.mode) + "</text>";
+    return '<svg viewBox="0 0 ' + Wl + " " + (y(4) + 26) + '" width="' + Wl + '" xmlns="http://www.w3.org/2000/svg" class="off-staff">' +
+      st + clef + extra + bars.join("") + notes.join("") + hys.join("") + texts.join("") + "</svg>";
   }
-  function psalmChant(verses) {
-    return flowChant(chantStream(verses), CHANT_W).map(chantSystem).join("");
+  function psalmChant(verses, mode) {
+    var stream = chantStream(verses), dc = null, fi = 30;
+    for (var i = 0; i < stream.length; i++) {
+      if (!stream[i].bar) {
+        if (stream[i].t && stream[i].t.length > 1) { dc = stream[i].t.charAt(0); stream[i].t = stream[i].t.slice(1); fi = 74; }
+        break;
+      }
+    }
+    return flowChant(stream, CHANT_W, fi).map(function (l, idx) {
+      return chantSystem(l, { startX: idx === 0 ? fi : 30, clefX: idx === 0 && dc ? 50 : 10, dropcap: idx === 0 ? dc : null, mode: idx === 0 ? mode : null });
+    }).join("");
   }
 
   function renderPsalm(num, antiphonHtml, gloria) {
@@ -447,7 +468,7 @@
       var many = verses.length > 20;
       var sungVerses = many ? verses.slice(0, 14) : verses.slice();
       if (!many && gloria !== false) sungVerses = sungVerses.concat(GLORIA2);
-      wrap.appendChild(el("div", "off-chant-flow", psalmChant(sungVerses)));
+      wrap.appendChild(el("div", "off-chant-flow", psalmChant(sungVerses, "Tonus VIII")));
       if (many) wrap.appendChild(el("p", "muted off-chant-more",
         "… " + verses.length + " verses; first 14 shown sung — " +
         '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
