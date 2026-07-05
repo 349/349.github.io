@@ -355,23 +355,45 @@
     parts.push(w.substring(prev));
     return parts.filter(function (s) { return s.length; });
   }
-  var PTONE = { clef: "c4", tenor: "h", intonation: ["g", "h"], mediant: ["g", "h"], termination: ["h", "g", "g"] };
-  function setHemistich(text, opts) {
+  var PTONE = { tenor: "h", intonation: ["g", "h"], mediant: ["g", "h"], termination: ["h", "g", "g"] };
+  // One hemistich → array of { t, ws, note } items.
+  function stichItems(text, opts) {
     opts = opts || {};
     var words = String(text).replace(/[*‡]/g, "").trim().split(/\s+/).filter(Boolean);
     var syls = [];
     words.forEach(function (word) { syllabify(word).forEach(function (s, si) { syls.push({ t: s, ws: si === 0 }); }); });
-    var N = syls.length; if (!N) return "";
+    var N = syls.length; if (!N) return [];
     var notes = syls.map(function () { return PTONE.tenor; });
     if (opts.intone) for (var i = 0; i < PTONE.intonation.length && i < N; i++) notes[i] = PTONE.intonation[i];
     var cad = opts.final ? PTONE.termination : PTONE.mediant;
     for (var j = 0; j < cad.length && j < N; j++) { var idx = N - cad.length + j; if (idx >= 0) notes[idx] = cad[j]; }
-    return syls.map(function (s, i) { return (i > 0 && s.ws ? " " : "") + s.t + "(" + notes[i] + ")"; }).join("");
+    return syls.map(function (s, i) { return { t: s.t, ws: s.ws, note: notes[i] }; });
   }
-  function verseGabc(pointed, intone) {
-    var halves = String(pointed).split(/\s*\*\s*/);
-    return "(" + PTONE.clef + ") " + setHemistich(halves[0], { intone: intone }) +
-           " (,) " + setHemistich(halves.slice(1).join(" "), { final: true }) + " (::)";
+  function verseItems(pointed, intone) {
+    var h = String(pointed).split(/\s*\*\s*/);
+    return stichItems(h[0], { intone: intone }).concat([{ bar: true }]).concat(stichItems(h.slice(1).join(" "), { final: true }));
+  }
+  // Render items to a Gregorian 4-line staff as inline SVG (no external library).
+  var STEP = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 10, l: 11, m: 12 };
+  function chantSvg(items) {
+    var HS = 5, topY = 12;
+    function y(p) { return topY + (10 - p) * HS; }
+    var padL = 34, x = padL, fs = 15, notes = [], texts = [], bars = [], hys = [];
+    items.forEach(function (it, i) {
+      if (it.bar) { bars.push('<line x1="' + (x + 4) + '" y1="' + y(10) + '" x2="' + (x + 4) + '" y2="' + y(4) + '" stroke="#3a3733" stroke-width="1.4"/>'); x += 16; return; }
+      var adv = Math.max(18, it.t.length * 8 + 6), cx = x + adv / 2;
+      var p = STEP[it.note] != null ? STEP[it.note] : 7, ny = y(p);
+      notes.push('<rect x="' + (cx - 4) + '" y="' + (ny - 4) + '" width="8" height="7" rx="1" fill="#1a1a1a"/>');
+      texts.push('<text x="' + cx + '" y="' + (y(4) + 18) + '" text-anchor="middle" font-family="Georgia,serif" font-size="' + fs + '" fill="#1a1a1a">' + esc(it.t) + "</text>");
+      var nx = items[i + 1];
+      if (nx && !nx.bar && !nx.ws) hys.push('<text x="' + (x + adv) + '" y="' + (y(4) + 18) + '" text-anchor="middle" font-family="Georgia,serif" font-size="' + fs + '" fill="#9a938a">-</text>');
+      x += adv;
+    });
+    var W = x + 10, H = y(4) + 28;
+    var lines = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (W - 6) + '" y2="' + y(p) + '" stroke="#c9bfa8" stroke-width="1"/>'; }).join("");
+    var cy = y(8), clef = '<rect x="10" y="' + (cy - 9) + '" width="7" height="7" fill="#1a1a1a"/><rect x="10" y="' + (cy + 1) + '" width="7" height="7" fill="#1a1a1a"/>';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">' +
+      lines + clef + bars.join("") + notes.join("") + hys.join("") + texts.join("") + "</svg>";
   }
 
   function renderPsalm(num, antiphonHtml, gloria) {
@@ -385,19 +407,15 @@
     if (antiphonHtml) wrap.appendChild(antLine(antiphonHtml));
     if (!verses.length) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
 
-    // Sung mode: set each pointed verse to the psalm tone as notation.
-    if (SUNG && isPointed && typeof exsurge !== "undefined" && exsurge.Gabc) {
+    // Sung mode: set each pointed verse to the psalm tone as staff notation.
+    if (SUNG && isPointed) {
       var sungVerses = verses.length > 12 ? verses.slice(0, 8) : verses;
       sungVerses.forEach(function (v, i) {
-        var st = el("div", "off-chant off-chant--verse");
-        renderChant(verseGabc(v, i === 0), st, 560);
-        wrap.appendChild(st);
+        wrap.appendChild(el("div", "off-chant off-chant--verse", chantSvg(verseItems(v, i === 0))));
       });
       if (verses.length <= 12 && gloria !== false) {
         GLORIA2.forEach(function (g) {
-          var st = el("div", "off-chant off-chant--verse");
-          renderChant(verseGabc(g, false), st, 560);
-          wrap.appendChild(st);
+          wrap.appendChild(el("div", "off-chant off-chant--verse", chantSvg(verseItems(g, false))));
         });
       }
       if (verses.length > 12) wrap.appendChild(el("p", "muted off-chant-more",
