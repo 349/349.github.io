@@ -10,7 +10,7 @@
   <div id="office-app" class="office">
     <div id="office-date" class="office-date"></div>
     <nav id="office-hours" class="office-hours" aria-label="Hours of the Office"></nav>
-    <section id="office-view" class="office-view" aria-live="polite"></section>
+    <section id="office-view" class="office-view" aria-live="polite"><p class="muted">Loading the Office…</p></section>
     <noscript><p class="muted">The dynamic office requires JavaScript. The psalms themselves are all available under <a href="{{ "/psalmi/" | relURL }}">the Psalter</a>.</p></noscript>
   </div>
 </div>
@@ -26,6 +26,5 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/exsurge@0.0.0/dist/exsurge.min.js" defer></script>
 {{- $js := resources.Get "js/office.js" -}}
-{{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
-<script defer>{{ $js.Content | safeJS }}</script>
+<script src="{{ $js.RelPermalink }}" defer></script>
 {{ end }}

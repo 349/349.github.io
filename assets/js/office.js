@@ -169,6 +169,11 @@
     if (html) b.appendChild(el("div", "off-text", html));
     return b;
   }
+  // "Alleluia" is said all year EXCEPT Septuagesima through Holy Saturday.
+  function alleluiaTag(li) {
+    var pen = li.season === "Septuagesima" || li.season === "Quadragesima" || li.season === "Tempus Passionis";
+    return pen ? "Laus tibi, Dómine, Rex ætérnæ glóriæ." : "Allelúja.";
+  }
 
   /* ---------- Compline (fully assembled) ---------- */
   function buildCompline(li) {
@@ -181,7 +186,7 @@
     view.appendChild(block(null,
       "V. Converte nos, Deus, salutaris noster.<br>R. Et averte iram tuam a nobis.<br>" +
       "V. Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.<br>" +
-      "Gloria Patri&hellip; " + (li.paschal ? "Alleluia." : "")));
+      "Gloria Patri&hellip; " + alleluiaTag(li)));
 
     // Psalms under one antiphon
     var ant = li.paschal ? "Alleluia, alleluia, alleluia." : (c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
@@ -233,16 +238,22 @@
     var psalms = scheme ? (scheme[li.weekdayKey] || scheme.all) : null;
     if (psalms && psalms.length) {
       view.appendChild(block(null,
-        "V. Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.<br>Gloria Patri&hellip; " +
-        (li.paschal ? "Alleluia." : "")));
+        "Pater noster. Ave María. <span class='muted'>(secreto)</span><br>" +
+        "V. Deus, in adjutórium meum inténde.<br>R. Dómine, ad adjuvándum me festína.<br>" +
+        "Glória Patri, et Fílio, et Spirítui Sancto. Sicut erat in princípio, et nunc, et semper, et in sæcula sæculórum. Amen. " +
+        alleluiaTag(li)));
       var hy = (ORD.hours || {})[hourKey];
       if (hy && hy.hymn) view.appendChild(block("Hymnus — " + hy.hymnName, '<div class="off-hymn">' + hy.hymn + "</div>"));
       var sec = el("div", "off-psalms");
       psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
       view.appendChild(sec);
-      view.appendChild(el("p", "office-todo",
-        "Psalms shown are the ferial distribution for " + li.weekdayLat + " from the Breviarium Romanum (1960). " +
-        "The proper antiphons, chapter, hymn, and collect for this Hour are being wired in next; Compline is complete."));
+      view.appendChild(block("Capitulum · Responsorium · Oratio",
+        "The little chapter, brief responsory, and collect for this Hour are <em>proper</em> — they change with the day and season, and are being wired in from the propers next. " +
+        "(The psalms above are the 1960 ferial distribution for " + li.weekdayLat + ".)"));
+      view.appendChild(block(null,
+        "V. Dóminus vobíscum. R. Et cum spíritu tuo.<br>" +
+        "V. Benedicámus Dómino. R. Deo grátias.<br>" +
+        "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen."));
     } else {
       view.appendChild(el("p", "office-todo",
         "No psalter data yet for " + meta.en + " on " + li.weekdayLat + "."));
@@ -313,6 +324,15 @@
     renderHour(false);
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
+  function safeInit() {
+    try { init(); }
+    catch (e) {
+      var a = document.getElementById("office-app");
+      if (a) a.innerHTML = '<p class="office-todo">The Office failed to load: ' +
+        (e && e.message ? e.message : String(e)) + "</p>";
+      if (window.console) console.error("office init error", e);
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", safeInit);
+  else safeInit();
 })();
