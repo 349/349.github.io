@@ -235,6 +235,8 @@
       view.appendChild(block(null,
         "V. Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.<br>Gloria Patri&hellip; " +
         (li.paschal ? "Alleluia." : "")));
+      var hy = (ORD.hours || {})[hourKey];
+      if (hy && hy.hymn) view.appendChild(block("Hymnus — " + hy.hymnName, '<div class="off-hymn">' + hy.hymn + "</div>"));
       var sec = el("div", "off-psalms");
       psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
       view.appendChild(sec);
@@ -293,17 +295,22 @@
         activeHour = k;
         Array.prototype.forEach.call(navEl.children, function (c) { c.classList.remove("is-active"); });
         a.classList.add("is-active");
-        renderHour();
+        renderHour(true);
       };
       navEl.appendChild(a);
     });
 
-    function renderHour() {
+    function renderHour(scroll) {
       viewEl.innerHTML = "";
-      viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
-      viewEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      try {
+        viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
+      } catch (err) {
+        viewEl.appendChild(el("p", "office-todo",
+          "This Hour failed to render: " + (err && err.message ? err.message : String(err))));
+      }
+      if (scroll) viewEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    renderHour();
+    renderHour(false);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
