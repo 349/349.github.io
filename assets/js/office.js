@@ -14,8 +14,15 @@
     if (_mk) _mk.innerHTML = '<p class="muted">Office script running…</p>';
   } catch (_e) {}
 
+  // Catch-all: surface any uncaught error on the page so it's diagnosable.
+  window.onerror = function (msg, src, line) {
+    var a = document.getElementById("office-view") || document.getElementById("office-app");
+    if (a) a.innerHTML = '<p class="office-todo">Office JS error: ' + msg + ' (line ' + line + ')</p>';
+    return false;
+  };
+
   var PS = {};
-  (window.PSALTER || []).forEach(function (p) { PS[p.n] = p.verses; });
+  (window.PSALTER || []).forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
   var PT = window.POINTED || {};        // pointed (accented, mediant-marked) verses, by number
   var ORD = window.ORDINARY || {};
   var SCHEME = window.SCHEME || {};
