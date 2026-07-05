@@ -196,22 +196,25 @@
     s = s.replace(/\s\*(?=\s|<|$)/g, '&nbsp;<span class="off-med">*</span>');
     // Give every versicle/response its own line for readability.
     s = s.replace(/([^>\n])\s+(?=[VR]\.\s)/g, "$1<br>");
-    // Line by line: style ℣/℟; bold a response only when it actually answers a
-    // versicle (so a responsory's opening intonation stays unbolded).
-    var out = [], prevV = false;
+    // Line by line: style ℣/℟; bold what all say together — a response that answers
+    // a versicle, or that repeats the previous response (the responsory repetendum).
+    // The opening intonation, said once by the cantor alone, stays unbolded.
+    var out = [], prevV = false, prevR = null;
     s.split(/<br>/).forEach(function (ln) {
       if (/^\s*V\.\s/.test(ln)) {
         ln = ln.replace(/^(\s*)V\.\s/, '$1<span class="rub-vr">℣</span> ');
-        prevV = true;
+        prevV = true; prevR = null;
       } else if (/^\s*R\.\s/.test(ln)) {
-        var bold = prevV;
+        var rawR = ln.replace(/^\s*R\.\s*/, "").replace(/<[^>]*>/g, "")
+                     .replace(/&nbsp;|&hellip;/g, " ").replace(/\s+/g, " ").trim();
+        var bold = prevV || (prevR !== null && rawR === prevR);
         ln = ln.replace(/^(\s*)R\.\s/, '$1<span class="rub-vr">℟</span> ');
         if (bold) ln = ln.replace(/(<span class="rub-vr">℟<\/span>\s*)([\s\S]+)$/, '$1<strong class="off-resp">$2</strong>');
-        prevV = false;
+        prevV = false; prevR = rawR;
       } else {
         ln = ln.replace(/\bV\.(?=\s|<|$)/g, '<span class="rub-vr">℣</span>')
                .replace(/\bR\.(?=\s|<|$)/g, '<span class="rub-vr">℟</span>');
-        if (ln.replace(/<[^>]*>/g, "").trim()) prevV = false;
+        if (ln.replace(/<[^>]*>/g, "").trim()) { prevV = false; prevR = null; }
       }
       out.push(ln);
     });
@@ -492,6 +495,7 @@
 
     // — Short responsory —
     view.appendChild(section("Responsórium breve", "Short Responsory"));
+    view.appendChild(direction("The cantor intones the response; all repeat it. Responses said by all are in bold."));
     if (c.responsory) view.appendChild(block(null, rubricate(c.responsory)));
 
     // — Nunc dimittis —
