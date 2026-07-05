@@ -51,15 +51,27 @@
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
   }
+  var DIAG = [];
   function loadData(cb) {
     var base = window.DATA_BASE || "/data/";
+    // Force a same-origin, root-relative path so an absolute (possibly http://)
+    // base can't trigger a mixed-content block on the https page.
+    try { base = new URL(base, location.href).pathname; } catch (e) {}
+    if (base.charAt(base.length - 1) !== "/") base += "/";
     var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
-    if (!window.fetch) { cb(out); return; }
+    if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
-      fetch(base + names[k])
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (j) { out[k] = j; }, function () { out[k] = null; })
+      var url = base + names[k];
+      fetch(url)
+        .then(function (r) {
+          DIAG.push(k + ": HTTP " + r.status + " (" + url + ")");
+          return r.ok ? r.json() : null;
+        })
+        .then(function (j) { out[k] = j; }, function (err) {
+          DIAG.push(k + ": FAILED " + (err && err.message ? err.message : err) + " (" + url + ")");
+          out[k] = null;
+        })
         .then(function () { if (--left === 0) cb(out); });
     });
   }
@@ -414,7 +426,16 @@
   function start() {
     var v0 = document.getElementById("office-view");
     if (v0) v0.innerHTML = '<p class="muted">Fetching the Office…</p>';
-    loadData(function (d) { buildData(d); safeInit(); });
+    loadData(function (d) {
+      buildData(d);
+      if (!PSALTER.length) {
+        var app = document.getElementById("office-app");
+        if (app) app.insertAdjacentHTML("afterbegin",
+          '<p class="office-todo">Office data did not load. Diagnostics:<br>' +
+          DIAG.map(esc).join("<br>") + '</p>');
+      }
+      safeInit();
+    });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
