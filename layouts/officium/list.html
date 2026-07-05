@@ -18,10 +18,9 @@
 
 {{ define "scripts" }}
 <script>
-  window.PSALTER = {{ site.Data.psalter | jsonify }};
-  window.POINTED = {{ site.Data.psalter_pointed | jsonify }};
-  window.ORDINARY = {{ site.Data.office_ordinary | jsonify }};
-  window.SCHEME = {{ site.Data.ferial_psalter | jsonify }};
+  // Office data is fetched at runtime from /data/*.json (see static/data/) rather
+  // than inlined — large inline JSON was unreliable across the build/minify path.
+  window.DATA_BASE = {{ "/data/" | relURL | jsonify }};
   window.PSALTER_BASE = {{ "/psalmi/" | relURL | jsonify }};
 </script>
 <script src="https://cdn.jsdelivr.net/npm/exsurge@0.0.0/dist/exsurge.min.js" defer></script>

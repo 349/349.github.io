@@ -35,15 +35,34 @@
     }
     return x;
   }
-  var PSALTER = dearray(window.PSALTER);
-  if (!Array.isArray(PSALTER)) PSALTER = [];
-  var PT = dearray(window.POINTED) || {};   // pointed verses, by psalm number
-  var ORD = dearray(window.ORDINARY) || {};
-  var SCHEME = dearray(window.SCHEME) || {};
-  var PS = {};
-  PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
   // Coerce any value to a real array (belt-and-suspenders at every array site).
   function A(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.keys(x).map(function (k) { return x[k]; }) : []); }
+
+  // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
+  // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
+  // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {};
+  function buildData(d) {
+    d = d || {};
+    PSALTER = A(dearray(d.PSALTER != null ? d.PSALTER : window.PSALTER));
+    PT = dearray(d.POINTED != null ? d.POINTED : window.POINTED) || {};
+    ORD = dearray(d.ORDINARY != null ? d.ORDINARY : window.ORDINARY) || {};
+    SCHEME = dearray(d.SCHEME != null ? d.SCHEME : window.SCHEME) || {};
+    PS = {};
+    PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
+  }
+  function loadData(cb) {
+    var base = window.DATA_BASE || "/data/";
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json" };
+    var keys = Object.keys(names), left = keys.length, out = {};
+    if (!window.fetch) { cb(out); return; }
+    keys.forEach(function (k) {
+      fetch(base + names[k])
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { out[k] = j; }, function () { out[k] = null; })
+        .then(function () { if (--left === 0) cb(out); });
+    });
+  }
 
   /* ---------- calendar ---------- */
   function dateOnly(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -392,6 +411,11 @@
       if (window.console) console.error("office init error", e);
     }
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", safeInit);
-  else safeInit();
+  function start() {
+    var v0 = document.getElementById("office-view");
+    if (v0) v0.innerHTML = '<p class="muted">Fetching the Office…</p>';
+    loadData(function (d) { buildData(d); safeInit(); });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 })();
