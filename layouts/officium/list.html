@@ -20,8 +20,11 @@
 <script>
   // Office data is fetched at runtime from /data/*.json (see static/data/) rather
   // than inlined — large inline JSON was unreliable across the build/minify path.
-  window.DATA_BASE = {{ "/data/" | relURL | jsonify }};
-  window.PSALTER_BASE = {{ "/psalmi/" | relURL | jsonify }};
+  // Hardcoded root-relative paths: piping through relURL|jsonify inside a <script>
+  // double-quotes the value (Go's JS-context escaping + jsonify), producing a
+  // literal quote in the string. This is a root site, so these paths are stable.
+  window.DATA_BASE = "/data/";
+  window.PSALTER_BASE = "/psalmi/";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/exsurge@0.0.0/dist/exsurge.min.js" defer></script>
 <script>{{ (resources.Get "js/office.js").Content | safeJS }}</script>

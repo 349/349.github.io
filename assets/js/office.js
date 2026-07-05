@@ -38,6 +38,9 @@
   // Coerce any value to a real array (belt-and-suspenders at every array site).
   function A(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.keys(x).map(function (k) { return x[k]; }) : []); }
 
+  // Sanitize the psalm-link base (same double-quote hazard as DATA_BASE).
+  window.PSALTER_BASE = String(window.PSALTER_BASE || "/psalmi/").replace(/["'\s]/g, "") || "/psalmi/";
+
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
@@ -53,7 +56,8 @@
   }
   var DIAG = [];
   function loadData(cb) {
-    var base = window.DATA_BASE || "/data/";
+    var base = String(window.DATA_BASE || "/data/").replace(/["'\s]/g, "");
+    if (!base) base = "/data/";
     // Force a same-origin, root-relative path so an absolute (possibly http://)
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
