@@ -17,6 +17,11 @@ enableRobotsTXT = true
 enableEmoji = false
 summaryLength = 30
 
+# Do NOT let `hugo --minify` minify JavaScript — its JS minifier mangles the
+# inline office engine and breaks it. HTML/CSS minification stays on.
+[minify]
+  disableJS = true
+
 # RSS + HTML for lists so the garden is followable without a social feed.
 [outputs]
   home = ["HTML", "RSS"]
