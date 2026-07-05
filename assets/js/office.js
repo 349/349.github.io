@@ -325,6 +325,9 @@
   }
 
   function safeInit() {
+    // Marker: if office.js executes at all, "Loading…" becomes "Rendering…".
+    var v0 = document.getElementById("office-view");
+    if (v0) v0.innerHTML = '<p class="muted">Rendering the Office…</p>';
     try { init(); }
     catch (e) {
       var a = document.getElementById("office-app");
