@@ -23,16 +23,25 @@
 
   // Hugo may serialize the psalter data file as either an array or an
   // index-keyed object; accept both.
-  function toArray(x) {
-    if (Array.isArray(x)) return x;
-    if (x && typeof x === "object") return Object.keys(x).map(function (k) { return x[k]; });
-    return [];
+  // Hugo/jsonify serializes some arrays as index-keyed objects ({"0":..,"1":..}).
+  // Recursively convert those back into real arrays so array methods work everywhere.
+  function dearray(x) {
+    if (Array.isArray(x)) return x.map(dearray);
+    if (x && typeof x === "object") {
+      var keys = Object.keys(x);
+      var seq = keys.length > 0 && keys.every(function (k, i) { return k === String(i); });
+      if (seq) return keys.map(function (k) { return dearray(x[k]); });
+      var o = {}; keys.forEach(function (k) { o[k] = dearray(x[k]); }); return o;
+    }
+    return x;
   }
+  var PSALTER = dearray(window.PSALTER);
+  if (!Array.isArray(PSALTER)) PSALTER = [];
+  var PT = dearray(window.POINTED) || {};   // pointed verses, by psalm number
+  var ORD = dearray(window.ORDINARY) || {};
+  var SCHEME = dearray(window.SCHEME) || {};
   var PS = {};
-  toArray(window.PSALTER).forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
-  var PT = window.POINTED || {};        // pointed (accented, mediant-marked) verses, by number
-  var ORD = window.ORDINARY || {};
-  var SCHEME = window.SCHEME || {};
+  PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
 
   /* ---------- calendar ---------- */
   function dateOnly(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
