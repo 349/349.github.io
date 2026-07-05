@@ -431,11 +431,49 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
   font-variant-numeric: tabular-nums; user-select: none;
 }
 
+/* each pointed verse split into hemistichs at the mediant (*) — the later half
+   indented, the way a psalter prints it for singing */
+.off-stich { display: block; }
+.off-stich2 { padding-left: 1.4rem; }
+
 /* rubrics: directions, citations, and versicle/response markers in red ink,
    set apart from the words actually said or sung (which stay in reading ink) */
 .rub { color: var(--rubric); font-style: normal; }
 .rub-vr { color: var(--rubric); font-weight: 700; font-style: normal; padding-right: 0.15em; }
 .off-text .rub, .off-canticle .rub { font-size: 0.98em; }
+/* the response — what all say together — subtly bolded */
+.off-resp { font-weight: 600; color: var(--ink-strong); }
+
+/* structural section heading within an Hour */
+.off-section {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  font-family: var(--font-serif); font-size: var(--step-0); color: var(--accent);
+  margin: 2.4rem 0 0.9rem; padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+.off-section .en {
+  font-family: var(--font-sans); font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.11em; color: var(--ink-faint); text-align: right; flex: 0 1 auto;
+}
+/* red italic direction — tells the person what to do, never said aloud */
+.off-direction {
+  color: var(--rubric); font-style: italic; line-height: 1.55;
+  margin: 0.7rem 0; max-width: var(--measure);
+}
+.off-hour-note { color: var(--ink-muted); font-style: italic; margin: -0.4rem 0 0.4rem; }
+
+/* priest / lay recitation toggle */
+.office-roles { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: -0.6rem 0 1.8rem; }
+.office-roles__label {
+  font-family: var(--font-sans); font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 0.11em; color: var(--ink-faint);
+}
+.office-role-btn {
+  font-family: var(--font-sans); font-size: 0.78rem; padding: 0.25rem 0.75rem;
+  border: 1px solid var(--rule); border-radius: 100px; background: transparent;
+  color: var(--ink-muted); cursor: pointer;
+}
+.office-role-btn:hover { border-color: var(--accent-dim); color: var(--accent-hi); }
+.office-role-btn.is-active { background: var(--accent-dim); color: #16171b; border-color: var(--accent-dim); }
 .off-pointed {
   font-family: var(--font-sans); font-size: 0.6rem; text-transform: uppercase;
   letter-spacing: 0.1em; color: #16171b; background: var(--accent-dim);

@@ -191,8 +191,30 @@
     s = s.replace(/\bR\.(?=\s|<|$)/g, '<span class="rub-vr">℟</span>');
     s = s.replace(/\(([^)]*)\)/g, '<span class="rub">($1)</span>');
     s = s.replace(/\b(Benedictio|Absolutio|Oremus|Lectio brevis)\b/g, '<span class="rub">$1</span>');
+    // Bold the response (what all say together) after each ℟, up to a break/next marker.
+    s = s.replace(/(<span class="rub-vr">℟<\/span>)(\s*)([^<]*?)(?=<br>|<span class="rub-vr">|$)/g,
+      '$1$2<strong class="off-resp">$3</strong>');
     return s;
   }
+
+  // Priest vs. non-priest recitation. When a priest (or deacon) presides,
+  // "Dominus vobiscum / Et cum spiritu tuo" is used; laypeople and private
+  // recitation substitute "Domine, exaudi orationem meam / Et clamor meus...".
+  var ROLE = "priest";
+  function roleize(html) {
+    if (ROLE !== "lay") return html;
+    return String(html)
+      .replace(/V\.\s*Dominus vobiscum\.\s*R\.\s*Et cum spiritu tuo\./gi,
+               "V. Domine, exaudi orationem meam. R. Et clamor meus ad te veniat.")
+      .replace(/V\.\s*Dóminus vobíscum\.\s*R\.\s*Et cum spíritu tuo\./gi,
+               "V. Dómine, exáudi oratiónem meam. R. Et clamor meus ad te véniat.");
+  }
+  // A structural section heading (Latin + English) within an Hour.
+  function section(lat, en) {
+    return el("h3", "off-section", "<span>" + lat + "</span>" + (en ? '<span class="en">' + en + "</span>" : ""));
+  }
+  // A red italic direction: tells the person what to do; never said aloud.
+  function direction(text) { return el("p", "off-direction", text); }
 
   // --- Gregorian notation via Exsurge (GABC -> SVG). Fails silently to text. ---
   function renderChant(gabc, container, width) {
@@ -229,6 +251,24 @@
     return esc(v).replace(/\s\*/g, ' <span class="off-med">*</span>')
                  .replace(/‡/g, '<span class="off-med">‡</span>');
   }
+  // Escape a hemistich and style any flex (‡) inline (a minor pause, no line break).
+  function pointFlex(s) { return esc(s).replace(/\s*‡/g, ' <span class="off-med">‡</span>'); }
+  // Render a pointed verse as hemistichs: split at the mediant (*), the first half
+  // ending with the gold asterisk, the later half on its own indented line.
+  function pointedHtml(v) {
+    var parts = String(v).split(/\s*\*\s*/);
+    if (parts.length < 2) return '<span class="off-stich">' + pointFlex(parts[0] || "") + "</span>";
+    var out = '<span class="off-stich">' + pointFlex(parts[0]) + ' <span class="off-med">*</span></span>';
+    for (var i = 1; i < parts.length; i++) {
+      out += '<span class="off-stich off-stich2">' + pointFlex(parts[i]) + "</span>";
+    }
+    return out;
+  }
+  // The doxology is two verses, each pointed at its own mediant.
+  var GLORIA2 = [
+    "Glória Patri, et Fílio, * et Spirítui Sancto.",
+    "Sicut erat in princípio, et nunc, et semper, * et in sæcula sæculórum. Amen."
+  ];
 
   function renderPsalm(num, antiphonHtml, gloria) {
     var pointed = A(PT[num]);              // accented, mediant-marked (verified) verses
@@ -245,7 +285,7 @@
     shown.forEach(function (v, i) {
       if (isPointed) {
         body.appendChild(el("p", "off-pverse",
-          '<span class="off-vn">' + (i + 1) + "</span>" + pointMarks(v)));
+          '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v)));
       } else {
         body.appendChild(el("p", "psalm-verse",
           '<span class="v-num">' + (i + 1) + '</span><span class="v-text">' + esc(v) + "</span>"));
@@ -258,10 +298,11 @@
       gloria = false;
     }
     if (gloria !== false) {
-      var g = "Glória Patri, et Fílio, et Spirítui Sancto. * Sicut erat in princípio, et nunc, et semper, et in sæcula sæculórum. Amen.";
-      body.appendChild(isPointed
-        ? el("p", "off-pverse off-gloria", pointMarks(g))
-        : el("p", "psalm-verse off-gloria", '<span class="v-num"></span><span class="v-text">' + esc(g) + "</span>"));
+      GLORIA2.forEach(function (g) {
+        body.appendChild(isPointed
+          ? el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g))
+          : el("p", "psalm-verse off-gloria", '<span class="v-num"></span><span class="v-text">' + esc(g) + "</span>"));
+      });
     }
     wrap.appendChild(body);
     return wrap;
@@ -285,15 +326,30 @@
     var view = el("div", "office-hour");
     view.appendChild(el("h2", "office-hour__title", "Completorium <span class='muted'>· Compline</span>"));
 
+    view.appendChild(el("p", "off-hour-note", "The Church's night prayer, said before sleep."));
+
+    // — Introduction —
+    view.appendChild(section("Introductio", "Opening"));
+    view.appendChild(direction("The reader asks a blessing; if a priest presides, he gives it."));
     if (c.opening) view.appendChild(block(null, rubricate(c.opening)));
-    if (c.examen) view.appendChild(block("Confession", rubricate(c.examen)));
+
+    // — Examination & Confiteor —
+    view.appendChild(section("Confíteor", "Examination of Conscience"));
+    view.appendChild(direction("A short examination of conscience is made in silence; then the Confiteor is said."));
+    if (c.examen) view.appendChild(block(null, rubricate(c.examen)));
+
+    // — Opening versicles —
+    view.appendChild(section("Versus", "Opening Versicles"));
+    view.appendChild(direction("At ℣ Deus, in adiutórium, all make the sign of the cross."));
     view.appendChild(block(null, rubricate(
       "V. Converte nos, Deus, salutaris noster.<br>R. Et averte iram tuam a nobis.<br>" +
       "V. Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.<br>" +
       "Gloria Patri, et Filio, et Spiritui Sancto. Sicut erat in principio, et nunc, et semper, " +
       "et in saecula saeculorum. Amen. " + alleluiaTag(li))));
 
-    // Psalms under one antiphon
+    // — Psalmody —
+    view.appendChild(section("Psalmódia", "Psalms"));
+    view.appendChild(direction("The psalms are sung under a single antiphon, repeated at the end."));
     var ant = li.paschal ? "Alleluia, alleluia, alleluia." : (c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
     var psSection = el("div", "off-psalms");
     psSection.appendChild(el("p", "off-ant", "Ant. " + ant));
@@ -306,34 +362,61 @@
     psSection.appendChild(el("p", "off-ant", "Ant. " + ant));
     view.appendChild(psSection);
 
-    if (c.hymn) view.appendChild(block("Hymnus — Te lucis ante terminum", '<div class="off-hymn">' + c.hymn + "</div>"));
-    if (c.chapter) view.appendChild(block("Capitulum (Ier. 14, 9)", rubricate(c.chapter + "<br>R. Deo gratias.")));
-    if (c.responsory) view.appendChild(block("Responsorium breve", rubricate(c.responsory)));
+    // — Hymn —
+    view.appendChild(section("Hymnus", "Hymn — Te lucis ante términum"));
+    if (c.hymn) view.appendChild(block(null, '<div class="off-hymn">' + c.hymn + "</div>"));
 
-    // Nunc dimittis
+    // — Little chapter —
+    view.appendChild(section("Capítulum", "Little Chapter — Ier. 14, 9"));
+    if (c.chapter) view.appendChild(block(null, rubricate(c.chapter + "<br>R. Deo gratias.")));
+
+    // — Short responsory —
+    view.appendChild(section("Responsórium breve", "Short Responsory"));
+    if (c.responsory) view.appendChild(block(null, rubricate(c.responsory)));
+
+    // — Nunc dimittis —
+    view.appendChild(section("Canticum Simeónis", "Nunc dimittis — Luc. 2"));
+    view.appendChild(direction("Said standing; the sign of the cross is made at the opening words."));
     if (c.nunc_dimittis) {
       var nd = el("div", "off-canticle");
-      nd.appendChild(el("p", "off-ant", "Ant. " + (li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant)));
-      var body = el("div", "off-verses");
+      var ndAnt = li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant;
+      nd.appendChild(el("p", "off-ant", "Ant. " + ndAnt));
+      var body = el("div", "off-verses off-verses--pointed");
       var ndv = A(c.nunc_dimittis);
+      // The stored final line is the doxology; render the Gloria as its two verses.
+      if (ndv.length && /^Gloria Patri/i.test(String(ndv[ndv.length - 1]))) ndv = ndv.slice(0, -1);
       ndv.forEach(function (v, i) {
-        var isG = i === ndv.length - 1;
-        body.appendChild(el("p", "psalm-verse" + (isG ? " off-gloria" : ""),
-          '<span class="v-num">' + (isG ? "" : (i + 1)) + '</span><span class="v-text">' + pointMarks(v) + "</span>"));
+        body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v)));
+      });
+      GLORIA2.forEach(function (g) {
+        body.appendChild(el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g)));
       });
       nd.appendChild(body);
-      nd.appendChild(el("p", "off-ant", "Ant. " + (li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant)));
-      view.appendChild(block("Canticum Simeonis — Nunc dimittis (Luc. 2)", ""));
+      nd.appendChild(el("p", "off-ant", "Ant. " + ndAnt));
       view.appendChild(nd);
     }
 
-    if (c.collect) view.appendChild(block("Oratio", rubricate(c.collect)));
+    // — Collect —
+    view.appendChild(section("Oratio", "Collect"));
+    view.appendChild(direction(ROLE === "lay"
+      ? "Said without a priest: “Dominus vobiscum” is replaced by “Domine, exaudi orationem meam.”"
+      : "The priest sings “Dominus vobiscum”; all answer “Et cum spiritu tuo.”"));
+    if (c.collect) view.appendChild(block(null, rubricate(roleize(c.collect))));
+
+    // — Blessing —
+    view.appendChild(section("Benedíctio", "Blessing"));
+    view.appendChild(direction(ROLE === "lay"
+      ? "Said by all, each signing himself."
+      : "The priest gives the blessing, making the sign of the cross over those present."));
     if (c.blessing) view.appendChild(block(null, rubricate(c.blessing)));
 
-    // Seasonal Marian antiphon
+    // — Marian antiphon —
     var m = (ORD.marian || {})[li.marian];
-    if (m) view.appendChild(block("Antiphona finalis B. Mariae Virginis — " + m.title,
-      '<div class="off-hymn">' + m.text + "</div>"));
+    if (m) {
+      view.appendChild(section("Antíphona finális B.M.V.", m.title));
+      view.appendChild(direction("The seasonal antiphon of the Blessed Virgin Mary concludes the day."));
+      view.appendChild(block(null, '<div class="off-hymn">' + m.text + "</div>"));
+    }
 
     return view;
   }
@@ -346,23 +429,29 @@
     var scheme = SCHEME[hourKey];
     var psalms = A(scheme ? (scheme[li.weekdayKey] || scheme.all) : null);
     if (psalms.length) {
+      view.appendChild(section("Introductio", "Opening"));
+      view.appendChild(direction("Said silently at the beginning, then the versicle aloud."));
       view.appendChild(block(null, rubricate(
         "Pater noster. Ave Maria. (secreto)<br>" +
         "V. Deus, in adjutórium meum inténde.<br>R. Dómine, ad adjuvándum me festína.<br>" +
         "Glória Patri, et Fílio, et Spirítui Sancto. Sicut erat in princípio, et nunc, et semper, et in sæcula sæculórum. Amen. " +
         alleluiaTag(li))));
       var hy = (ORD.hours || {})[hourKey];
-      if (hy && hy.hymn) view.appendChild(block("Hymnus — " + hy.hymnName, '<div class="off-hymn">' + hy.hymn + "</div>"));
+      if (hy && hy.hymn) {
+        view.appendChild(section("Hymnus", "Hymn — " + hy.hymnName));
+        view.appendChild(block(null, '<div class="off-hymn">' + hy.hymn + "</div>"));
+      }
+      view.appendChild(section("Psalmódia", "Psalms — 1960 ferial cycle, " + li.weekdayLat));
       var sec = el("div", "off-psalms");
       psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
       view.appendChild(sec);
-      view.appendChild(block("Capitulum · Responsorium · Oratio",
-        "The little chapter, brief responsory, and collect for this Hour are <em>proper</em> — they change with the day and season, and are being wired in from the propers next. " +
-        "(The psalms above are the 1960 ferial distribution for " + li.weekdayLat + ".)"));
-      view.appendChild(block(null, rubricate(
-        "V. Dóminus vobíscum. R. Et cum spíritu tuo.<br>" +
+      view.appendChild(section("Capítulum · Responsórium · Oratio", "Proper texts"));
+      view.appendChild(direction("The little chapter, brief responsory, and collect for this Hour are proper — they change with the day and season, and are being wired in from the propers next."));
+      view.appendChild(section("Conclusio", "Conclusion"));
+      view.appendChild(block(null, rubricate(roleize(
+        "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>" +
         "V. Benedicámus Dómino. R. Deo grátias.<br>" +
-        "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen.")));
+        "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen."))));
     } else {
       view.appendChild(el("p", "office-todo",
         "No psalter data yet for " + meta.en + " on " + li.weekdayLat + "."));
@@ -419,6 +508,20 @@
       };
       navEl.appendChild(a);
     });
+
+    // Priest / lay recitation toggle — changes forms like Dominus vobiscum.
+    var roleEl = el("div", "office-roles");
+    function paintRoles() {
+      roleEl.innerHTML =
+        '<span class="office-roles__label">Recited</span>' +
+        '<button class="office-role-btn' + (ROLE === "priest" ? " is-active" : "") + '" data-role="priest">With a priest / in choir</button>' +
+        '<button class="office-role-btn' + (ROLE === "lay" ? " is-active" : "") + '" data-role="lay">Alone or without a priest</button>';
+      Array.prototype.forEach.call(roleEl.querySelectorAll("button"), function (b) {
+        b.onclick = function () { ROLE = b.getAttribute("data-role"); paintRoles(); renderHour(false); };
+      });
+    }
+    paintRoles();
+    if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(roleEl, viewEl);
 
     function renderHour(scroll) {
       viewEl.innerHTML = "";
