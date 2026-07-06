@@ -366,13 +366,16 @@
     var inC = opts.intone ? Math.min(PTONE.intonation.length, N) : 0;
     var caC = Math.min((opts.final ? PTONE.termination : PTONE.mediant).length, N - inC);
     var reEnd = N - caC;
-    var notes = syls.map(function () { return PTONE.tenor; });
-    for (var i = 0; i < inC; i++) notes[i] = PTONE.intonation[i];
     var cad = opts.final ? PTONE.termination : PTONE.mediant;
-    for (var j = 0; j < caC; j++) notes[reEnd + j] = cad[j];
-    var out = "";
-    syls.forEach(function (s, i) { out += (i > 0 && s.ws ? " " : "") + s.t.replace(/[()]/g, "") + "(" + notes[i] + ")"; });
-    return out;
+    // Recitation words stay whole on a single reciting note (one note per word, no
+    // per-syllable chopping); only the intonation and cadence are notated by syllable.
+    var toks = [], i = 0;
+    while (i < N) {
+      if (i < inC) { toks.push({ t: syls[i].t, ws: syls[i].ws, n: PTONE.intonation[i] }); i++; }
+      else if (i >= reEnd) { toks.push({ t: syls[i].t, ws: syls[i].ws, n: cad[i - reEnd] }); i++; }
+      else { var t = syls[i].t, ws = syls[i].ws, j = i + 1; while (j < reEnd && !syls[j].ws) { t += syls[j].t; j++; } toks.push({ t: t, ws: ws, n: PTONE.tenor }); i = j; }
+    }
+    return toks.map(function (tk, k) { return (k > 0 && tk.ws ? " " : "") + tk.t.replace(/[()]/g, "") + "(" + tk.n + ")"; }).join("");
   }
   function gabcVerse(v, intone) {
     var h = String(v).split(/\s*\*\s*/);
