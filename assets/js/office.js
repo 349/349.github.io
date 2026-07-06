@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -55,6 +55,7 @@
     SCHEME = dearray(d.SCHEME != null ? d.SCHEME : window.SCHEME) || {};
     VESP = dearray(d.VESPERS != null ? d.VESPERS : window.VESPERS) || {};
     LAUD = dearray(d.LAUDS != null ? d.LAUDS : window.LAUDS) || {};
+    CANT = dearray(d.CANTICLES != null ? d.CANTICLES : window.CANTICLES) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -67,7 +68,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -485,6 +486,25 @@
     return wrap;
   }
 
+  // Render an OT canticle (ad-hoc pointed verse array) in said or sung mode.
+  function renderCanticle(name, ref, verses, noGloria) {
+    var wrap = el("div", "off-psalm");
+    wrap.appendChild(el("p", "off-psalm__title", "Cánticum " + name + (ref ? " · " + ref : "")));
+    var vv = A(verses);
+    if (!vv.length) { wrap.appendChild(el("p", "muted", "(canticle text to be added)")); return wrap; }
+    if (SUNG) {
+      var cont = el("div", "off-exsurge");
+      cont.innerHTML = '<p class="muted">Setting the tone…</p>';
+      wrap.appendChild(cont);
+      renderExsurge(cont, gabcForPsalm(noGloria ? vv : vv.concat(GLORIA2)), CHANT_W);
+    } else {
+      var body = el("div", "off-verses off-verses--pointed");
+      vv.forEach(function (v, i) { body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v))); });
+      if (!noGloria) GLORIA2.forEach(function (g) { body.appendChild(el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g))); });
+      wrap.appendChild(body);
+    }
+    return wrap;
+  }
   function block(label, html) {
     var b = el("div", "off-block");
     if (label) b.appendChild(el("p", "off-label", label));
@@ -633,10 +653,7 @@
         fer.forEach(function (e) {
           sec.appendChild(antLine(e.a));
           if (e.cant) {
-            // OT canticle at Lauds — antiphon + reference (text not yet ingested).
-            sec.appendChild(el("p", "off-psalm__title", "Cánticum " + e.cant +
-              (e.ref ? ' <span class="off-pointed" style="background:var(--rule);color:var(--ink-muted)">' + e.ref + "</span>" : "")));
-            sec.appendChild(el("p", "muted", "(canticle text to be added)"));
+            sec.appendChild(renderCanticle(e.cant, e.ref, CANT[e.cant], e.cant === "Trium Puerorum"));
           } else if (seen[e.n]) {
             sec.appendChild(el("p", "off-psalm__title", "Psalmus " + e.n + (e.d ? " · vv. " + e.d : "") +
               ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + e.n + '/">full &rsaquo;</a>'));
