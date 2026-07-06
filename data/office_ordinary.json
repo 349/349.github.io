@@ -47,7 +47,13 @@
  "hours": {
   "prima": {
    "hymnName": "Iam lucis orto sídere",
-   "hymn": "Iam lucis orto sídere,<br>Deum precémur súpplices,<br>Ut in diúrnis áctibus<br>Nos servet a nocéntibus.<br><br>Linguam refrénans témperet,<br>Ne litis horror ínsonet:<br>Visum fovéndo cóntegat,<br>Ne vanitátes háuriat.<br><br>Sint pura cordis íntima,<br>Absístat et vecórdia:<br>Carnis terat supérbiam<br>Potus cibíque párcitas.<br><br>Ut cum dies abscésserit,<br>Noctémque sors redúxerit,<br>Mundi per abstinéntiam<br>Ipsi canámus glóriam.<br><br>Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc et per omne sæculum. Amen."
+   "hymn": "Iam lucis orto sídere,<br>Deum precémur súpplices,<br>Ut in diúrnis áctibus<br>Nos servet a nocéntibus.<br><br>Linguam refrénans témperet,<br>Ne litis horror ínsonet:<br>Visum fovéndo cóntegat,<br>Ne vanitátes háuriat.<br><br>Sint pura cordis íntima,<br>Absístat et vecórdia:<br>Carnis terat supérbiam<br>Potus cibíque párcitas.<br><br>Ut cum dies abscésserit,<br>Noctémque sors redúxerit,<br>Mundi per abstinéntiam<br>Ipsi canámus glóriam.<br><br>Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc et per omne sæculum. Amen.",
+   "chapter": "Regi sæculórum immortáli et invisíbili, soli Deo honor et glória in sǽcula sæculórum. Amen.",
+   "chapterRef": "1 Tim. 1, 17",
+   "responsory": "R.br. Christe, Fili Dei vivi, * Miserére nobis.<br>R. Christe, Fili Dei vivi, * Miserére nobis.<br>V. Qui sedes ad déxteram Patris.<br>R. Miserére nobis.<br>V. Glória Patri, et Fílio, et Spirítui Sancto.<br>R. Christe, Fili Dei vivi, * Miserére nobis.",
+   "versicle": "V. Exsúrge, Christe, ádiuva nos.<br>R. Et líbera nos propter nomen tuum.",
+   "collect": "Dómine Deus omnípotens, qui ad princípium huius diéi nos perveníre fecísti: tua nos hódie salva virtúte; ut in hac die ad nullum declinémus peccátum, sed semper ad tuam iustítiam faciéndam nostra procédant elóquia, dirigántur cogitatiónes et ópera.",
+   "pretiosa": "V. Iube, domne, benedícere.<br>Benedíctio: Dies et actus nostros in sua pace dispónat Dóminus omnípotens. Amen.<br>V. Adiutórium nostrum ✠ in nómine Dómini. R. Qui fecit cælum et terram."
   },
   "tertia": {
    "hymnName": "Nunc, Sancte, nobis, Spíritus",

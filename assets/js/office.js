@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -65,6 +65,7 @@
     SANCT_G = dearray(d.SANCTGOSPEL != null ? d.SANCTGOSPEL : window.SANCTGOSPEL) || {};
     COMMONS = dearray(d.COMMONS != null ? d.COMMONS : window.COMMONS) || {};
     CHANT_IDX = dearray(d.CHANT != null ? d.CHANT : window.CHANT) || {};
+    FESTAL = dearray(d.FESTAL != null ? d.FESTAL : window.FESTAL) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -77,7 +78,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -813,10 +814,23 @@
         view.appendChild(section("Hymnus", "Hymn — " + hy.hymnName));
         view.appendChild(block(null, '<div class="off-hymn">' + dropCap(hy.hymn) + "</div>"));
       }
-      view.appendChild(section("Psalmódia", "Psalms — 1960 ferial cycle, " + li.weekdayLat));
+      // On a feast, use the festal psalm scheme + the Common's psalm antiphons.
+      var fp = (li.feast && li.feastCommon && (hourKey === "laudes" || hourKey === "vesperae")) ? FESTAL[li.feastCommon] : null;
+      var fpAnts = fp ? (hourKey === "laudes" ? fp.lAnts : fp.vAnts) : null;
+      var fpPs = fp ? (hourKey === "laudes" ? fp.lPs : fp.vPs) : null;
+      var useFestal = fpAnts && fpAnts.length && fpPs && fpPs.length;
+      view.appendChild(section("Psalmódia", useFestal ? "Psalms — festal, of the Common" : "Psalms — 1960 ferial cycle, " + li.weekdayLat));
       var sec = el("div", "off-psalms");
       var fer = A((FERIAL[hourKey] || {})[li.weekdayKey]);
-      if (fer.length) {
+      if (useFestal) {
+        // Festal Lauds/Vespers: the Sunday psalms (or proper) under the Common's antiphons.
+        fpPs.forEach(function (pn, i) {
+          var a = fpAnts[i], am = modeOf(a), ad = diffOf(a);
+          sec.appendChild(antLine(a));
+          if (pn === "cant") sec.appendChild(renderCanticle("Trium Puerorum", "Dan. 3, 57-88", CANT["Trium Puerorum"], true, am, ad));
+          else sec.appendChild(renderPsalm(parseInt(pn, 10), null, true, am, ad));
+        });
+      } else if (fer.length) {
         // Ferial Lauds/Vespers: each psalm has its own proper antiphon (validated vs DO).
         var seen = {};
         fer.forEach(function (e) {
@@ -843,7 +857,12 @@
       view.appendChild(sec);
       view.appendChild(section("Capítulum · Responsórium breve", "Little chapter · responsory"));
       var lvChap = (hourKey === "laudes" || hourKey === "vesperae") ? chapterFor(li, hourKey) : null;
-      if (hy && hy.chapter && li.color === "green") {
+      if (hourKey === "prima" && hy && hy.chapter) {
+        // Prime: fixed chapter (Regi sæculórum) + short responsory (Christe Fili Dei vivi) + versicle.
+        view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
+        if (hy.responsory) view.appendChild(block(null, rubricate(hy.responsory)));
+        if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
+      } else if (hy && hy.chapter && li.color === "green") {
         // Little-Hour chapter + versicle, per annum (validated vs Divinum Officium).
         view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo gratias.")));
         if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
@@ -917,8 +936,10 @@
         }
       }
       view.appendChild(section("Oratio · Conclusio", "Collect · Conclusion"));
-      var col = null;
-      if (li.feastCollect) {
+      var col = null, primeColl = hourKey === "prima" && hy && hy.collect;
+      if (primeColl) {
+        col = hy.collect;                     // Prime's own fixed collect
+      } else if (li.feastCollect) {
         col = li.feastCollect;
       } else if (li.collectKey && TEMPORAL.collects) {
         var ck = li.collectKey.split("-"), cg = TEMPORAL.collects[ck[0]];
@@ -928,8 +949,8 @@
         "V. Benedicámus Dómino. R. Deo grátias.<br>" +
         "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen.";
       if (col) {
-        if (li.feast) view.appendChild(direction("The proper collect of the feast."));
-        else if (!li.isSunday) view.appendChild(direction(
+        if (!primeColl && li.feast) view.appendChild(direction("The proper collect of the feast."));
+        else if (!primeColl && !li.isSunday) view.appendChild(direction(
           (li.season === "Quadragesima" || li.season === "Tempus Passionis")
             ? "In Lent and Passiontide each weekday has its own proper collect."
             : "On a feria the collect is that of the preceding Sunday."));
@@ -938,6 +959,12 @@
           (TEMPORAL.conclusion || "Per Dóminum nostrum Iesum Christum. R. Amen.")))));
       }
       view.appendChild(block(null, rubricate(roleize(conclusion))));
+      if (primeColl && hy.pretiosa) {
+        // The little chapter-office (Pretiosa) that follows Prime in choir.
+        view.appendChild(section("Pretiósa", "Martyrology & blessing"));
+        view.appendChild(direction("In choir the Martyrology of the day is read here, then:"));
+        view.appendChild(block(null, rubricate(hy.pretiosa)));
+      }
     } else {
       view.appendChild(el("p", "office-todo",
         "No psalter data yet for " + meta.en + " on " + li.weekdayLat + "."));
