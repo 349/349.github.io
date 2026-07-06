@@ -169,7 +169,31 @@
       ? "Dominica" + (wr ? " " + wr : "") + (weekPhrase ? " " + weekPhrase : (season ? " · " + season : ""))
       : WD_LAT[dow] + " · " + (wr ? "hebd. " + wr + " " + weekPhrase : season);
 
+    // Principal movable feasts (computed from Easter). The fixed sanctoral (feasts
+    // on set calendar dates) is a separate data layer, ingested next.
+    var octLast = new Date(d.getFullYear(), 9, 31);
+    var christKing = addDays(octLast, -octLast.getDay());
+    var movable = [
+      [addDays(E, -7), "Dominica in Palmis", "Palm Sunday", "violet"],
+      [addDays(E, -3), "Feria V in Cena Dómini", "Maundy Thursday", "white"],
+      [addDays(E, -2), "Feria VI in Passióne Dómini", "Good Friday", "black"],
+      [addDays(E, -1), "Sábbato Sancto", "Holy Saturday", "violet"],
+      [E, "Dominica Resurrectiónis", "Easter Sunday", "white"],
+      [addDays(E, 39), "Ascénsio Dómini", "Ascension", "white"],
+      [pent, "Dominica Pentecóstes", "Pentecost", "red"],
+      [addDays(E, 56), "Sanctíssima Trínitas", "Trinity Sunday", "white"],
+      [addDays(E, 60), "Corpus Christi", "Corpus Christi", "white"],
+      [addDays(E, 68), "Sacratíssimum Cor Iesu", "Sacred Heart", "white"],
+      [christKing, "D. N. Iesu Christi Regis", "Christ the King", "white"]
+    ];
+    var feast = null, feastEn = null;
+    for (var fi = 0; fi < movable.length; fi++) {
+      if (movable[fi][0].getTime() === d.getTime()) { feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; break; }
+    }
+    if (feast) { title = feast; wr = ""; }
+
     return {
+      feast: feast, feastEn: feastEn,
       date: d, iso: fmtISO(d),
       englishDate: WD_EN[dow] + ", " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(),
       weekdayIndex: dow, weekdayLat: WD_LAT[dow], weekdayEn: WD_EN[dow], weekdayKey: WD_KEY[dow],
@@ -730,8 +754,9 @@
     dateEl.innerHTML =
       '<div class="office-date__pill office-color--' + li.color + '">' + li.color + '</div>' +
       '<div><div class="office-date__lat">' + li.title + "</div>" +
-      '<div class="office-date__en">' + li.englishDate + " &mdash; " + li.seasonEn +
-      (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "") + "</div></div>";
+      '<div class="office-date__en">' + li.englishDate + " &mdash; " +
+      (li.feast ? li.feastEn : li.seasonEn + (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "")) +
+      "</div></div>";
 
     // hour nav
     navEl.innerHTML = "";
