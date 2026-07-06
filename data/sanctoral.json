@@ -199,5 +199,1117 @@
   "r": 2,
   "c": "red",
   "co": "martyrs"
+ },
+ "01-05": {
+  "n": "In Vigilia Epiphaniæ",
+  "r": 3,
+  "c": "white"
+ },
+ "01-14": {
+  "n": "S. Hilarii Episcopi Confessoris Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "01-15": {
+  "n": "S. Pauli Primi Eremitæ et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "01-16": {
+  "n": "S. Marcelli Papæ et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "01-17": {
+  "n": "S. Antonii Abbatis",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "01-18": {
+  "n": "Cathedræ S. Petri Romæ",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "01-20": {
+  "n": "Ss. Fabiani et Sebastiani Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "01-21": {
+  "n": "S. Agnetis Virginis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "virginMartyr"
+ },
+ "01-22": {
+  "n": "Ss. Vincentii et Anastasii Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "01-23": {
+  "n": "S. Raymundi de Peñafort Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "01-24": {
+  "n": "S. Timothei Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "01-25": {
+  "n": "In Conversione S. Pauli Apostoli",
+  "r": 3,
+  "c": "white"
+ },
+ "01-26": {
+  "n": "S. Polycarpi Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "01-27": {
+  "n": "S. Ioannis Chrysostomi Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "01-28": {
+  "n": "S. Petri Nolasci Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "01-29": {
+  "n": "S. Francisci Salesii Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "01-30": {
+  "n": "S. Martinæ Virginis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "virginMartyr"
+ },
+ "01-31": {
+  "n": "S. Ioannis Bosco Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "02-01": {
+  "n": "S. Ignatii Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "02-04": {
+  "n": "S. Andreæ Corsini Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "02-05": {
+  "n": "S. Agathæ Virginis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "virginMartyr"
+ },
+ "02-06": {
+  "n": "S. Titi Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "02-07": {
+  "n": "S. Romualdi Abbatis",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "02-08": {
+  "n": "S. Ioannis de Matha Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "02-09": {
+  "n": "S. Cyrilli Episc. Alexandrini Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "02-10": {
+  "n": "S. Scholasticæ Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "02-12": {
+  "n": "Ss. Septem Fundatorum Ordinis Servorum B. M. V.",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "02-27": {
+  "n": "S. Gabrielis a Virgine Perdolente Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "03-04": {
+  "n": "S. Casimiri Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "03-06": {
+  "n": "Ss. Perpetuæ et Felicitatis Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "holyWoman"
+ },
+ "03-07": {
+  "n": "S. Thomæ de Aquino Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "03-08": {
+  "n": "S. Ioannis de Deo Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "03-09": {
+  "n": "S. Franciscæ Romanæ Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "03-10": {
+  "n": "Ss. Quadraginta Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "03-12": {
+  "n": "S. Gregorii Papæ Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "03-17": {
+  "n": "S. Patricii Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "03-18": {
+  "n": "S. Cyrilli Episcopi Hierosolymitani Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "03-21": {
+  "n": "S. Benedicti Abbatis",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "03-24": {
+  "n": "S. Gabrielis Archangeli",
+  "r": 3,
+  "c": "white"
+ },
+ "03-27": {
+  "n": "S. Ioannis Damasceni Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "03-28": {
+  "n": "S. Ioannis a Capistrano Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "04-02": {
+  "n": "S. Francisci de Paula Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "04-04": {
+  "n": "S. Isidori Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "04-05": {
+  "n": "S. Vincentii Ferrerii Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "04-11": {
+  "n": "S. Leonis I Papæ Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "04-13": {
+  "n": "S. Hermenegildi Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "04-14": {
+  "n": "S. Iustini Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "04-21": {
+  "n": "S. Anselmi Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "04-22": {
+  "n": "(rubrica 196)",
+  "r": 3,
+  "c": "white"
+ },
+ "04-24": {
+  "n": "S. Fidelis de Sigmaringa Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "04-26": {
+  "n": "SS. Cleti et Marcellini Summorum Pontificum et Martyrum",
+  "r": 3,
+  "c": "red"
+ },
+ "04-27": {
+  "n": "S. Petri Canisii Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "04-28": {
+  "n": "S. Pauli a Cruce Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "04-29": {
+  "n": "S. Petri Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "04-30": {
+  "n": "S. Catharinæ Senensis Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "05-02": {
+  "n": "S. Athanasii Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-04": {
+  "n": "S. Monicæ Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "05-05": {
+  "n": "S. Pii V Papæ et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-06": {
+  "n": "S. Ioannis Apostoli ante Portam Latinam",
+  "r": 3,
+  "c": "white",
+  "co": "apostles"
+ },
+ "05-07": {
+  "n": "S. Stanislai Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "05-08": {
+  "n": "In Apparitione S. Michaëlis Archangeli",
+  "r": 3,
+  "c": "white"
+ },
+ "05-09": {
+  "n": "S. Gregorii Nazianzeni Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-10": {
+  "n": "S. Antonini Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-12": {
+  "n": "Ss. Nerei, Achillei et Domitillæ Virg. atque Pancratii Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "05-13": {
+  "n": "S. Roberti Bellarmino Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-15": {
+  "n": "S. Ioannis Baptistæ de la Salle Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "05-16": {
+  "n": "S. Ubaldi Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-17": {
+  "n": "S. Paschalis Baylon Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "05-18": {
+  "n": "S. Venantii Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "05-19": {
+  "n": "S. Petri Celestini Papæ et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-20": {
+  "n": "S. Bernardini Senensis Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "05-23": {
+  "n": "S. Ioannis Baptistæ de Rossi Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "05-25": {
+  "n": "S. Gregorii VII Papæ et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-26": {
+  "n": "S. Philippi Neri Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "05-27": {
+  "n": "S. Bedæ Venerabilis Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "05-28": {
+  "n": "S. Augustini Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "05-29": {
+  "n": "S. Mariæ Magdalenæ de Pazzis Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "06-01": {
+  "n": "S. Angelæ Mericiæ Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "06-04": {
+  "n": "S. Francisci Caracciolo Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "06-05": {
+  "n": "S. Bonifatii Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "06-06": {
+  "n": "S. Norberti Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "06-10": {
+  "n": "S. Margaritæ Reginæ Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "06-11": {
+  "n": "S. Barnabæ Apostoli",
+  "r": 3,
+  "c": "white",
+  "co": "apostles"
+ },
+ "06-12": {
+  "n": "S. Ioannis a S. Facundo Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "06-13": {
+  "n": "S. Antonii de Padua Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "06-14": {
+  "n": "S. Basilii Magni, Episcopis Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "06-18": {
+  "n": "S. Ephræm Syri Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "06-19": {
+  "n": "S. Iulianæ de Falconeriis Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "06-21": {
+  "n": "S. Aloisii Gonzagæ Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "06-22": {
+  "n": "S. Paulini Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "06-25": {
+  "n": "S. Gulielmi Abbatis",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "06-26": {
+  "n": "Ss. Ioannis et Pauli Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "06-28": {
+  "n": "S. Irenæi Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "06-30": {
+  "n": "In Commemoratione S. Pauli Apostoli",
+  "r": 3,
+  "c": "white",
+  "co": "apostles"
+ },
+ "07-03": {
+  "n": "S. Leonis Papæ et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "07-05": {
+  "n": "S. Antonii Mariæ Zaccaria Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "07-06": {
+  "n": "In Octava Ss. Apostolorum Petri et Pauli",
+  "r": 3,
+  "c": "white",
+  "co": "apostles"
+ },
+ "07-07": {
+  "n": "Ss. Cyrilli et Methodii Pont. et Conf.",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "07-08": {
+  "n": "S. Elisabeth Reg. Portugaliæ Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "07-10": {
+  "n": "Ss. Septem Fratrum Martyrum, ac Rufinæ et Secundæ Virginum et Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "07-12": {
+  "n": "S. Ioannis Gualberti Abbatis",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "07-13": {
+  "n": "S. Anacleti Papæ et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "07-14": {
+  "n": "S. Bonaventuræ Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "07-15": {
+  "n": "S. Henrici Imperatoris Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "07-17": {
+  "n": "S. Alexii Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "07-18": {
+  "n": "S. Camilli de Lellis Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "07-19": {
+  "n": "S. Vincentii a Paulo Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "07-20": {
+  "n": "S. Hieronymi Æmiliani Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "07-22": {
+  "n": "S. Mariæ Magdalenæ Pœnitentis",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "07-23": {
+  "n": "S. Apollinaris Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "07-28": {
+  "n": "Ss. Nazarii et Celsi Martyrum, Victoris I Papæ et Martyris ac Innocentii I Papæ et Confessoris",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "07-29": {
+  "n": "S. Marthæ Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "07-31": {
+  "n": "S. Ignatii Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-01": {
+  "n": "S. Petri ad Vincula",
+  "r": 3,
+  "c": "white",
+  "co": "apostles"
+ },
+ "08-02": {
+  "n": "S. Alfonsi Mariæ de Ligorio Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "08-03": {
+  "n": "De Inventione S. Stephani Protomartyris",
+  "r": 3,
+  "c": "red"
+ },
+ "08-04": {
+  "n": "S. Dominici Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-07": {
+  "n": "S. Caietani Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-08": {
+  "n": "Ss. Cyriaci, Largi et Smaragdi Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "08-09": {
+  "n": "S. Ioannis Mariæ Vianney Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-12": {
+  "n": "S. Claræ Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "08-17": {
+  "n": "S. Hyacinthi Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-19": {
+  "n": "S. Ioannis Eudes Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-20": {
+  "n": "S. Bernardi Abbatis et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-21": {
+  "n": "S. Ioannæ Franciscæ Frémiot de Chantal Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "08-23": {
+  "n": "S. Philippi Benitii Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-25": {
+  "n": "S. Ludovici Regis Franciæ Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-27": {
+  "n": "S. Iosephi Calasanctii Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "08-28": {
+  "n": "S. Augustini Episcopi et Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "08-29": {
+  "n": "In Decollatione S. Ioannis Baptistæ",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "08-30": {
+  "n": "S. Rosæ a Sancta Maria Limanæ Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "08-31": {
+  "n": "S. Raymundi Nonnati Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "09-02": {
+  "n": "S. Stephani Hungariæ Regis Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "09-03": {
+  "n": "S. Pii X Papæ Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "09-05": {
+  "n": "S. Laurentii Iustiniani Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "09-10": {
+  "n": "S. Nicolai de Tolentino Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "09-16": {
+  "n": "Ss. Cornelii Papæ et Cypriani Episcopi, Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "09-17": {
+  "n": "Impressionis Stigmatum S. Francisci",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "09-18": {
+  "n": "S. Iosephi de Cupertino Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "09-19": {
+  "n": "S. Ianuarii Episcopi et Sociorum Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "09-20": {
+  "n": "Ss. Eustachii et Sociorum Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "09-22": {
+  "n": "S. Thomæ de Villanova Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "09-23": {
+  "n": "S. Lini Papæ et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "09-27": {
+  "n": "Ss. Cosmæ et Damiani Martyrum",
+  "r": 3,
+  "c": "red",
+  "co": "martyrs"
+ },
+ "09-28": {
+  "n": "S. Wenceslai Ducis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "09-30": {
+  "n": "S. Hieronymi Presbyteris Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-02": {
+  "n": "Ss. Angelorum Custodum",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "10-03": {
+  "n": "S. Theresiæ a Iesu Infante Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "10-04": {
+  "n": "S. Francisci Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-06": {
+  "n": "S. Brunonis Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-08": {
+  "n": "S. Birgittæ Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "10-09": {
+  "n": "S. Ioannis Leonardi Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-10": {
+  "n": "S. Francisci Borgiæ Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-13": {
+  "n": "S. Eduardi Regis Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-14": {
+  "n": "S. Callisti Papæ et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "10-15": {
+  "n": "S. Teresiæ Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "10-16": {
+  "n": "S. Hedwigis Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "10-17": {
+  "n": "S. Margaritæ Mariæ Alacoque Virginis",
+  "r": 3,
+  "c": "white"
+ },
+ "10-19": {
+  "n": "S. Petri de Alcantara Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-20": {
+  "n": "S. Ioannis Cantii Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "10-24": {
+  "n": "S. Raphaëlis Archangeli",
+  "r": 3,
+  "c": "white"
+ },
+ "11-04": {
+  "n": "S. Caroli Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "11-08": {
+  "n": "In Octava Omnium Sanctorum",
+  "r": 3,
+  "c": "white"
+ },
+ "11-10": {
+  "n": "S. Andreæ Avellini Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "11-11": {
+  "n": "S. Martini Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "11-12": {
+  "n": "S. Martini Papæ et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "11-13": {
+  "n": "S. Didaci Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "11-14": {
+  "n": "S. Iosaphat Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "11-15": {
+  "n": "S. Alberti Magni Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "11-16": {
+  "n": "S. Gertrudis Virginis ",
+  "r": 3,
+  "c": "white"
+ },
+ "11-17": {
+  "n": "S. Gregorii Thaumaturgi Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "11-18": {
+  "n": "In Dedicatione Basilicarum Ss. Apostolorum Petri et Pauli",
+  "r": 3,
+  "c": "white"
+ },
+ "11-19": {
+  "n": "S. Elisabeth Viduæ",
+  "r": 3,
+  "c": "white",
+  "co": "holyWoman"
+ },
+ "11-20": {
+  "n": "S. Felicis de Valois Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "11-22": {
+  "n": "S. Cæciliæ Virginis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "virginMartyr"
+ },
+ "11-23": {
+  "n": "S. Clementis Papæ et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "11-24": {
+  "n": "S. Ioannis a Cruce Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "11-25": {
+  "n": "S. Catharinæ Virginis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "virginMartyr"
+ },
+ "11-26": {
+  "n": "S. Silvestri Abbatis",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "12-02": {
+  "n": "S. Bibianæ Virginis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "virginMartyr"
+ },
+ "12-03": {
+  "n": "S. Francisci Xaverii Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "conf"
+ },
+ "12-04": {
+  "n": "S. Petri Chrysologi Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "12-06": {
+  "n": "S. Nicolai Episcopi et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "12-07": {
+  "n": "S. Ambrosii Episcopi Confessoris et Ecclesiæ Doctoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "12-11": {
+  "n": "S. Damasi Papæ et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
+ },
+ "12-13": {
+  "n": "S. Luciæ Virginis et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "virginMartyr"
+ },
+ "12-16": {
+  "n": "S. Eusebii Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "12-29": {
+  "n": "S. Thomæ Cantuariensis Episcopi et Martyris",
+  "r": 3,
+  "c": "red",
+  "co": "martyr"
+ },
+ "12-31": {
+  "n": "S. Silvestri Papæ et Confessoris",
+  "r": 3,
+  "c": "white",
+  "co": "confBishop"
  }
 }

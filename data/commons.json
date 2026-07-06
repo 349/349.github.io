@@ -1,23 +1,83 @@
 {
- "_note": "Commons of the saints — the shared proper office used by feasts of a category. hymnL = Lauds hymn, hymnV = Vespers hymn, chap = little chapter (used at both Lauds and Vespers). Source: Divinum Officium (Rubrics 1960), Roman/Urban VIII hymn forms, i-spelling. Psalm antiphons are not included (they require the feast psalm scheme, a later change). A feast points at its Common via the 'co' field in sanctoral.json.",
+ "_note": "Commons of the saints (Rubrics 1960, i-spelling). Each: Lauds hymn, Vespers hymn, little chapter (chap), and gospel antiphons (ben=Benedictus, mag=Magnificat). A feast points here via its co field in sanctoral.json.",
  "apostles": {
-  "hymnL": "Exsúltet orbis gáudiis:<br>Cælum resúltet láudibus:<br>Apostolórum glóriam<br>Tellus et astra cóncinunt.<br><br>Vos sæculórum iúdices,<br>Et vera mundi lúmina:<br>Votis precámur córdium,<br>Audíte voces súpplicum.<br><br>Qui templa cæli cláuditis,<br>Serásque verbo sólvitis,<br>Nos a reátu nóxios<br>Solvi iubéte, quǽsumus.<br><br>Præcépta quorum prótinus<br>Languor salúsque séntiunt:<br>Sanáte mentes lánguidas:<br>Augéte nos virtútibus.<br><br>Ut, cum redíbit árbiter<br>In fine Christus sǽculi,<br>Nos sempitérni gáudii<br>Concédat esse cómpotes.<br><br>Patri, simúlque Fílio,<br>Tibíque Sancte Spíritus,<br>Sicut fuit, sit iúgiter<br>Sæclum per omne glória.<br>Amen.",
-  "hymnV": "Exsúltet orbis gáudiis:<br>Cælum resúltet láudibus:<br>Apostolórum glóriam<br>Tellus et astra cóncinunt.<br><br>Vos sæculórum iúdices,<br>Et vera mundi lúmina:<br>Votis precámur córdium,<br>Audíte voces súpplicum.<br><br>Qui templa cæli cláuditis,<br>Serásque verbo sólvitis,<br>Nos a reátu nóxios<br>Solvi iubéte, quǽsumus.<br><br>Præcépta quorum prótinus<br>Languor salúsque séntiunt:<br>Sanáte mentes lánguidas:<br>Augéte nos virtútibus.<br><br>Ut, cum redíbit árbiter<br>In fine Christus sǽculi,<br>Nos sempitérni gáudii<br>Concédat esse cómpotes.<br><br>Patri, simúlque Fílio,<br>Tibíque Sancte Spíritus,<br>Sicut fuit, sit iúgiter<br>Sæclum per omne glória.<br>Amen.",
-  "chap": {"ref": "Eph. 2, 19-20", "text": "Fratres: Iam non estis hóspites et ádvenæ: sed estis cives Sanctórum et doméstici Dei: superædificáti super fundaméntum Apostolórum, et Prophetárum, ipso summo angulári lápide Christo Iesu."}
+  "hymnL": "Exsúltet orbis gáudiis:<br>Cælum resúltet láudibus:<br>Apostolórum glóriam<br>Tellus et astra cóncinunt.<br><br>Vos sæculórum iúdices,<br>Et vera mundi lúmina:<br>Votis precámur córdium,<br>Audíte voces súpplicum.<br><br>Qui templa cæli cláuditis,<br>Serásque verbo sólvitis,<br>Nos a reátu nóxios<br>Solvi iubéte, quǽsumus.<br><br>Præcépta quorum prótinus<br>Languor salúsque séntiunt:<br>Sanáte mentes lánguidas:<br>Augéte nos virtútibus.<br><br>Ut, cum redíbit árbiter<br>In fine Christus sǽculi,<br>Nos sempitérni gáudii<br>Concédat esse cómpotes.<br><br>* Patri, simúlque Fílio,<br>Tibíque Sancte Spíritus,<br>Sicut fuit, sit iúgiter<br>Sæclum per omne glória.<br>Amen.",
+  "hymnV": "Exsúltet orbis gáudiis:<br>Cælum resúltet láudibus:<br>Apostolórum glóriam<br>Tellus et astra cóncinunt.<br><br>Vos sæculórum iúdices,<br>Et vera mundi lúmina:<br>Votis precámur córdium,<br>Audíte voces súpplicum.<br><br>Qui templa cæli cláuditis,<br>Serásque verbo sólvitis,<br>Nos a reátu nóxios<br>Solvi iubéte, quǽsumus.<br><br>Præcépta quorum prótinus<br>Languor salúsque séntiunt:<br>Sanáte mentes lánguidas:<br>Augéte nos virtútibus.<br><br>Ut, cum redíbit árbiter<br>In fine Christus sǽculi,<br>Nos sempitérni gáudii<br>Concédat esse cómpotes.<br><br>* Patri, simúlque Fílio,<br>Tibíque Sancte Spíritus,<br>Sicut fuit, sit iúgiter<br>Sæclum per omne glória.<br>Amen.",
+  "chap": {
+   "ref": "Eph 2:19-20",
+   "text": "Fratres: Iam non estis hóspites et ádvenæ: sed estis cives Sanctórum et doméstici Dei: superædificáti super fundaméntum Apostolórum, et Prophetárum, ipso summo angulári lápide Christo Iesu."
+  },
+  "ben": "Vos qui reliquístis ómnia, et secúti estis me, céntuplum accipiétis, et vitam ætérnam possidébitis.",
+  "mag": "Estóte fortes in bello, et pugnáte cum antíquo serpénte: et accipiétis regnum ætérnum, allelúia."
  },
  "martyr": {
-  "hymnL": "Invícte Martyr, únicum<br>Patris secútus Fílium,<br>Victis triúmphas hóstibus,<br>Victor fruens cæléstibus.<br><br>Tui precátus múnere<br>Nostrum reátum dílue,<br>Arcens mali contágium,<br>Vitæ repéllens tǽdium.<br><br>Solúta sunt iam víncula<br>Tui sacráti córporis:<br>Nos solve vinclis sǽculi,<br>Dono supérni Núminis.<br><br>Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc, et per omne sǽculum.<br>Amen.",
-  "hymnV": "Deus tuórum mílitum<br>Sors, et córona, prǽmium,<br>Laudes canéntes Mártyris<br>Absólve nexu críminis.<br><br>Hic nempe mundi gáudia,<br>Et blanda fraudum pábula<br>Imbúta felle députans,<br>Pervénit ad cæléstia.<br><br>Pœnas cucúrrit fórtiter,<br>Et sústulit viríliter,<br>Fundénsque pro te sánguinem,<br>Ætérna dona póssidet.<br><br>Ob hoc precátu súpplici<br>Te póscimus, piíssime;<br>In hoc triúmpho Mártyris<br>Dimítte noxam sérvulis.<br><br>Laus et perénnis glória<br>Patri sit, atque Fílio,<br>Sancto simul Paráclito,<br>In sempitérna sǽcula.<br>Amen.",
-  "chap": {"ref": "Iac. 1, 12", "text": "Beátus vir, qui suffert tentatiónem: quóniam cum probátus fúerit, accípiet corónam vitæ, quam repromísit Deus diligéntibus se."}
+  "hymnL": "Invícte Martyr, únicum<br>Patris secútus Fílium,<br>Victis triúmphas hóstibus,<br>Victor fruens cæléstibus.<br><br>Tui precátus múnere<br>Nostrum reátum dílue,<br>Arcens mali contágium,<br>Vitæ repéllens tǽdium.<br><br>Solúta sunt iam víncula<br>Tui sacráti córporis:<br>Nos solve vinclis sǽculi,<br>Dono supérni Núminis.<br><br>* Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc, et per omne sǽculum.<br>Amen.",
+  "hymnV": "Deus tuórum mílitum<br>Sors, et córona, prǽmium,<br>Laudes canéntes Mártyris<br>Absólve nexu críminis.<br><br>Hic nempe mundi gáudia,<br>Et blanda fraudum pábula<br>Imbúta felle députans,<br>Pervénit ad cæléstia.<br><br>Pœnas cucúrrit fórtiter,<br>Et sústulit viríliter,<br>Fundénsque pro te sánguinem,<br>Ætérna dona póssidet.<br><br>Ob hoc precátu súpplici<br>Te póscimus, piíssime;<br>In hoc triúmpho Mártyris<br>Dimítte noxam sérvulis.<br><br>* Laus et perénnis glória<br>Patri sit, atque Fílio,<br>Sancto simul Paráclito,<br>In sempitérna sǽcula.<br>Amen.",
+  "chap": {
+   "ref": "Jac 1:12",
+   "text": "Beátus vir, qui suffert tentatiónem: quóniam cum probátus fúerit, accípiet corónam vitæ, quam repromísit Deus diligéntibus se."
+  },
+  "ben": "Qui odit ánimam suam in hoc mundo, in vitam ætérnam custódit eam.",
+  "mag": "Qui vult veníre post me, ábneget semetípsum, et tollat crucem suam, et sequátur me."
  },
  "martyrs": {
-  "hymnL": "Rex glorióse Mártyrum,<br>Coróna confiténtium,<br>Qui respuéntes térrea<br>Perdúcis ad cæléstia:<br><br>Aurem benígnam prótinus<br>Inténde nostris vócibus:<br>Trophǽa sacra pángimus:<br>Ignósce quod delíquimus.<br><br>Tu vincis inter Mártyres<br>Parcísque Confessóribus:<br>Tu vince nostra crímina,<br>Largítor indulgéntiæ.<br><br>Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc, et per omne sǽculum.<br>Amen.",
+  "hymnL": "Rex glorióse Mártyrum,<br>Coróna confiténtium,<br>Qui respuéntes térrea<br>Perdúcis ad cæléstia:<br><br>Aurem benígnam prótinus<br>Inténde nostris vócibus:<br>Trophǽa sacra pángimus:<br>Ignósce quod delíquimus.<br><br>Tu vincis inter Mártyres<br>Parcísque Confessóribus:<br>Tu vince nostra crímina,<br>Largítor indulgéntiæ.<br><br>* Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc, et per omne sǽculum.<br>Amen.",
   "hymnV": "Sanctórum méritis ínclita gáudia<br>Pangámus, sócii, géstaque fórtia:<br>Gliscens fert ánimus prómere cántibus<br>Victórum genus óptimum.<br><br>Hi sunt, quos fátue mundus abhórruit;<br>Hunc fructu vácuum, flóribus áridum<br>Contempsére tui nóminis ásseclæ<br>Iesu, Rex bone cǽlitum.<br><br>Hi pro te fúrias, atque minas truces<br>Calcárunt hóminum, sǽvaque vérbera:<br>His cessit lácerans fórtiter úngula,<br>Nec carpsit penetrália.<br><br>Cædúntur gládiis more bidéntium:<br>Non murmur résonat, non quærimónia;<br>Sed corde impávido mens bene cónscia<br>Consérvat patiéntiam.<br><br>Quæ vox, quæ póterit lingua retéxere,<br>Quæ tu Martýribus múnera prǽparas?<br>Rubri nam flúido sánguine fúlgidis<br>Cingunt témpora láureis.<br><br>Te, summa o Déitas, únaque póscimus;<br>Ut culpas ábigas, nóxia súbtrahas,<br>Des pacem fámulis; ut tibi glóriam,<br>Annórum in sériem, canant.<br>Amen.",
-  "chap": {"ref": "Sap. 3, 1-3", "text": "Iustórum ánimæ in manu Dei sunt, et non tanget illos torméntum mortis. Visi sunt óculis insipiéntium mori: illi autem sunt in pace."}
+  "chap": {
+   "ref": "Sap 3:1-3",
+   "text": "Iustórum ánimæ in manu Dei sunt, et non tanget illos torméntum mortis. Visi sunt óculis insipiéntium mori: illi autem sunt in pace."
+  },
+  "ben": "Vestri capílli cápitis omnes numeráti sunt: nolíte timére: multis passéribus melióres estis vos.",
+  "mag": "Gaudent in cælis ánimæ Sanctórum, qui Christi vestígia sunt secúti: et quia pro eius amóre sánguinem suum fudérunt, ídeo cum Christo exsúltant sine fine."
+ },
+ "confBishop": {
+  "hymnL": "Iesu Redémptor ómnium,<br>Perpes coróna Prǽsulum,<br>In hac die cleméntius<br>Indúlgeas precántibus.<br><br>Tui sacri qua nóminis<br>Conféssor almus cláruit:<br>Huius celébrat ánnua<br>Devóta plebs solémnia.<br><br>Qui rite mundi gáudia<br>Huius cadúca réspuens,<br>Æternitátis prǽmio<br>Potítur inter Ángelos.<br><br>Huius benígnus ánnue<br>Nobis sequi vestígia:<br>Huius precátu, sérvulis<br>Dimítte noxam críminis.<br><br>* Sit Christe, Rex piíssime,<br>Tibi, Patríque glória,<br>Cum Spíritu Paráclito,<br>Nunc, et per omne sǽculum.<br>Amen.",
+  "hymnV": "Iste Conféssor Dómini, coléntes<br>Quem pie laudant pópuli per orbem,<br>Hac die lætus méruit beátas<br>Scándere sedes.<br><br>Qui pius, prudens, húmilis, pudícus,<br>Sóbriam duxit sine labe vitam,<br>Donec humános animávit auræ<br>Spíritus artus.<br><br>Cuius ob præstans méritum, frequénter,<br>Ægra quæ passim iacuére membra,<br>Víribus morbi dómitis, salúti<br>Restituúntur.<br><br>Noster hinc illi chorus obsequéntem<br>Cóncinit laudem celebrésque palmas,<br>Ut piis eius précibus iuvémur<br>Omne per ævum.<br><br>Sit salus illi, decus atque virtus,<br>Qui, super cæli sólio corúscans,<br>Tótius mundi sériem gubérnat,<br>Trinus et unus.<br>Amen.",
+  "chap": {
+   "ref": "Sir 44:16-17",
+   "text": "Ecce sacérdos magnus, qui in diébus suis plácuit Deo, et invéntus est iustus: et in témpore iracúndiæ factus est reconciliátio."
+  },
+  "ben": "Euge, serve bone et fidélis, quia in pauca fuísti fidélis, supra multa te constítuam, dicit Dóminus.",
+  "mag": "Amávit eum Dóminus, et ornávit eum: stolam glóriæ índuit eum, et ad portas paradísi coronávit eum."
+ },
+ "conf": {
+  "hymnL": "Iesu, coróna célsior,<br>Et véritas sublímior,<br>Qui confiténti sérvulo<br>Reddis perénne prǽmium:<br><br>Da supplicánti cœ́tui,<br>Huius rogátu, nóxii<br>Remissiónem críminis,<br>Rumpéndo nexum vínculi.<br><br>Anni revérso témpore,<br>Dies refúlsit lúmine,<br>Quo Sanctus hic de córpore<br>Migrávit inter sídera.<br><br>Hic vana terræ gáudia,<br>Et luculénta prǽdia,<br>Pollúta sorde députans,<br>Ovans tenet cæléstia.<br><br>Te, Christe, Rex piíssime,<br>Hic confiténdo iúgiter,<br>Calcávit artes dǽmonum,<br>Sævúmque avérni príncipem.<br><br>Virtúte clarus, et fide,<br>Confessióne sédulus,<br>Ieiúna membra déferens,<br>Dapes supérnas óbtinet.<br><br>Proínde te piíssime<br>Precámur omnes súpplices:<br>Nobis ut huius grátia<br>Pœnas remíttas débitas.<br><br>* Patri perénnis glória,<br>Natóque Patris único,<br>Sanctóque sit Paráclito,<br>Per omne semper sǽculum.<br>Amen.",
+  "hymnV": "Iesu, coróna célsior,<br>Et véritas sublímior,<br>Qui confiténti sérvulo<br>Reddis perénne prǽmium:<br><br>Da supplicánti cœ́tui,<br>Huius rogátu, nóxii<br>Remissiónem críminis,<br>Rumpéndo nexum vínculi.<br><br>Anni revérso témpore,<br>Dies refúlsit lúmine,<br>Quo Sanctus hic de córpore<br>Migrávit inter sídera.<br><br>Hic vana terræ gáudia,<br>Et luculénta prǽdia,<br>Pollúta sorde députans,<br>Ovans tenet cæléstia.<br><br>Te, Christe, Rex piíssime,<br>Hic confiténdo iúgiter,<br>Calcávit artes dǽmonum,<br>Sævúmque avérni príncipem.<br><br>Virtúte clarus, et fide,<br>Confessióne sédulus,<br>Ieiúna membra déferens,<br>Dapes supérnas óbtinet.<br><br>Proínde te piíssime<br>Precámur omnes súpplices:<br>Nobis ut huius grátia<br>Pœnas remíttas débitas.<br><br>* Patri perénnis glória,<br>Natóque Patris único,<br>Sanctóque sit Paráclito,<br>Per omne semper sǽculum.<br>Amen.",
+  "chap": {
+   "ref": "Sir 31:8-9",
+   "text": "Beátus vir, qui invéntus est sine mácula, et qui post aurum non ábiit, nec sperávit in pecúnia et thesáuris. Quis est hic, et laudábimus eum? fecit enim mirabília in vita sua."
+  },
+  "ben": "Euge, serve bone et fidélis, quia in pauca fuísti fidélis, supra multa te constítuam, intra in gáudium Dómini tui.",
+  "mag": "Hic vir despíciens mundum et terréna, triúmphans, divítias cælo cóndidit ore, manu."
+ },
+ "virginMartyr": {
+  "hymnL": "Iesu, coróna Vírginum,<br>Quem Mater illa cóncipit<br>Quæ sola Virgo párturit,<br>Hæc vota clemens áccipe:<br><br>Qui pergis inter lília<br>Septus choréis Vírginum,<br>Sponsus decórus glória<br>Sponsísque reddens prǽmia.<br><br>Quocúmque tendis, Vírgines<br>Sequúntur, atque láudibus<br>Post te canéntes cúrsitant,<br>Hymnósque dulces pérsonant;<br><br>Te deprecámur súpplices,<br>Nostris ut addas sénsibus<br>Nescíre prorsus ómnia<br>Corruptiónis vúlnera.<br><br>* Virtus, honor, laus, glória<br>Deo Patri cum Fílio,<br>Sancto simul Paráclito,<br>In sæculórum sǽcula.<br>Amen.",
+  "hymnV": "Iesu, coróna Vírginum,<br>Quem Mater illa cóncipit<br>Quæ sola Virgo párturit,<br>Hæc vota clemens áccipe:<br><br>Qui pergis inter lília<br>Septus choréis Vírginum,<br>Sponsus decórus glória<br>Sponsísque reddens prǽmia.<br><br>Quocúmque tendis, Vírgines<br>Sequúntur, atque láudibus<br>Post te canéntes cúrsitant,<br>Hymnósque dulces pérsonant;<br><br>Te deprecámur súpplices,<br>Nostris ut addas sénsibus<br>Nescíre prorsus ómnia<br>Corruptiónis vúlnera.<br><br>* Virtus, honor, laus, glória<br>Deo Patri cum Fílio,<br>Sancto simul Paráclito,<br>In sæculórum sǽcula.<br>Amen.",
+  "chap": {
+   "ref": "2 Cor 10:17-18",
+   "text": "Fratres: Qui gloriátur, in Dómino gloriétur. Non enim qui seípsum comméndat, ille probátus est; sed quem Deus comméndat."
+  },
+  "ben": "Símile est regnum cælórum hómini negotiatóri quærénti bonas margarítas: invénta una pretiósa, dedit ómnia sua, et comparávit eam.",
+  "mag": "Veni, Sponsa Christi, áccipe corónam, quam tibi Dóminus præparávit in ætérnum."
+ },
+ "holyWoman": {
+  "hymnL": "Fortem viríli péctore<br>Laudémus omnes féminam,<br>Quæ sanctitátis glória<br>Ubíque fulget ínclita.<br><br>Hæc sancto amóre sáucia,<br>Dum mundi amórem nóxium<br>Horréscit, ad cæléstia<br>Iter perégit árduum.<br><br>Carnem domans ieiúniis,<br>Dulcíque mentem pábulo<br>Oratiónis nútriens,<br>Cæli potítur gáudiis.<br><br>Rex Christe, virtus fórtium,<br>Qui magna solus éfficis,<br>Huius precátu, quǽsumus,<br>Audi benígnus súpplices.<br><br>* Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc, et per omne sǽculum.<br>Amen.",
+  "hymnV": "Fortem viríli péctore<br>Laudémus omnes féminam,<br>Quæ sanctitátis glória<br>Ubíque fulget ínclita.<br><br>Hæc sancto amóre sáucia,<br>Dum mundi amórem nóxium<br>Horréscit, ad cæléstia<br>Iter perégit árduum.<br><br>Carnem domans ieiúniis,<br>Dulcíque mentem pábulo<br>Oratiónis nútriens,<br>Cæli potítur gáudiis.<br><br>Rex Christe, virtus fórtium,<br>Qui magna solus éfficis,<br>Huius precátu, quǽsumus,<br>Audi benígnus súpplices.<br><br>* Deo Patri sit glória,<br>Eiúsque soli Fílio,<br>Cum Spíritu Paráclito,<br>Nunc, et per omne sǽculum.<br>Amen.",
+  "chap": {
+   "ref": "Sir 51:1-3",
+   "text": "Confitébor tibi, Dómine, Rex, et collaudábo te Deum Salvatórem meum. Confitébor nómini tuo: quóniam adiútor et protéctor factus es mihi, et liberásti corpus meum a perditióne."
+  },
+  "ben": "Date ei de fructu mánuum suárum, et laudent eam in portis ópera eius.",
+  "mag": "Manum suam apéruit ínopi, et palmas suas exténdit ad páuperem, et panem otiósa non comédit."
  },
  "bvm": {
-  "hymnL": "O gloriósa vírginum,<br>Sublímis inter sídera,<br>Qui te creávit, párvulum<br>Lacténte nutris úbere.<br><br>Quod Heva tristis ábstulit,<br>Tu reddis almo gérmine:<br>Intrent ut astra flébiles,<br>Cæli reclúdis cárdines.<br><br>Tu Regis alti iánua<br>Et aula lucis fúlgida:<br>Vitam datam per Vírginem,<br>Gentes redémptæ, pláudite.<br><br>Iesu tibi sit glória,<br>Qui natus es de Vírgine,<br>Cum Patre, et almo Spíritu,<br>In sempitérna sǽcula.<br>Amen.",
+  "hymnL": "O gloriósa vírginum,<br>Sublímis inter sídera,<br>Qui te creávit, párvulum<br>Lacténte nutris úbere.<br><br>Quod Heva tristis ábstulit,<br>Tu reddis almo gérmine:<br>Intrent ut astra flébiles,<br>Cæli reclúdis cárdines.<br><br>Tu Regis alti iánua<br>Et aula lucis fúlgida:<br>Vitam datam per Vírginem,<br>Gentes redémptæ, pláudite.<br><br>* Iesu tibi sit glória,<br>Qui natus es de Vírgine,<br>Cum Patre, et almo Spíritu,<br>In sempitérna sǽcula.<br>Amen.",
   "hymnV": "Ave maris stella,<br>Dei Mater alma,<br>Atque semper Virgo,<br>Felix cæli porta.<br><br>Sumens illud Ave<br>Gabriélis ore,<br>Funda nos in pace,<br>Mutans Hevæ nomen.<br><br>Solve vincla reis,<br>Profer lumen cæcis,<br>Mala nostra pelle,<br>Bona cuncta posce.<br><br>Monstra te esse matrem,<br>Sumat per te preces,<br>Qui pro nobis natus,<br>Tulit esse tuus.<br><br>Virgo singuláris,<br>Inter omnes mitis,<br>Nos culpis solútos<br>Mites fac et castos.<br><br>Vitam præsta puram,<br>Iter para tutum,<br>Ut vidéntes Iesum,<br>Semper collætémur.<br><br>Sit laus Deo Patri,<br>Summo Christo decus,<br>Spirítui Sancto,<br>Tribus honor unus.<br>Amen.",
-  "chap": {"ref": "Sir. 24, 14", "text": "Ab inítio et ante sǽcula creáta sum, et usque ad futúrum sǽculum non désinam, et in habitatióne sancta coram ipso ministrávi."}
+  "chap": {
+   "ref": "Sir 24:14",
+   "text": "Ab inítio et ante sǽcula creáta sum, et usque ad futúrum sǽculum non désinam, et in habitatióne sancta coram ipso ministrávi."
+  },
+  "ben": "Beáta es, María, quæ credidísti: perficiéntur in te, quæ dicta sunt tibi a Dómino, allelúia.",
+  "mag": "Beátam me dicent omnes generatiónes, quia ancíllam húmilem respéxit Deus."
  }
 }

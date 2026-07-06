@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -64,6 +64,7 @@
     SANCT_O = dearray(d.SANCTCOLLECTS != null ? d.SANCTCOLLECTS : window.SANCTCOLLECTS) || {};
     SANCT_G = dearray(d.SANCTGOSPEL != null ? d.SANCTGOSPEL : window.SANCTGOSPEL) || {};
     COMMONS = dearray(d.COMMONS != null ? d.COMMONS : window.COMMONS) || {};
+    CHANT_IDX = dearray(d.CHANT != null ? d.CHANT : window.CHANT) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -76,7 +77,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -201,7 +202,9 @@
     var feastCollect = null;
     var feastKey = null;
     var feastCommon = null;
-    if (s && s.n && (s.r === 1 || (s.r === 2 && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; feastCollect = (SANCT_O && SANCT_O[mmdd]) || null; feastKey = mmdd; feastCommon = s.co || null; }
+    // I class always takes the day; II and III class yield to a Sunday (on which they
+    // would be commemorated) but take an ordinary weekday.
+    if (s && s.n && (s.r === 1 || ((s.r === 2 || s.r === 3) && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; feastCollect = (SANCT_O && SANCT_O[mmdd]) || null; feastKey = mmdd; feastCommon = s.co || null; }
     // Principal movable feasts override the fixed sanctoral.
     for (var fi = 0; fi < movable.length; fi++) {
       if (movable[fi][0].getTime() === d.getTime()) { feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = 1; break; }
@@ -329,7 +332,31 @@
   // A red italic direction: tells the person what to do; never said aloud.
   function direction(text) { return el("p", "off-direction", text); }
   // An antiphon line: the "Ant." marker set apart from the antiphon text itself.
-  function antLine(text) { return el("p", "off-ant", '<span class="off-ant-label">Ant.</span> ' + text); }
+  function prepAntGabc(g) {
+    g = String(g); var i = g.indexOf("%%"); if (i >= 0) g = g.slice(i + 2);
+    // Safety net: the data is pre-sanitised, but strip tags/annotations and (critically)
+    // any empty neumes "()", which throw Exsurge into a synchronous freeze.
+    return g.replace(/<[^>]*>/g, "").replace(/\{[^}]*\}/g, "")
+      .replace(/[\r\n]+/g, " ").replace(/\(\s*\)/g, "").replace(/\s+/g, " ").trim();
+  }
+  function antLine(text) {
+    // In sung mode, if we have the antiphon's own Gregorian melody (GregoBase), draw it.
+    if (SUNG && CHANT_IDX) {
+      var c = chantFor(text);
+      if (c && c.gabc) {
+        var wrap = el("div", "off-ant");
+        wrap.appendChild(el("span", "off-ant-label", "Ant."));
+        var cont = el("div", "off-exsurge off-ant-chant");
+        cont.innerHTML = '<span class="muted">…</span>';
+        wrap.appendChild(cont);
+        renderExsurge(cont, prepAntGabc(c.gabc), CHANT_W);
+        return wrap;
+      }
+    }
+    return el("p", "off-ant", '<span class="off-ant-label">Ant.</span> ' + text);
+  }
+  // The psalm tone for a psalm/canticle governed by an antiphon = that antiphon's mode.
+  function modeOf(antText) { var c = antText && chantFor(antText); return c ? c.mode : undefined; }
   // The doxology, pointed as two verses, with the seasonal Alleluia appended.
   function gloriaBlock(li) {
     var wrap = el("div", "off-verses off-verses--pointed");
@@ -443,33 +470,67 @@
     parts.push(w.substring(prev));
     return parts.filter(function (s) { return s.length; });
   }
-  var PTONE = { tenor: "h", intonation: ["g", "h"], mediant: ["g", "h"], termination: ["h", "g", "g"] };
+  // The eight Gregorian psalm tones (+ tonus peregrinus), c4 clef, do = "h".
+  // The reciting note (tenor) is the mode's; a representative intonation/mediant/
+  // termination is used. The tone is chosen from the antiphon's mode (GregoBase data).
+  var PTONES = {
+    1: { intonation: ["e", "f"], tenor: "f", mediant: ["g", "f"], termination: ["f", "e", "d"] },
+    2: { intonation: ["c", "d"], tenor: "d", mediant: ["e", "d"], termination: ["d", "c", "b"] },
+    3: { intonation: ["g", "h"], tenor: "h", mediant: ["i", "h"], termination: ["h", "g", "h"] },
+    4: { intonation: ["e", "f"], tenor: "f", mediant: ["f", "e"], termination: ["e", "d", "e"] },
+    5: { intonation: ["f", "h"], tenor: "h", mediant: ["i", "h"], termination: ["h", "g", "f"] },
+    6: { intonation: ["d", "f"], tenor: "f", mediant: ["g", "f"], termination: ["f", "e", "d"] },
+    7: { intonation: ["h", "i"], tenor: "i", mediant: ["j", "i"], termination: ["i", "h", "g"] },
+    8: { intonation: ["g", "h"], tenor: "h", mediant: ["g", "h"], termination: ["h", "g", "g"] },
+    peregrinus: { intonation: ["e", "f"], tenor: "f", tenor2: "e", mediant: ["g", "f"], termination: ["e", "d", "c"] }
+  };
+  function toneForMode(m) { return PTONES[m] || PTONES[8]; }
+  var ROMAN8 = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V", 6: "VI", 7: "VII", 8: "VIII", peregrinus: "Per." };
+  function romanTone(m) { return ROMAN8[m] || "VIII"; }
+  // Normalise antiphon text the same way the GregoBase index keys were built.
+  function normAnt(s) {
+    return String(s).replace(/<[^>]+>/g, "").toLowerCase().normalize("NFD")
+      .replace(/[̀-ͯ]/g, "").replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  // Longest-prefix match of an antiphon against the GregoBase chant index → {mode, gabc}.
+  function chantFor(text) {
+    if (!CHANT_IDX) return null;
+    var w = normAnt(text).split(" ");
+    for (var n = Math.min(w.length, 9); n >= 2; n--) {
+      var k = w.slice(0, n).join(" ");
+      if (CHANT_IDX[k]) return CHANT_IDX[k];
+    }
+    return null;
+  }
   // Build GABC (Gregorio/Exsurge notation) for a pointed hemistich: the intonation
   // and cadence syllables carry the tone's notes; the middle recites on the tenor.
-  function gabcHemi(text, opts) {
+  function gabcHemi(text, opts, T) {
+    T = T || PTONES[8];
+    var tenor = opts.tenor2 && T.tenor2 ? T.tenor2 : T.tenor;
     var words = String(text).replace(/[*‡]/g, "").trim().split(/\s+/).filter(Boolean), syls = [];
     words.forEach(function (w) { syllabify(w).forEach(function (s, si) { syls.push({ t: s, ws: si === 0 }); }); });
     var N = syls.length; if (!N) return "";
-    var inC = opts.intone ? Math.min(PTONE.intonation.length, N) : 0;
-    var caC = Math.min((opts.final ? PTONE.termination : PTONE.mediant).length, N - inC);
+    var inC = opts.intone ? Math.min(T.intonation.length, N) : 0;
+    var caC = Math.min((opts.final ? T.termination : T.mediant).length, N - inC);
     var reEnd = N - caC;
-    var cad = opts.final ? PTONE.termination : PTONE.mediant;
+    var cad = opts.final ? T.termination : T.mediant;
     // Recitation words stay whole on a single reciting note (one note per word, no
     // per-syllable chopping); only the intonation and cadence are notated by syllable.
     var toks = [], i = 0;
     while (i < N) {
-      if (i < inC) { toks.push({ t: syls[i].t, ws: syls[i].ws, n: PTONE.intonation[i] }); i++; }
+      if (i < inC) { toks.push({ t: syls[i].t, ws: syls[i].ws, n: T.intonation[i] }); i++; }
       else if (i >= reEnd) { toks.push({ t: syls[i].t, ws: syls[i].ws, n: cad[i - reEnd] }); i++; }
-      else { var t = syls[i].t, ws = syls[i].ws, j = i + 1; while (j < reEnd && !syls[j].ws) { t += syls[j].t; j++; } toks.push({ t: t, ws: ws, n: PTONE.tenor }); i = j; }
+      else { var t = syls[i].t, ws = syls[i].ws, j = i + 1; while (j < reEnd && !syls[j].ws) { t += syls[j].t; j++; } toks.push({ t: t, ws: ws, n: tenor }); i = j; }
     }
     return toks.map(function (tk, k) { return (k > 0 && tk.ws ? " " : "") + tk.t.replace(/[()]/g, "") + "(" + tk.n + ")"; }).join("");
   }
-  function gabcVerse(v, intone) {
+  function gabcVerse(v, intone, T) {
     var h = String(v).split(/\s*\*\s*/);
-    return gabcHemi(h[0], { intone: intone }) + " *(;) " + gabcHemi(h.slice(1).join(" "), { final: true });
+    return gabcHemi(h[0], { intone: intone }, T) + " *(;) " + gabcHemi(h.slice(1).join(" "), { final: true, tenor2: true }, T);
   }
-  function gabcForPsalm(verses) {
-    return "(c4) " + verses.map(function (v, i) { return gabcVerse(v, i === 0) + (i < verses.length - 1 ? " (:) " : " (::)"); }).join("");
+  function gabcForPsalm(verses, T) {
+    T = T || PTONES[8];
+    return "(c4) " + verses.map(function (v, i) { return gabcVerse(v, i === 0, T) + (i < verses.length - 1 ? " (:) " : " (::)"); }).join("");
   }
   // Render GABC with Exsurge into a container (async; recolored for dark mode via CSS).
   function whenExsurge(cb) {
@@ -500,7 +561,7 @@
     });
   }
 
-  function renderPsalm(num, antiphonHtml, gloria) {
+  function renderPsalm(num, antiphonHtml, gloria, mode) {
     var pointed = A(PT[num]);              // accented, mediant-marked (verified) verses
     var isPointed = pointed.length > 0;
     var verses = isPointed ? pointed : A(PS[num]);  // fall back to plain text
@@ -516,11 +577,11 @@
       var many = verses.length > 20;
       var sungVerses = many ? verses.slice(0, 14) : verses.slice();
       if (!many && gloria !== false) sungVerses = sungVerses.concat(GLORIA2);
-      wrap.appendChild(el("p", "off-tone-label", "Tonus VIII"));
+      wrap.appendChild(el("p", "off-tone-label", "Tonus " + romanTone(mode)));
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">Setting the tone…</p>';
       wrap.appendChild(cont);
-      renderExsurge(cont, gabcForPsalm(sungVerses), CHANT_W);
+      renderExsurge(cont, gabcForPsalm(sungVerses, toneForMode(mode)), CHANT_W);
       if (many) wrap.appendChild(el("p", "muted off-chant-more",
         "… " + verses.length + " verses; first 14 shown sung — " +
         '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
@@ -556,7 +617,7 @@
   }
 
   // Render an OT canticle (ad-hoc pointed verse array) in said or sung mode.
-  function renderCanticle(name, ref, verses, noGloria) {
+  function renderCanticle(name, ref, verses, noGloria, mode) {
     var wrap = el("div", "off-psalm");
     wrap.appendChild(el("p", "off-psalm__title", "Cánticum " + name + (ref ? " · " + ref : "")));
     var vv = A(verses);
@@ -565,7 +626,7 @@
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">Setting the tone…</p>';
       wrap.appendChild(cont);
-      renderExsurge(cont, gabcForPsalm(noGloria ? vv : vv.concat(GLORIA2)), CHANT_W);
+      renderExsurge(cont, gabcForPsalm(noGloria ? vv : vv.concat(GLORIA2), toneForMode(mode)), CHANT_W);
     } else {
       var body = el("div", "off-verses off-verses--pointed");
       vv.forEach(function (v, i) { body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v))); });
@@ -597,6 +658,19 @@
     var sk = li.season === "Adventus" ? "adv" : li.season === "Quadragesima" ? "quad" :
       li.season === "Tempus Passionis" ? "quad5" : li.season === "Tempus Paschale" ? "pasch" : null;
     if (sk && C[sk]) return isL ? C[sk].laudes : C[sk].vespera;
+    return null;
+  }
+  // Brief versicle after the hymn at Lauds/Vespers (temporal; feasts use the Common, to come).
+  function versicleFor(li, hourKey) {
+    var V = TEMPORAL.versicles; if (!V || li.feast) return null;
+    var isL = hourKey === "laudes";
+    if (li.color === "green" || li.season === "Septuagesima") {
+      if (!V.pa) return null;
+      return isL ? (li.isSunday ? V.pa.laudesSun : V.pa.laudesFer) : (li.isSunday ? V.pa.vesperaSun : V.pa.vesperaFer);
+    }
+    var sk = li.season === "Adventus" ? "adv" : li.season === "Quadragesima" ? "quad" :
+      li.season === "Tempus Passionis" ? "quad5" : li.season === "Tempus Paschale" ? "pasch" : null;
+    if (sk && V[sk]) return isL ? V[sk].laudes : V[sk].vespera;
     return null;
   }
   // "Alleluia" is said all year EXCEPT Septuagesima through Holy Saturday.
@@ -641,11 +715,12 @@
     var ant = li.paschal ? "Alleluia, alleluia, alleluia."
       : ((c.antiphons && c.antiphons[li.weekdayKey]) || c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
     var psSection = el("div", "off-psalms");
+    var cm = modeOf(ant);
     psSection.appendChild(antLine(ant));
     // Compline psalms follow the weekly cycle (Pius X), not a fixed set.
     var psalms = A(SCHEME.completorium && SCHEME.completorium[li.weekdayKey]);
     if (!psalms.length) psalms = [4, 90, 133];
-    psalms.forEach(function (n) { psSection.appendChild(renderPsalm(n, null, true)); });
+    psalms.forEach(function (n) { psSection.appendChild(renderPsalm(n, null, true, cm)); });
     psSection.appendChild(el("p", "off-ant", "Ant. " + ant));
     view.appendChild(psSection);
 
@@ -739,22 +814,24 @@
         // Ferial Lauds/Vespers: each psalm has its own proper antiphon (validated vs DO).
         var seen = {};
         fer.forEach(function (e) {
+          var em = modeOf(e.a);
           sec.appendChild(antLine(e.a));
           if (e.cant) {
-            sec.appendChild(renderCanticle(e.cant, e.ref, CANT[e.cant], e.cant === "Trium Puerorum"));
+            sec.appendChild(renderCanticle(e.cant, e.ref, CANT[e.cant], e.cant === "Trium Puerorum", em));
           } else if (seen[e.n]) {
             sec.appendChild(el("p", "off-psalm__title", "Psalmus " + e.n + (e.d ? " · vv. " + e.d : "") +
               ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + e.n + '/">full &rsaquo;</a>'));
           } else {
-            sec.appendChild(renderPsalm(parseInt(e.n, 10), null, true));
+            sec.appendChild(renderPsalm(parseInt(e.n, 10), null, true, em));
             seen[e.n] = true;
           }
         });
       } else {
         // Little Hours: a single ferial antiphon over the Hour's psalms.
         var lAnt = (LITTLE[hourKey] || {})[li.weekdayKey];
+        var lm = modeOf(lAnt);
         if (lAnt) sec.appendChild(antLine(lAnt));
-        psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
+        psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true, lm)); });
         if (lAnt) sec.appendChild(antLine(lAnt));
       }
       view.appendChild(sec);
@@ -767,7 +844,6 @@
       } else if (lvChap && lvChap.text) {
         // Little chapter at Lauds/Vespers, temporal (per annum or seasonal).
         view.appendChild(block(lvChap.ref ? "Capitulum — " + lvChap.ref : null, rubricate(lvChap.text + "<br>R. Deo grátias.")));
-        view.appendChild(direction("The brief versicle that follows the hymn is proper to the day; it is being wired in next."));
       } else {
         view.appendChild(direction("The little chapter and brief responsory for this Hour are proper — they change with the day and season, and are being wired in from the propers next."));
       }
@@ -798,6 +874,9 @@
           view.appendChild(block(null, '<div class="off-hymn">' + dropCap(htext) + "</div>"));
         }
       }
+      // Brief versicle after the hymn (temporal Lauds/Vespers).
+      var lvVers = versicleFor(li, hourKey);
+      if (lvVers) view.appendChild(block(null, rubricate(lvVers)));
       // Gospel canticle: Benedictus at Lauds, Magnificat at Vespers.
       var gospel = hourKey === "laudes" ? "Benedictus" : hourKey === "vesperae" ? "Magnificat" : null;
       if (gospel && A(CANT[gospel]).length) {
@@ -807,8 +886,11 @@
         // the antiphon is proper (from the day itself) and is supplied by the calendar layer.
         var gAnt = null;
         if (li.feast && li.feastKey && SANCT_G.antiphons && SANCT_G.antiphons[li.feastKey]) {
-          // Proper gospel antiphon of the feast (Apostles etc. draw on the Common).
+          // Proper gospel antiphon of the feast (major feasts).
           gAnt = SANCT_G.antiphons[li.feastKey][gospel === "Benedictus" ? "b" : "mg"];
+        } else if (li.feast && li.feastCommon && COMMONS[li.feastCommon] && COMMONS[li.feastCommon].ben) {
+          // Lesser feast: gospel antiphon from its Common.
+          gAnt = COMMONS[li.feastCommon][gospel === "Benedictus" ? "ben" : "mag"];
         } else if (!li.feast) {
           if (li.isSunday && li.sundayKey && SUNDAY_G.antiphons && SUNDAY_G.antiphons[li.sundayKey]) {
             // Proper Sunday antiphon, from the day's own Gospel.
@@ -821,7 +903,7 @@
         if (gAnt) {
           view.appendChild(direction("The sign of the cross is made at the opening words; the antiphon is said before and, doubled, after the canticle."));
           view.appendChild(antLine(gAnt));
-          view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel]));
+          view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel], false, modeOf(gAnt)));
           view.appendChild(antLine(gAnt));
         } else {
           view.appendChild(direction("Its antiphon is proper to the day (from the Sunday or feast) — supplied by the calendar layer, to come. The sign of the cross is made at the opening words."));
@@ -889,7 +971,7 @@
       '<div class="office-date__pill office-color--' + li.color + '">' + li.color + '</div>' +
       '<div><div class="office-date__lat">' + li.title + "</div>" +
       '<div class="office-date__en">' + li.englishDate + " &mdash; " +
-      (li.feast ? (li.feastEn || (li.feastRank === 1 ? "First class feast" : "Second class feast") + " · " + li.seasonEn)
+      (li.feast ? (li.feastEn || ({ 1: "First", 2: "Second", 3: "Third" }[li.feastRank] || "Third") + " class feast · " + li.seasonEn)
         : li.seasonEn + (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "")) +
       "</div></div>";
 

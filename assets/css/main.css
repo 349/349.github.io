@@ -404,6 +404,9 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 }
 .office-dateinput:hover { border-color: var(--accent-dim); }
 
+.off-ant-chant { margin-top: 0.15rem; }
+.off-ant-chant svg { max-width: 100%; height: auto; }
+
 .office-hour { max-width: var(--measure); }
 .office-hour__title {
   font-family: var(--font-serif); font-size: var(--step-2); color: var(--ink-strong);

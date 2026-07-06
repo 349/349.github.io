@@ -130,6 +130,31 @@
    "vespera": {"ref": "Rom. 6, 9-10", "text": "Christus resúrgens ex mórtuis iam non móritur, mors illi ultra non dominábitur. Quod enim mórtuus est peccáto, mórtuus est semel: quod autem vivit, vivit Deo."}
   }
  },
+ "versicles": {
+  "_note": "Brief versicle after the hymn at Lauds and Vespers. pa = per annum (green + Septuagesima), distinct Sunday/ferial; seasonal otherwise.",
+  "pa": {
+   "laudesSun": "V. Dóminus regnávit, decórem índuit.<br>R. Índuit Dóminus fortitúdinem, et præcínxit se virtúte.",
+   "laudesFer": "V. Repléti sumus mane misericórdia tua.<br>R. Exsultávimus, et delectáti sumus.",
+   "vesperaSun": "V. Dirigátur, Dómine, orátio mea.<br>R. Sicut incénsum in conspéctu tuo.",
+   "vesperaFer": "V. Vespertína orátio ascéndat ad te, Dómine.<br>R. Et descéndat super nos misericórdia tua."
+  },
+  "adv": {
+   "laudes": "V. Vox clamántis in desérto: Paráte viam Dómini.<br>R. Rectas fácite sémitas eius.",
+   "vespera": "V. Roráte, cæli, désuper, et nubes pluant iustum.<br>R. Aperiátur terra, et gérminet Salvatórem."
+  },
+  "quad": {
+   "laudes": "V. Ángelis suis Deus mandávit de te.<br>R. Ut custódiant te in ómnibus viis tuis.",
+   "vespera": "V. Ángelis suis Deus mandávit de te.<br>R. Ut custódiant te in ómnibus viis tuis."
+  },
+  "quad5": {
+   "laudes": "V. Éripe me de inimícis meis, Deus meus.<br>R. Et ab insurgéntibus in me líbera me.",
+   "vespera": "V. Éripe me, Dómine, ab hómine malo.<br>R. A viro iníquo éripe me."
+  },
+  "pasch": {
+   "laudes": "V. In resurrectióne tua, Christe, allelúia.<br>R. Cæli et terra læténtur, allelúia.",
+   "vespera": "V. Mane nobíscum, Dómine, allelúia.<br>R. Quóniam advesperáscit, allelúia."
+  }
+ },
  "ferialGospel": {
   "benedictus": {
    "mon": "Benedíctus Dóminus Deus Israël, quia visitávit et liberávit nos.",
