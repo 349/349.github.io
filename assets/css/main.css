@@ -426,6 +426,19 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 /* flowing chant staves (dark mode, no external library) */
 .off-chant-flow { margin: 0.5rem 0 1rem; }
 .off-staff { display: block; max-width: 100%; height: auto; margin: 1px 0; }
+
+/* Exsurge-rendered chant, recolored for dark mode: red staff, light neumes/text */
+.off-tone-label {
+  font-family: var(--font-serif); font-style: italic; font-size: 0.82rem;
+  color: var(--rubric); margin: 0.5rem 0 0.1rem;
+}
+.off-exsurge { margin: 0.2rem 0 1rem; overflow-x: auto; }
+.off-exsurge svg { max-width: 100%; height: auto; display: block; }
+.off-exsurge svg .StaffLine { stroke: #b6503c; }
+.off-exsurge svg path, .off-exsurge svg use, .off-exsurge svg rect { fill: #ece8df; }
+.off-exsurge svg line:not(.StaffLine) { stroke: #ece8df; }
+.off-exsurge svg text, .off-exsurge svg tspan { fill: #ded9cf; }
+.off-exsurge svg .DropCap text, .off-exsurge svg .DropCap tspan { fill: #cf5442; }
 .off-verses--pointed { margin: 0.4rem 0; }
 .off-pverse {
   position: relative; margin: 0 0 0.4rem; padding-left: 2.1rem;
@@ -481,12 +494,15 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
   margin: 0.06em 0.14em 0 0;
 }
 
-/* prayers said silently (secreto): a quiet, set-apart style */
-.off-secreto { border-left: 2px solid var(--rule); padding-left: 1rem; }
-.off-secreto .off-text { color: var(--ink-muted); font-style: italic; }
+/* prayers said silently (secreto): a distinctly quiet, set-apart style */
+.off-secreto { border-left: 2px solid var(--accent-dim); padding-left: 1rem; margin: 1.2rem 0; }
+.off-secreto .off-text {
+  color: var(--ink-muted); font-style: italic; font-size: 0.94em;
+  letter-spacing: 0.01em; line-height: 1.7;
+}
 .off-secreto-label {
-  font-family: var(--font-sans); font-size: 0.68rem; text-transform: uppercase;
-  letter-spacing: 0.12em; color: var(--rubric); margin: 0 0 0.4rem; font-style: normal;
+  font-family: var(--font-sans); font-size: 0.66rem; text-transform: uppercase;
+  letter-spacing: 0.14em; color: var(--rubric); margin: 0 0 0.4rem; font-style: normal;
 }
 
 /* priest / lay recitation toggle */

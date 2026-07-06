@@ -357,124 +357,48 @@
     return parts.filter(function (s) { return s.length; });
   }
   var PTONE = { tenor: "h", intonation: ["g", "h"], mediant: ["g", "h"], termination: ["h", "g", "g"] };
-  // One hemistich → array of { t, ws, note } items.
-  function stichItems(text, opts) {
-    opts = opts || {};
-    var words = String(text).replace(/[*‡]/g, "").trim().split(/\s+/).filter(Boolean);
-    var syls = [];
-    words.forEach(function (word) { syllabify(word).forEach(function (s, si) { syls.push({ t: s, ws: si === 0 }); }); });
-    var N = syls.length; if (!N) return [];
+  // Build GABC (Gregorio/Exsurge notation) for a pointed hemistich: the intonation
+  // and cadence syllables carry the tone's notes; the middle recites on the tenor.
+  function gabcHemi(text, opts) {
+    var words = String(text).replace(/[*‡]/g, "").trim().split(/\s+/).filter(Boolean), syls = [];
+    words.forEach(function (w) { syllabify(w).forEach(function (s, si) { syls.push({ t: s, ws: si === 0 }); }); });
+    var N = syls.length; if (!N) return "";
+    var inC = opts.intone ? Math.min(PTONE.intonation.length, N) : 0;
+    var caC = Math.min((opts.final ? PTONE.termination : PTONE.mediant).length, N - inC);
+    var reEnd = N - caC;
     var notes = syls.map(function () { return PTONE.tenor; });
-    if (opts.intone) for (var i = 0; i < PTONE.intonation.length && i < N; i++) notes[i] = PTONE.intonation[i];
+    for (var i = 0; i < inC; i++) notes[i] = PTONE.intonation[i];
     var cad = opts.final ? PTONE.termination : PTONE.mediant;
-    for (var j = 0; j < cad.length && j < N; j++) { var idx = N - cad.length + j; if (idx >= 0) notes[idx] = cad[j]; }
-    return syls.map(function (s, i) { return { t: s.t, ws: s.ws, note: notes[i] }; });
-  }
-  function verseItems(pointed, intone) {
-    var h = String(pointed).split(/\s*\*\s*/);
-    return stichItems(h[0], { intone: intone })
-      .concat([{ bar: "half" }])
-      .concat(stichItems(h.slice(1).join(" "), { final: true }));
-  }
-  // One continuous item stream for a whole psalm. Whole verses alternate bold /
-  // normal (the two sides of the choir); each verse ends with a bar, the psalm
-  // with a double (final) bar.
-  function chantStream(verses) {
-    var out = [];
-    verses.forEach(function (v, vi) {
-      var it = verseItems(v, vi === 0), bold = vi % 2 === 1;
-      it.forEach(function (x) { if (!x.bar) x.bold = bold; });
-      out = out.concat(it, [{ bar: "verse" }]);
-    });
-    if (out.length) out[out.length - 1] = { bar: "final" };
+    for (var j = 0; j < caC; j++) notes[reEnd + j] = cad[j];
+    var out = "";
+    syls.forEach(function (s, i) { out += (i > 0 && s.ws ? " " : "") + s.t.replace(/[()]/g, "") + "(" + notes[i] + ")"; });
     return out;
   }
-  var STEP = { f: 5, g: 6, h: 7, i: 8, j: 9, k: 10 };
-  function sylW(t) { return Math.max(8, t.length * 6.6); }         // rough syllable text width
-  // Tight, word-aware advance: syllable + small pad; wider gap only between words.
-  function itemAdv(it, next) {
-    if (it.bar) return it.bar === "final" ? 13 : 11;
-    var w = sylW(it.t) + 3;
-    if (next) { if (next.bar) w += 5; else if (next.ws) w += 8; else w += 1; }
-    return w;
+  function gabcVerse(v, intone) {
+    var h = String(v).split(/\s*\*\s*/);
+    return gabcHemi(h[0], { intone: intone }) + " *(;) " + gabcHemi(h.slice(1).join(" "), { final: true });
   }
-  function lastWS(arr) { for (var k = arr.length - 1; k > 0; k--) if (arr[k].ws) return k; return -1; }
-  function firstNote(line) { for (var i = 0; i < line.length; i++) if (!line[i].bar) return line[i].note; return null; }
-  // Wrap the stream into staff lines ≤ W px, never splitting a word across lines.
-  function flowChant(items, W, firstIndent) {
-    var lines = [], cur = [], x = firstIndent || 28;
-    items.forEach(function (it, idx) {
-      var a = itemAdv(it, items[idx + 1]);
-      if (x + a > W && cur.length) {
-        if (!it.bar && it.ws) { lines.push(cur); cur = []; x = 28; }
-        else {
-          var ws = lastWS(cur);
-          if (ws > 0) { var carry = cur.splice(ws); lines.push(cur); cur = carry; x = 28; carry.forEach(function (c, ci) { x += itemAdv(c, carry[ci + 1]); }); }
-          else { lines.push(cur); cur = []; x = 28; }
-        }
-      }
-      cur.push(it); x += a;
+  function gabcForPsalm(verses) {
+    return "(c4) " + verses.map(function (v, i) { return gabcVerse(v, i === 0) + (i < verses.length - 1 ? " (:) " : " (::)"); }).join("");
+  }
+  // Render GABC with Exsurge into a container (async; recolored for dark mode via CSS).
+  function whenExsurge(cb) {
+    if (window.exsurge && window.exsurge.Gabc) return cb();
+    var n = 0, t = setInterval(function () { if (window.exsurge && window.exsurge.Gabc) { clearInterval(t); cb(); } else if (++n > 160) clearInterval(t); }, 60);
+  }
+  function renderExsurge(container, gabc, width) {
+    whenExsurge(function () {
+      try {
+        var ctxt = new exsurge.ChantContext();
+        var score = exsurge.Gabc.loadChantScore(ctxt, gabc, true);
+        score.performLayout(ctxt, function () {
+          score.layoutChantLines(ctxt, Math.max(280, width || 640), function () {
+            try { container.innerHTML = score.createDrawable(ctxt); }
+            catch (e) { container.innerHTML = '<p class="muted">(chant could not render)</p>'; }
+          });
+        });
+      } catch (e) { container.innerHTML = '<p class="muted">(chant unavailable)</p>'; }
     });
-    if (cur.length) lines.push(cur);
-    return lines;
-  }
-  // One staff line → SVG in the singtheoffice manner, tuned for dark mode: red
-  // staff, light square notes/text, alternating bold verses, drop cap, mode, custos.
-  function chantSystem(line, opts) {
-    opts = opts || {};
-    var HS = 5, topY = 16, startX = opts.startX || 28;
-    function y(p) { return topY + (10 - p) * HS; }
-    var x = startX, notes = [], texts = [], bars = [], hys = [];
-    line.forEach(function (it, i) {
-      var next = line[i + 1];
-      if (it.bar) {
-        if (it.bar === "final") {
-          bars.push('<line x1="' + (x + 3) + '" y1="' + y(10) + '" x2="' + (x + 3) + '" y2="' + y(4) + '" stroke="#c2bcb1" stroke-width="1.3"/>' +
-            '<line x1="' + (x + 6) + '" y1="' + y(10) + '" x2="' + (x + 6) + '" y2="' + y(4) + '" stroke="#c2bcb1" stroke-width="1.3"/>');
-        } else {
-          var full = it.bar === "verse";
-          bars.push('<line x1="' + (x + 3) + '" y1="' + y(full ? 10 : 9) + '" x2="' + (x + 3) + '" y2="' + y(full ? 4 : 6) + '" stroke="#c2bcb1" stroke-width="1.1"/>');
-        }
-        x += itemAdv(it, next); return;
-      }
-      var a = itemAdv(it, next), cx = x + sylW(it.t) / 2, p = STEP[it.note] != null ? STEP[it.note] : 7, ny = y(p);
-      notes.push('<rect x="' + (cx - 3.5) + '" y="' + (ny - 3.5) + '" width="7" height="7" fill="#ece8df"/>');
-      texts.push('<text x="' + cx + '" y="' + (y(4) + 18) + '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="' +
-        (it.bold ? "#f6f4ee" : "#ded9cf") + '"' + (it.bold ? ' font-weight="700"' : "") + ">" + esc(it.t) + "</text>");
-      if (next && !next.bar && !next.ws) hys.push('<text x="' + (cx + sylW(it.t) / 2 + 2) + '" y="' + (y(4) + 18) +
-        '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#7c766c">-</text>');
-      x += a;
-    });
-    var contentR = x, custos = "";
-    if (opts.custos != null) {
-      var cp = STEP[opts.custos] != null ? STEP[opts.custos] : 7, cyy = y(cp), cxx = contentR + 6;
-      custos = '<path d="M' + cxx + " " + (cyy + 3) + " L" + (cxx + 5) + " " + (cyy - 1) + " L" + (cxx + 5) + " " + (cyy - 6) + '" fill="none" stroke="#ece8df" stroke-width="1.3"/>' +
-        '<rect x="' + (cxx - 1) + '" y="' + (cyy - 1) + '" width="5" height="5" fill="#ece8df"/>';
-      contentR = cxx + 8;
-    }
-    var Wl = contentR + 6;
-    var st = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (Wl - 4) + '" y2="' + y(p) + '" stroke="#b6503c" stroke-width="1"/>'; }).join("");
-    var clefX = opts.clefX || 10, cy = y(8);
-    var clef = '<rect x="' + clefX + '" y="' + (cy - 9) + '" width="6" height="7" fill="#ece8df"/><rect x="' + clefX + '" y="' + (cy + 1) + '" width="6" height="7" fill="#ece8df"/>';
-    var extra = "";
-    if (opts.dropcap) extra += '<text x="6" y="' + (y(4) + 14) + '" font-family="Georgia,serif" font-weight="700" font-size="42" fill="#cf5442">' + esc(opts.dropcap) + "</text>";
-    if (opts.mode) extra += '<text x="6" y="10" font-family="Georgia,serif" font-style="italic" font-size="11" fill="#cf5442">' + esc(opts.mode) + "</text>";
-    return '<svg viewBox="0 0 ' + Wl + " " + (y(4) + 26) + '" width="' + Wl + '" xmlns="http://www.w3.org/2000/svg" class="off-staff">' +
-      st + clef + extra + bars.join("") + custos + notes.join("") + hys.join("") + texts.join("") + "</svg>";
-  }
-  function psalmChant(verses, mode) {
-    var stream = chantStream(verses), dc = null, fi = 28;
-    for (var i = 0; i < stream.length; i++) {
-      if (!stream[i].bar) {
-        if (stream[i].t && stream[i].t.length > 1) { dc = stream[i].t.charAt(0); stream[i].t = stream[i].t.slice(1); fi = 72; }
-        break;
-      }
-    }
-    var lines = flowChant(stream, CHANT_W, fi);
-    return lines.map(function (l, idx) {
-      var nx = lines[idx + 1];
-      return chantSystem(l, { startX: idx === 0 ? fi : 28, clefX: idx === 0 && dc ? 50 : 10, dropcap: idx === 0 ? dc : null, mode: idx === 0 ? mode : null, custos: nx ? firstNote(nx) : null });
-    }).join("");
   }
 
   function renderPsalm(num, antiphonHtml, gloria) {
@@ -488,12 +412,16 @@
     if (antiphonHtml) wrap.appendChild(antLine(antiphonHtml));
     if (!verses.length) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
 
-    // Sung mode: the whole psalm as continuous, wrapping chant lines (dark mode).
+    // Sung mode: render the psalm to Gregorian notation (Exsurge), dark-recolored.
     if (SUNG && isPointed) {
       var many = verses.length > 20;
       var sungVerses = many ? verses.slice(0, 14) : verses.slice();
       if (!many && gloria !== false) sungVerses = sungVerses.concat(GLORIA2);
-      wrap.appendChild(el("div", "off-chant-flow", psalmChant(sungVerses, "Tonus VIII")));
+      wrap.appendChild(el("p", "off-tone-label", "Tonus VIII"));
+      var cont = el("div", "off-exsurge");
+      cont.innerHTML = '<p class="muted">Setting the tone…</p>';
+      wrap.appendChild(cont);
+      renderExsurge(cont, gabcForPsalm(sungVerses), CHANT_W);
       if (many) wrap.appendChild(el("p", "muted off-chant-more",
         "… " + verses.length + " verses; first 14 shown sung — " +
         '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
@@ -556,7 +484,11 @@
     // — Examination & Confiteor —
     view.appendChild(section("Confíteor", "Examination of Conscience"));
     view.appendChild(direction("A short examination of conscience is made in silence; then the Confiteor is said."));
-    if (c.examen) view.appendChild(block(null, rubricate(c.examen)));
+    view.appendChild(secretoBlock("Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum quotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen."));
+    if (c.examen) {
+      var exRest = c.examen.split("<br>").slice(1).join("<br>");
+      if (exRest) view.appendChild(block(null, rubricate(exRest)));
+    }
 
     // — Opening versicles —
     view.appendChild(section("Versus", "Opening Versicles"));
