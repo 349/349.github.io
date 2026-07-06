@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -57,6 +57,9 @@
     LAUD = dearray(d.LAUDS != null ? d.LAUDS : window.LAUDS) || {};
     CANT = dearray(d.CANTICLES != null ? d.CANTICLES : window.CANTICLES) || {};
     LITTLE = dearray(d.HOURS != null ? d.HOURS : window.HOURS_ANT) || {};
+    SANCT = dearray(d.SANCTORAL != null ? d.SANCTORAL : window.SANCTORAL) || {};
+    TEMPORAL = dearray(d.TEMPORAL != null ? d.TEMPORAL : window.TEMPORAL) || {};
+    HYMNS = dearray(d.HYMNS != null ? d.HYMNS : window.HYMNS) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -69,7 +72,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -186,14 +189,26 @@
       [addDays(E, 68), "Sacratíssimum Cor Iesu", "Sacred Heart", "white"],
       [christKing, "D. N. Iesu Christi Regis", "Christ the King", "white"]
     ];
-    var feast = null, feastEn = null;
+    var feast = null, feastEn = null, feastRank = null;
+    // Fixed sanctoral (simplified precedence: I class always takes the day; II class
+    // yields to a Sunday, on which it would be commemorated).
+    var mmdd = String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var s = SANCT[mmdd];
+    if (s && s.n && (s.r === 1 || (s.r === 2 && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; }
+    // Principal movable feasts override the fixed sanctoral.
     for (var fi = 0; fi < movable.length; fi++) {
-      if (movable[fi][0].getTime() === d.getTime()) { feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; break; }
+      if (movable[fi][0].getTime() === d.getTime()) { feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = 1; break; }
     }
     if (feast) { title = feast; wr = ""; }
 
+    // Per-day collect key: on a feria the collect is that of the preceding Sunday.
+    // Post-Pentecost is complete (I-XXIV); weeks past 24 (resumed Sundays) clamp to XXIV.
+    var collectKey = null;
+    if (season === "Post Pentecosten" && week >= 1) collectKey = "pent-" + Math.min(week, 24);
+
     return {
-      feast: feast, feastEn: feastEn,
+      collectKey: collectKey,
+      feast: feast, feastEn: feastEn, feastRank: feastRank,
       date: d, iso: fmtISO(d),
       englishDate: WD_EN[dow] + ", " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(),
       weekdayIndex: dow, weekdayLat: WD_LAT[dow], weekdayEn: WD_EN[dow], weekdayKey: WD_KEY[dow],
@@ -703,19 +718,56 @@
       } else {
         view.appendChild(direction("The little chapter and brief responsory for this Hour are proper — they change with the day and season, and are being wired in from the propers next."));
       }
+      // Ferial hymn (Lauds/Vespers, per annum): after the little chapter, before the
+      // gospel canticle. Roman "alme" forms; on Sundays/feasts the hymn is proper (to come).
+      if ((hourKey === "laudes" || hourKey === "vesperae") && li.color === "green" && !li.isSunday && !li.feast) {
+        var hset = HYMNS[hourKey === "laudes" ? "laudes" : "vespera"];
+        var htext = hset && hset[li.weekdayKey];
+        if (htext) {
+          view.appendChild(section("Hymnus", "Hymn"));
+          if (hourKey === "vesperae" && li.weekdayKey === "sat")
+            view.appendChild(direction("Saturday Vespers is the First Vespers of the coming Sunday."));
+          view.appendChild(block(null, '<div class="off-hymn">' + dropCap(htext) + "</div>"));
+        }
+      }
       // Gospel canticle: Benedictus at Lauds, Magnificat at Vespers.
       var gospel = hourKey === "laudes" ? "Benedictus" : hourKey === "vesperae" ? "Magnificat" : null;
       if (gospel && A(CANT[gospel]).length) {
         view.appendChild(section(gospel === "Benedictus" ? "Canticum Zacharíæ" : "Canticum B. Maríæ Vírginis",
           gospel === "Benedictus" ? "Benedictus — Luc. 1" : "Magnificat — Luc. 1"));
-        view.appendChild(direction("Its antiphon is proper to the day (from the Sunday or feast) — supplied by the calendar layer, to come. The sign of the cross is made at the opening words."));
-        view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel]));
+        // Ferial gospel-canticle antiphon (per annum weekdays). On Sundays and feasts
+        // the antiphon is proper (from the day itself) and is supplied by the calendar layer.
+        var gAnt = null;
+        if (li.color === "green" && !li.isSunday && !li.feast && TEMPORAL.ferialGospel) {
+          var gset = gospel === "Benedictus" ? TEMPORAL.ferialGospel.benedictus : TEMPORAL.ferialGospel.magnificat;
+          if (gset) gAnt = gset[li.weekdayKey];
+        }
+        if (gAnt) {
+          view.appendChild(direction("The sign of the cross is made at the opening words; the antiphon is said before and, doubled, after the canticle."));
+          view.appendChild(antLine(gAnt));
+          view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel]));
+          view.appendChild(antLine(gAnt));
+        } else {
+          view.appendChild(direction("Its antiphon is proper to the day (from the Sunday or feast) — supplied by the calendar layer, to come. The sign of the cross is made at the opening words."));
+          view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel]));
+        }
       }
       view.appendChild(section("Oratio · Conclusio", "Collect · Conclusion"));
-      view.appendChild(block(null, rubricate(roleize(
-        "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>" +
+      var col = null;
+      if (li.collectKey && TEMPORAL.collects) {
+        var ck = li.collectKey.split("-"), cg = TEMPORAL.collects[ck[0]];
+        if (cg) col = cg[ck[1]];
+      }
+      var conclusion = "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>" +
         "V. Benedicámus Dómino. R. Deo grátias.<br>" +
-        "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen."))));
+        "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen.";
+      if (col) {
+        if (!li.isSunday) view.appendChild(direction("On a feria the collect is that of the preceding Sunday."));
+        view.appendChild(block(null, rubricate(roleize(
+          "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>Orémus.<br>" + col + "<br>" +
+          (TEMPORAL.conclusion || "Per Dóminum nostrum Iesum Christum. R. Amen.")))));
+      }
+      view.appendChild(block(null, rubricate(roleize(conclusion))));
     } else {
       view.appendChild(el("p", "office-todo",
         "No psalter data yet for " + meta.en + " on " + li.weekdayLat + "."));
@@ -755,7 +807,8 @@
       '<div class="office-date__pill office-color--' + li.color + '">' + li.color + '</div>' +
       '<div><div class="office-date__lat">' + li.title + "</div>" +
       '<div class="office-date__en">' + li.englishDate + " &mdash; " +
-      (li.feast ? li.feastEn : li.seasonEn + (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "")) +
+      (li.feast ? (li.feastEn || (li.feastRank === 1 ? "First class feast" : "Second class feast") + " · " + li.seasonEn)
+        : li.seasonEn + (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "")) +
       "</div></div>";
 
     // hour nav
@@ -805,6 +858,9 @@
     function renderHour(scroll) {
       CHANT_W = Math.max(280, Math.min(viewEl.clientWidth || 660, 680)) - 6;
       viewEl.innerHTML = "";
+      // On a feast we can name the day, but its proper office isn't assembled yet.
+      if (li.feast) viewEl.appendChild(el("p", "office-todo",
+        "Today is a feast — <strong>" + li.feast + "</strong>. Its proper office (proper psalms, antiphons, lessons, and collect) is not yet assembled; the ferial framework is shown below for reference."));
       try {
         viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
       } catch (err) {

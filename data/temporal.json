@@ -1,0 +1,50 @@
+{
+ "_note": "Proper of Time — the per-day layer. collects: Sunday collects keyed by season+week; on a feria the collect is that of the preceding Sunday. ferialGospel: per-weekday Benedictus (Lauds) and Magnificat (Vespers) antiphons said on ferias per annum (green time). Source: Divinum Officium (Rubrics 1960), converted to i-spelling. Post-Pentecost is complete (I-XXIV); other seasons' collects are to be added. The last Sundays before Advent (resumed Sundays after Epiphany) are approximated by the nearest post-Pentecost collect.",
+ "collects": {
+  "pent": {
+   "1": "Deus, in te sperántium fortitúdo, adésto propítius invocatiónibus nostris: et, quia sine te nihil potest mortális infírmitas, præsta auxílium grátiæ tuæ; ut, in exsequéndis mandátis tuis, et voluntáte tibi et actióne placeámus.",
+   "2": "Sancti nóminis tui, Dómine, timórem páriter et amórem fac nos habére perpétuum: quia nunquam tua gubernatióne destítuis, quos in soliditáte tuæ dilectiónis instítuis.",
+   "3": "Protéctor in te sperántium, Deus, sine quo nihil est válidum, nihil sanctum; multíplica super nos misericórdiam tuam; ut, te rectóre, te duce, sic transeámus per bona temporália, ut non amittámus ætérna.",
+   "4": "Da nobis, quǽsumus, Dómine: ut et mundi cursus pacífice nobis tuo órdine dirigátur; et Ecclésia tua tranquílla devotióne lætétur.",
+   "5": "Deus, qui diligéntibus te bona invisibília præparásti: infúnde córdibus nostris tui amóris afféctum; ut te in ómnibus et super ómnia diligéntes, promissiónes tuas, quæ omne desidérium súperant, consequámur.",
+   "6": "Deus virtútum, cuius est totum quod est óptimum: ínsere pectóribus nostris amórem tui nóminis, et præsta in nobis religiónis augméntum; ut, quæ sunt bona, nútrias, ac pietátis stúdio, quæ sunt nutríta, custódias.",
+   "7": "Deus, cuius providéntia in sui dispositióne non fállitur: te súpplices exorámus; ut nóxia cuncta submóveas, et ómnia nobis profutúra concédas.",
+   "8": "Largíre nobis, quǽsumus, Dómine, semper spíritum cogitándi quæ recta sunt, propítius et agéndi: ut, qui sine te esse non póssumus, secúndum te vívere valeámus.",
+   "9": "Páteant aures misericórdiæ tuæ, Dómine, précibus supplicántium: et, ut peténtibus desideráta concédas; fac eos, quæ tibi sunt plácita, postuláre.",
+   "10": "Deus, qui omnipoténtiam tuam parcéndo máxime et miserándo maniféstas: multíplica super nos misericórdiam tuam; ut, ad tua promíssa curréntes, cæléstium bonórum fácias esse consórtes.",
+   "11": "Omnípotens sempitérne Deus, qui, abundántia pietátis tuæ, et mérita súpplicum excédis et vota: effúnde super nos misericórdiam tuam; ut dimíttas quæ consciéntia métuit, et adícias quod orátio non præsúmit.",
+   "12": "Omnípotens et miséricors Deus, de cuius múnere venit, ut tibi a fidélibus tuis digne et laudabíliter serviátur: tríbue, quǽsumus, nobis; ut ad promissiónes tuas sine offensióne currámus.",
+   "13": "Omnípotens sempitérne Deus, da nobis fídei, spei et caritátis augméntum: et, ut mereámur ássequi quod promíttis, fac nos amáre quod prǽcipis.",
+   "14": "Custódi, Dómine, quǽsumus, Ecclésiam tuam propitiatióne perpétua: et quia sine te lábitur humána mortálitas; tuis semper auxíliis et abstrahátur a nóxiis et ad salutária dirigátur.",
+   "15": "Ecclésiam tuam, Dómine, miserátio continuáta mundet et múniat: et quia sine te non potest salva consístere; tuo semper múnere gubernétur.",
+   "16": "Tua nos, quǽsumus, Dómine, grátia semper et prævéniat et sequátur: ac bonis opéribus iúgiter præstet esse inténtos.",
+   "17": "Da, quǽsumus, Dómine, pópulo tuo diabólica vitáre contágia: et te solum Deum pura mente sectári.",
+   "18": "Dírigat corda nostra, quǽsumus, Dómine, tuæ miseratiónis operátio: quia tibi sine te placére non póssumus.",
+   "19": "Omnípotens et miséricors Deus, univérsa nobis adversántia propitiátus exclúde: ut mente et córpore páriter expedíti, quæ tua sunt, líberis méntibus exsequámur.",
+   "20": "Largíre, quǽsumus, Dómine, fidélibus tuis indulgéntiam placátus et pacem: ut páriter ab ómnibus mundéntur offénsis, et secúra tibi mente desérviant.",
+   "21": "Famíliam tuam, quǽsumus, Dómine, contínua pietáte custódi: ut a cunctis adversitátibus te protegénte, sit líbera; et in bonis áctibus tuo nómini sit devóta.",
+   "22": "Deus, refúgium nostrum et virtus: adésto piis Ecclésiæ tuæ précibus, auctor ipse pietátis, et præsta; ut, quod fidéliter pétimus, efficáciter consequámur.",
+   "23": "Absólve, quǽsumus, Dómine, tuórum delícta populórum: ut a peccatórum néxibus, quæ pro nostra fragilitáte contráximus, tua benignitáte liberémur.",
+   "24": "Excita, quǽsumus, Dómine, tuórum fidélium voluntátes: ut, divíni óperis fructum propénsius exsequéntes; pietátis tuæ remédia maióra percípiant."
+  }
+ },
+ "conclusion": "Per Dóminum nostrum Iesum Christum, Fílium tuum: qui tecum vivit et regnat in unitáte Spíritus Sancti, Deus, per ómnia sǽcula sæculórum. R. Amen.",
+ "ferialGospel": {
+  "benedictus": {
+   "mon": "Benedíctus Dóminus Deus Israël, quia visitávit et liberávit nos.",
+   "tue": "Eréxit nobis Dóminus cornu salútis in domo David púeri sui.",
+   "wed": "De manu ómnium qui odérunt nos, liberávit nos Dóminus.",
+   "thu": "In sanctitáte serviámus Dómino, et liberábit nos ab inimícis nostris.",
+   "fri": "Per víscera misericórdiæ Dei nostri visitávit nos Óriens ex alto.",
+   "sat": "Illúmina, Dómine, sedéntes in ténebris et umbra mortis, et dírige pedes nostros in viam pacis."
+  },
+  "magnificat": {
+   "mon": "Magníficat ánima mea Dóminum, quia respéxit Deus humilitátem meam.",
+   "tue": "Exsultávit spíritus meus in Deo salutári meo.",
+   "wed": "Respéxit Dóminus humilitátem meam, et fecit in me magna, qui potens est.",
+   "thu": "Fecit Deus poténtiam in brácchio suo: dispérsit supérbos mente cordis sui.",
+   "fri": "Depósuit Dóminus poténtes de sede, et exaltávit húmiles.",
+   "sat": "Suscépit Deus Israël, púerum suum: sicut locútus est ad Ábraham, et semen eius usque in sǽculum."
+  }
+ }
+}
