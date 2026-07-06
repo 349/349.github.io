@@ -387,6 +387,23 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 .office-hour-btn:hover { color: var(--accent-hi); border-color: var(--accent-dim); }
 .office-hour-btn.is-active { background: var(--accent); color: #16171b; border-color: var(--accent); }
 
+/* Date picker */
+.office-datepick { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 1rem; }
+.office-datenav {
+  font-family: var(--font-sans); font-size: 0.9rem; line-height: 1;
+  padding: 0.35rem 0.7rem; border-radius: 100px; cursor: pointer;
+  background: transparent; color: var(--ink-muted); border: 1px solid var(--rule);
+}
+.office-datenav:hover { color: var(--accent-hi); border-color: var(--accent-dim); }
+.office-datenav--today { font-size: 0.78rem; letter-spacing: 0.02em; }
+.office-dateinput {
+  font-family: var(--font-sans); font-size: 0.82rem;
+  padding: 0.32rem 0.6rem; border-radius: 8px;
+  background: transparent; color: var(--ink); border: 1px solid var(--rule);
+  color-scheme: dark;
+}
+.office-dateinput:hover { border-color: var(--accent-dim); }
+
 .office-hour { max-width: var(--measure); }
 .office-hour__title {
   font-family: var(--font-serif); font-size: var(--step-2); color: var(--ink-strong);

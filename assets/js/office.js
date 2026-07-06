@@ -851,6 +851,26 @@
         : li.seasonEn + (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "")) +
       "</div></div>";
 
+    // Date picker — browse the office for any day (not just today).
+    var pick = el("div", "office-datepick");
+    pick.innerHTML =
+      '<button class="office-datenav" data-nav="-1" title="Previous day" aria-label="Previous day">&lsaquo;</button>' +
+      '<input type="date" class="office-dateinput" value="' + li.iso + '">' +
+      '<button class="office-datenav" data-nav="1" title="Next day" aria-label="Next day">&rsaquo;</button>' +
+      '<button class="office-datenav office-datenav--today" data-nav="today">Today</button>';
+    pick.querySelector(".office-dateinput").onchange = function () {
+      if (this.value) location.href = location.pathname + "?date=" + this.value;
+    };
+    Array.prototype.forEach.call(pick.querySelectorAll(".office-datenav"), function (b) {
+      b.onclick = function () {
+        var nav = b.getAttribute("data-nav");
+        if (nav === "today") { location.href = location.pathname; return; }
+        var d = new Date(current.getTime()); d.setDate(d.getDate() + parseInt(nav, 10));
+        location.href = location.pathname + "?date=" + fmtISO(d);
+      };
+    });
+    if (navEl && navEl.parentNode) navEl.parentNode.insertBefore(pick, navEl);
+
     // hour nav
     navEl.innerHTML = "";
     HOUR_ORDER.forEach(function (k) {
