@@ -203,8 +203,17 @@
 
     // Per-day collect key: on a feria the collect is that of the preceding Sunday.
     // Post-Pentecost is complete (I-XXIV); weeks past 24 (resumed Sundays) clamp to XXIV.
+    // Seasons whose ferias take the preceding Sunday's collect. Lent/Passiontide are
+    // omitted — their ferias have daily proper collects (a separate layer, to come).
     var collectKey = null;
     if (season === "Post Pentecosten" && week >= 1) collectKey = "pent-" + Math.min(week, 24);
+    else if (season === "Adventus" && week >= 1) collectKey = "adv-" + Math.min(week, 4);
+    else if (season === "Post Epiphaniam" && week >= 1) collectKey = "epi-" + Math.min(week, 6);
+    else if (season === "Septuagesima" && week >= 1) collectKey = "quadp-" + Math.min(week, 3);
+    else if (season === "Tempus Paschale" && week >= 1) collectKey = "pasc-" + Math.min(week, 6);
+    // Lent/Passiontide ferias have their own proper daily collect (week + weekday).
+    else if (season === "Quadragesima" && dow !== 0) collectKey = "lent-" + week + "-" + dow;
+    else if (season === "Tempus Passionis" && dow !== 0) collectKey = "pass-" + week + "-" + dow;
 
     return {
       collectKey: collectKey,
@@ -720,13 +729,23 @@
       }
       // Ferial hymn (Lauds/Vespers, per annum): after the little chapter, before the
       // gospel canticle. Roman "alme" forms; on Sundays/feasts the hymn is proper (to come).
-      if ((hourKey === "laudes" || hourKey === "vesperae") && li.color === "green" && !li.isSunday && !li.feast) {
-        var hset = HYMNS[hourKey === "laudes" ? "laudes" : "vespera"];
-        var htext = hset && hset[li.weekdayKey];
+      if ((hourKey === "laudes" || hourKey === "vesperae") && !li.feast) {
+        var hk = hourKey === "laudes" ? "laudes" : "vespera";
+        // Green time and Septuagesima use the per-weekday cycle; the penitential and
+        // Paschal seasons use a single seasonal hymn.
+        var perAnnumH = li.color === "green" || li.season === "Septuagesima";
+        var htext = null, satNote = false;
+        if (perAnnumH) {
+          htext = HYMNS[hk] && HYMNS[hk][li.weekdayKey];
+          if (hourKey === "vesperae" && li.weekdayKey === "sat") satNote = true;
+        } else {
+          var sk = li.season === "Adventus" ? "adv" : li.season === "Quadragesima" ? "quad" :
+            li.season === "Tempus Passionis" ? "quad5" : li.season === "Tempus Paschale" ? "pasch" : null;
+          if (sk && HYMNS.seasonal && HYMNS.seasonal[sk]) htext = HYMNS.seasonal[sk][hk];
+        }
         if (htext) {
           view.appendChild(section("Hymnus", "Hymn"));
-          if (hourKey === "vesperae" && li.weekdayKey === "sat")
-            view.appendChild(direction("Saturday Vespers is the First Vespers of the coming Sunday."));
+          if (satNote) view.appendChild(direction("Saturday Vespers is the First Vespers of the coming Sunday."));
           view.appendChild(block(null, '<div class="off-hymn">' + dropCap(htext) + "</div>"));
         }
       }
@@ -738,7 +757,7 @@
         // Ferial gospel-canticle antiphon (per annum weekdays). On Sundays and feasts
         // the antiphon is proper (from the day itself) and is supplied by the calendar layer.
         var gAnt = null;
-        if (li.color === "green" && !li.isSunday && !li.feast && TEMPORAL.ferialGospel) {
+        if ((li.color === "green" || li.season === "Septuagesima") && !li.isSunday && !li.feast && TEMPORAL.ferialGospel) {
           var gset = gospel === "Benedictus" ? TEMPORAL.ferialGospel.benedictus : TEMPORAL.ferialGospel.magnificat;
           if (gset) gAnt = gset[li.weekdayKey];
         }
@@ -756,13 +775,16 @@
       var col = null;
       if (li.collectKey && TEMPORAL.collects) {
         var ck = li.collectKey.split("-"), cg = TEMPORAL.collects[ck[0]];
-        if (cg) col = cg[ck[1]];
+        if (cg) col = cg[ck.slice(1).join("-")];
       }
       var conclusion = "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>" +
         "V. Benedicámus Dómino. R. Deo grátias.<br>" +
         "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen.";
       if (col) {
-        if (!li.isSunday) view.appendChild(direction("On a feria the collect is that of the preceding Sunday."));
+        if (!li.isSunday) view.appendChild(direction(
+          (li.season === "Quadragesima" || li.season === "Tempus Passionis")
+            ? "In Lent and Passiontide each weekday has its own proper collect."
+            : "On a feria the collect is that of the preceding Sunday."));
         view.appendChild(block(null, rubricate(roleize(
           "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>Orémus.<br>" + col + "<br>" +
           (TEMPORAL.conclusion || "Per Dóminum nostrum Iesum Christum. R. Amen.")))));

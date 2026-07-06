@@ -26,6 +26,74 @@
    "22": "Deus, refúgium nostrum et virtus: adésto piis Ecclésiæ tuæ précibus, auctor ipse pietátis, et præsta; ut, quod fidéliter pétimus, efficáciter consequámur.",
    "23": "Absólve, quǽsumus, Dómine, tuórum delícta populórum: ut a peccatórum néxibus, quæ pro nostra fragilitáte contráximus, tua benignitáte liberémur.",
    "24": "Excita, quǽsumus, Dómine, tuórum fidélium voluntátes: ut, divíni óperis fructum propénsius exsequéntes; pietátis tuæ remédia maióra percípiant."
+  },
+  "adv": {
+   "1": "Excita, quǽsumus, Dómine, poténtiam tuam, et veni: ut ab imminéntibus peccatórum nostrórum perículis, te mereámur protegénte éripi, te liberánte salvári.",
+   "2": "Excita, Dómine, corda nostra ad præparándas Unigéniti tui vias: ut, per eius advéntum, purificátis tibi méntibus servíre mereámur.",
+   "3": "Aurem tuam, quǽsumus, Dómine, précibus nostris accómmoda: et mentis nostræ ténebras, grátia tuæ visitatiónis illústra.",
+   "4": "Excita, quǽsumus, Dómine, poténtiam tuam, et veni: et magna nobis virtúte succúrre; ut per auxílium grátiæ tuæ, quod nostra peccáta præpédiunt, indulgéntia tuæ propitiatiónis accéleret."
+  },
+  "epi": {
+   "1": "Dómine Iesu Christe, qui, Maríæ et Ioseph súbditus, domésticam vitam ineffabílibus virtútibus consecrásti: fac nos, utriúsque auxílio, Famíliæ sanctæ tuæ exémplis ínstrui; et consórtium cónsequi sempitérnum.",
+   "2": "Omnípotens sempitérne Deus, qui cæléstia simul et terréna moderáris: supplicatiónes pópuli tui cleménter exáudi; et pacem tuam nostris concéde tempóribus.",
+   "3": "Omnípotens sempitérne Deus, infirmitátem nostram propítius réspice: atque, ad protegéndum nos, déxteram tuæ maiestátis exténde.",
+   "4": "Deus, qui nos in tantis perículis constitútos, pro humána scis fragilitáte non posse subsístere: da nobis salútem mentis et córporis; ut ea, quæ pro peccátis nostris pátimur, te adiuvánte vincámus.",
+   "5": "Famíliam tuam, quǽsumus, Dómine, contínua pietáte custódi: ut, quæ in sola spe grátiæ cœléstis innítitur, tua semper protectióne muniátur.",
+   "6": "Præsta, quǽsumus, omnípotens Deus: ut, semper rationabília meditántes, quæ tibi sunt plácita, et dictis exsequámur et factis."
+  },
+  "quadp": {
+   "1": "Preces pópuli tui, quǽsumus, Dómine, cleménter exáudi: ut, qui iuste pro peccátis nostris afflígimur, pro tui nóminis glória misericórditer liberémur.",
+   "2": "Deus, qui cónspicis, quia ex nulla nostra actióne confídimus: concéde propítius; ut, contra advérsa ómnia Doctóris géntium protectióne muniámur.",
+   "3": "Preces nostras, quǽsumus, Dómine, cleménter exáudi: atque, a peccatórum vínculis absolútos, ab omni nos adversitáte custódi."
+  },
+  "pasc": {
+   "1": "Præsta, quǽsumus, omnípotens Deus: ut qui paschália festa perégimus, hæc, te largiénte, móribus et vita teneámus.",
+   "2": "Deus, qui in Fílii tui humilitáte iacéntem mundum erexísti: fidélibus tuis perpétuam concéde lætítiam; ut, quos perpétuæ mortis eripuísti cásibus, gáudiis fácias pérfrui sempitérnis.",
+   "3": "Deus, qui errántibus, ut in viam possint redíre iustítiæ, veritátis tuæ lumen osténdis: da cunctis, qui christiána professióne censéntur, et illa respúere, quæ huic inimíca sunt nómini; et ea, quæ sunt apta, sectári.",
+   "4": "Deus, qui fidélium mentes uníus éfficis voluntátis: da pópulis tuis id amáre quod prǽcipis, id desideráre quod promíttis; ut inter mundánas varietátes ibi nostra fixa sint corda, ubi vera sunt gáudia.",
+   "5": "Deus, a quo bona cuncta procédunt, largíre supplícibus tuis: ut cogitémus, te inspiránte, quæ recta sunt; et, te gubernánte, éadem faciámus.",
+   "6": "Omnípotens sempitérne Deus: fac nos tibi semper et devótam gérere voluntátem; et maiestáti tuæ sincéro corde servíre."
+  },
+  "lent": {
+   "0-3": "Præsta, Dómine, fidélibus tuis: ut ieiuniórum veneránda solémnia, et cóngrua pietáte suscípiant, et secúra devotióne percúrrant.",
+   "0-4": "Deus, qui culpa offénderis, pæniténtia placáris: preces pópuli tui supplicántis propítius réspice; et flagélla tuæ iracúndiæ, quæ pro peccátis nostris merémur, avérte.",
+   "0-5": "Inchoáta ieiúnia, quǽsumus, Dómine, benígno favóre proséquere: ut observántiam, quam corporáliter exhibémus, méntibus étiam sincéris exercére valeámus.",
+   "0-6": "Adésto, Dómine, supplicatiónibus nostris: et concéde; ut hoc solémne ieiúnium, quod animábus corporibúsque curándis salúbriter institútum est, devóto servítio celebrémus.",
+   "1-1": "Convérte nos, Deus, salutáris noster: et, ut nobis ieiúnium quadragesimále profíciat, mentes nostras cæléstibus ínstrue disciplínis.",
+   "1-2": "Réspice, Dómine, famíliam tuam, et præsta: ut apud te mens nostra tuo desidério fúlgeat, quæ se carnis maceratióne castígat.",
+   "1-3": "Preces nostras, quǽsumus, Dómine, cleménter exáudi: et contra cuncta nobis adversántia déxteram tuæ maiestátis exténde.",
+   "1-4": "Devotiónem pópuli tui, quǽsumus, Dómine, benígnus inténde: ut, qui per abstinéntiam macerántur in córpore, per fructum boni óperis reficiántur in mente.",
+   "1-5": "Esto, Dómine, propítius plebi tuæ: et, quam tibi facis esse devótam, benígno réfove miserátus auxílio.",
+   "1-6": "Pópulum tuum, quǽsumus, Dómine, propítius réspice: atque ab eo flagélla tuæ iracúndiæ cleménter avérte.",
+   "2-1": "Præsta, quǽsumus, omnípotens Deus: ut família tua, quæ se, affligéndo carnem, ab aliméntis ábstinet, sectándo iustítiam, a culpa ieiúnet.",
+   "2-2": "Pérfice, quǽsumus, Dómine, benígnus in nobis observántiæ sanctæ subsídium: ut, quæ te auctóre faciénda cognóvimus, te operánte impleámus.",
+   "2-3": "Pópulum tuum, quǽsumus, Dómine, propítius réspice: et quos ab escis carnálibus prǽcipis abstinére, a nóxiis quoque vítiis cessáre concéde.",
+   "2-4": "Præsta nobis, quǽsumus, Dómine, auxílium grátiæ tuæ: ut, ieiúniis et oratiónibus conveniénter inténti, liberémur ab hóstibus mentis et córporis.",
+   "2-5": "Da, quǽsumus, omnípotens Deus: ut, sacro nos purificánte ieiúnio, sincéris méntibus ad sancta ventúra fácias perveníre.",
+   "2-6": "Da, quǽsumus, Dómine, nostris efféctum ieiúniis salutárem: ut castigátio carnis assúmpta, ad nostrárum vegetatiónem tránseat animárum.",
+   "3-1": "Córdibus nostris, quǽsumus, Dómine, grátiam tuam benígnus infúnde: ut, sicut ab escis carnálibus abstinémus; ita sensus quoque nostros a nóxiis retrahámus excéssibus.",
+   "3-2": "Exáudi nos, omnípotens et miséricors Deus: et continéntiæ salutáris propítius nobis dona concéde.",
+   "3-3": "Præsta nobis, quǽsumus, Dómine: ut salutáribus ieiúniis erudíti, a nóxiis quoque vítiis abstinéntes, propitiatiónem tuam facílius impetrémus.",
+   "3-4": "Magníficet te, Dómine, sanctórum tuórum Cosmæ et Damiáni beáta solémnitas: qua et illis glóriam sempitérnam, et opem nobis ineffábili providéntia contulísti.",
+   "3-5": "Ieiúnia nostra, quǽsumus, Dómine, benígno favóre proséquere: ut, sicut ab aliméntis abstinémus in córpore; ita a vítiis ieiunémus in mente.",
+   "3-6": "Præsta, quǽsumus, omnípotens Deus: ut, qui se, affligéndo carnem, ab aliméntis ábstinent; sectándo iustítiam a culpa ieiúnent.",
+   "4-1": "Præsta, quǽsumus, omnípotens Deus: ut observatiónes sacras ánnua devotióne recoléntes, et córpore tibi placeámus, et mente.",
+   "4-2": "Sacræ nobis, quǽsumus, Dómine, observatiónis ieiúnia: et piæ conversatiónis augméntum, et tuæ propitiatiónis contínuum præstent auxílium.",
+   "4-3": "Deus, qui et iustis prǽmia meritórum, et peccatóribus per ieiúnium véniam præbes: miserére supplícibus tuis; ut reátus nostri conféssio indulgéntiam váleat percípere delictórum.",
+   "4-4": "Præsta, quǽsumus, omnípotens Deus: ut, quos ieiúnia votíva castígant, ipsa quoque devótio sancta lætíficet; ut, terrénis afféctibus mitigátis, facílius cæléstia capiámus.",
+   "4-5": "Deus, qui ineffabílibus mundum rénovas sacraméntis: præsta, quǽsumus; ut Ecclésia tua et ætérnis profíciat institútis, et temporálibus non destituátur auxíliis.",
+   "4-6": "Fiat, Dómine, quǽsumus, per grátiam tuam fructuósus nostræ devotiónis afféctus: quia tunc nobis próderunt suscépta ieiúnia, si tuæ sint plácita pietáti."
+  },
+  "pass": {
+   "1-1": "Sanctífica, quǽsumus, Dómine, nostra ieiúnia: et cunctárum nobis indulgéntiam propítius largíre culpárum.",
+   "1-2": "Nostra tibi, Dómine, quǽsumus, sint accépta ieiúnia: quæ nos et expiándo, grátia tua dignos effíciant, et ad remédia perdúcant ætérna.",
+   "1-3": "Sanctificáto hoc ieiúnio Deus, tuórum corda fidélium miserátor illústra: et, quibus devotiónis præstas afféctum, præbe supplicántibus pium benígnus audítum.",
+   "1-4": "Præsta, quǽsumus, omnípotens Deus: ut dígnitas condiciónis humánæ per immoderántiam sauciáta, medicinális parsimóniæ stúdio reformétur.",
+   "1-5": "Deus, in cuius passióne, secúndum Simeónis prophetíam, dulcíssimam ánimam gloriósæ Vírginis et Matris Maríæ dolóris gládius pertransívit: concéde, propítius; ut qui transfixiónem eius et passiónem venerándo recólimus, gloriósis méritis et précibus ómnium Sanctórum cruci fidéliter astántium intercedéntibus, passiónis tuæ efféctum felícem consequámur.",
+   "1-6": "Profíciat, quǽsumus, Dómine, plebs tibi dicáta, piæ devotiónis afféctu: ut sacris actiónibus erudíta, quanto maiestáti tuæ fit grátior, tanto donis potióribus augeátur.",
+   "2-1": "Da, quǽsumus, omnípotens Deus: ut, qui in tot advérsis ex nostra infirmitáte defícimus; intercedénte unigéniti Fílii tui passióne respirémus.",
+   "2-2": "Omnípotens sempitérne Deus: da nobis ita Domínicæ passiónis sacraménta perágere; ut indulgéntiam percípere mereámur.",
+   "2-3": "Præsta, quǽsumus, omnípotens Deus: ut, qui nostris excéssibus incessánter afflígimur, per unigéniti Fílii tui passiónem liberémur."
   }
  },
  "conclusion": "Per Dóminum nostrum Iesum Christum, Fílium tuum: qui tecum vivit et regnat in unitáte Spíritus Sancti, Deus, per ómnia sǽcula sæculórum. R. Amen.",
