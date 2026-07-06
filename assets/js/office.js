@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -61,6 +61,7 @@
     TEMPORAL = dearray(d.TEMPORAL != null ? d.TEMPORAL : window.TEMPORAL) || {};
     HYMNS = dearray(d.HYMNS != null ? d.HYMNS : window.HYMNS) || {};
     SUNDAY_G = dearray(d.SUNDAYGOSPEL != null ? d.SUNDAYGOSPEL : window.SUNDAYGOSPEL) || {};
+    SANCT_O = dearray(d.SANCTCOLLECTS != null ? d.SANCTCOLLECTS : window.SANCTCOLLECTS) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -73,7 +74,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -195,7 +196,8 @@
     // yields to a Sunday, on which it would be commemorated).
     var mmdd = String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     var s = SANCT[mmdd];
-    if (s && s.n && (s.r === 1 || (s.r === 2 && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; }
+    var feastCollect = null;
+    if (s && s.n && (s.r === 1 || (s.r === 2 && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; feastCollect = (SANCT_O && SANCT_O[mmdd]) || null; }
     // Principal movable feasts override the fixed sanctoral.
     for (var fi = 0; fi < movable.length; fi++) {
       if (movable[fi][0].getTime() === d.getTime()) { feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = 1; break; }
@@ -229,7 +231,7 @@
     }
 
     return {
-      collectKey: collectKey, sundayKey: sundayKey,
+      collectKey: collectKey, sundayKey: sundayKey, feastCollect: feastCollect,
       feast: feast, feastEn: feastEn, feastRank: feastRank,
       date: d, iso: fmtISO(d),
       englishDate: WD_EN[dow] + ", " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(),
@@ -573,6 +575,20 @@
     if (html) b.appendChild(el("div", "off-text", html));
     return b;
   }
+  // Little chapter at Lauds/Vespers: per annum has a distinct Sunday/ferial Lauds
+  // chapter and one Vespers chapter; the penitential and Paschal seasons each have one.
+  function chapterFor(li, hourKey) {
+    var C = TEMPORAL.chapters; if (!C) return null;
+    var isL = hourKey === "laudes";
+    if (li.color === "green" || li.season === "Septuagesima") {
+      if (!C.pa) return null;
+      return isL ? (li.isSunday ? C.pa.laudesSun : C.pa.laudesFer) : C.pa.vespera;
+    }
+    var sk = li.season === "Adventus" ? "adv" : li.season === "Quadragesima" ? "quad" :
+      li.season === "Tempus Passionis" ? "quad5" : li.season === "Tempus Paschale" ? "pasch" : null;
+    if (sk && C[sk]) return isL ? C[sk].laudes : C[sk].vespera;
+    return null;
+  }
   // "Alleluia" is said all year EXCEPT Septuagesima through Holy Saturday.
   function alleluiaTag(li) {
     var pen = li.season === "Septuagesima" || li.season === "Quadragesima" || li.season === "Tempus Passionis";
@@ -733,10 +749,15 @@
       }
       view.appendChild(sec);
       view.appendChild(section("Capítulum · Responsórium breve", "Little chapter · responsory"));
+      var lvChap = (hourKey === "laudes" || hourKey === "vesperae") ? chapterFor(li, hourKey) : null;
       if (hy && hy.chapter && li.color === "green") {
         // Little-Hour chapter + versicle, per annum (validated vs Divinum Officium).
         view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo gratias.")));
         if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
+      } else if (lvChap && lvChap.text) {
+        // Little chapter at Lauds/Vespers, temporal (per annum or seasonal).
+        view.appendChild(block(lvChap.ref ? "Capitulum — " + lvChap.ref : null, rubricate(lvChap.text + "<br>R. Deo grátias.")));
+        view.appendChild(direction("The brief versicle that follows the hymn is proper to the day; it is being wired in next."));
       } else {
         view.appendChild(direction("The little chapter and brief responsory for this Hour are proper — they change with the day and season, and are being wired in from the propers next."));
       }
@@ -791,7 +812,9 @@
       }
       view.appendChild(section("Oratio · Conclusio", "Collect · Conclusion"));
       var col = null;
-      if (li.collectKey && TEMPORAL.collects) {
+      if (li.feastCollect) {
+        col = li.feastCollect;
+      } else if (li.collectKey && TEMPORAL.collects) {
         var ck = li.collectKey.split("-"), cg = TEMPORAL.collects[ck[0]];
         if (cg) col = cg[ck.slice(1).join("-")];
       }
@@ -799,7 +822,8 @@
         "V. Benedicámus Dómino. R. Deo grátias.<br>" +
         "V. Fidélium ánimæ per misericórdiam Dei requiéscant in pace. R. Amen.";
       if (col) {
-        if (!li.isSunday) view.appendChild(direction(
+        if (li.feast) view.appendChild(direction("The proper collect of the feast."));
+        else if (!li.isSunday) view.appendChild(direction(
           (li.season === "Quadragesima" || li.season === "Tempus Passionis")
             ? "In Lent and Passiontide each weekday has its own proper collect."
             : "On a feria the collect is that of the preceding Sunday."));
@@ -920,7 +944,9 @@
       viewEl.innerHTML = "";
       // On a feast we can name the day, but its proper office isn't assembled yet.
       if (li.feast) viewEl.appendChild(el("p", "office-todo",
-        "Today is a feast — <strong>" + li.feast + "</strong>. Its proper office (proper psalms, antiphons, lessons, and collect) is not yet assembled; the ferial framework is shown below for reference."));
+        "Today is a feast — <strong>" + li.feast + "</strong>. Its proper <strong>collect</strong> is shown at the Oratio below" +
+        (li.feastCollect ? "" : " where available") +
+        "; the fuller proper office (proper antiphons and lessons, drawn from the Common) is not yet assembled, so the ferial framework is shown for the rest."));
       try {
         viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
       } catch (err) {

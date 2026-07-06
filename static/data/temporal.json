@@ -102,6 +102,30 @@
   }
  },
  "conclusion": "Per Dóminum nostrum Iesum Christum, Fílium tuum: qui tecum vivit et regnat in unitáte Spíritus Sancti, Deus, per ómnia sǽcula sæculórum. R. Amen.",
+ "chapters": {
+  "_note": "Little chapter at Lauds and Vespers. pa = per annum (green + Septuagesima): distinct Sunday/ferial Lauds chapter, one Vespers chapter for all days. Seasonal chapters (adv/quad/quad5/pasch) are one per season. Source: Divinum Officium psalter, i-spelling.",
+  "pa": {
+   "laudesSun": {"ref": "Apoc. 7, 12", "text": "Benedíctio, et cláritas, et sapiéntia, et gratiárum áctio, honor, virtus, et fortitúdo Deo nostro in sǽcula sæculórum. Amen."},
+   "laudesFer": {"ref": "Rom. 13, 12-13", "text": "Nox præcéssit, dies autem appropinquávit. Abiciámus ergo ópera tenebrárum, et induámur arma lucis. Sicut in die honéste ambulémus."},
+   "vespera": {"ref": "2 Cor. 1, 3-4", "text": "Benedíctus Deus, et Pater Dómini nostri Iesu Christi, Pater misericordiárum, et Deus totíus consolatiónis, qui consolátur nos in omni tribulatióne nostra."}
+  },
+  "adv": {
+   "laudes": {"ref": "Is. 2, 3", "text": "Veníte, et ascendámus ad montem Dómini, et ad domum Dei Iacob, et docébit nos vias suas, et ambulábimus in sémitis eius: quia de Sion exíbit lex, et verbum Dómini de Ierúsalem."},
+   "vespera": {"ref": "Gen. 49, 10", "text": "Non auferétur sceptrum de Iuda, et dux de fémore eius, donec véniat qui mitténdus est; et ipse erit exspectátio géntium."}
+  },
+  "quad": {
+   "laudes": {"ref": "Is. 58, 1", "text": "Clama, ne cesses, quasi tuba exálta vocem tuam, et annúntia pópulo meo scélera eórum, et dómui Iacob peccáta eórum."},
+   "vespera": {"ref": "Ioël 2, 17", "text": "Inter vestíbulum et altáre plorábunt sacerdótes, minístri Dómini, et dicent: Parce, Dómine, parce pópulo tuo: et ne des hereditátem tuam in oppróbrium, ut dominéntur eis natiónes."}
+  },
+  "quad5": {
+   "laudes": {"ref": "Ier. 11, 19", "text": "Veníte, mittámus lignum in panem eius, et eradámus eum de terra vivéntium, et nomen eius non memorétur ámplius."},
+   "vespera": {"ref": "Ier. 11, 20", "text": "Tu autem, Dómine Sábaoth, qui iúdicas iuste, et probas renes et corda, vídeam ultiónem tuam ex eis: tibi enim revelávi causam meam, Dómine, Deus meus."}
+  },
+  "pasch": {
+   "laudes": {"ref": "Rom. 6, 9-10", "text": "Christus resúrgens ex mórtuis iam non móritur, mors illi ultra non dominábitur. Quod enim mórtuus est peccáto, mórtuus est semel: quod autem vivit, vivit Deo."},
+   "vespera": {"ref": "Rom. 6, 9-10", "text": "Christus resúrgens ex mórtuis iam non móritur, mors illi ultra non dominábitur. Quod enim mórtuus est peccáto, mórtuus est semel: quod autem vivit, vivit Deo."}
+  }
+ },
  "ferialGospel": {
   "benedictus": {
    "mon": "Benedíctus Dóminus Deus Israël, quia visitávit et liberávit nos.",
