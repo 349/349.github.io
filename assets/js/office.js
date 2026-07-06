@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -56,6 +56,7 @@
     VESP = dearray(d.VESPERS != null ? d.VESPERS : window.VESPERS) || {};
     LAUD = dearray(d.LAUDS != null ? d.LAUDS : window.LAUDS) || {};
     CANT = dearray(d.CANTICLES != null ? d.CANTICLES : window.CANTICLES) || {};
+    LITTLE = dearray(d.HOURS != null ? d.HOURS : window.HOURS_ANT) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -68,7 +69,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -663,7 +664,11 @@
           }
         });
       } else {
+        // Little Hours: a single ferial antiphon over the Hour's psalms.
+        var lAnt = (LITTLE[hourKey] || {})[li.weekdayKey];
+        if (lAnt) sec.appendChild(antLine(lAnt));
         psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
+        if (lAnt) sec.appendChild(antLine(lAnt));
       }
       view.appendChild(sec);
       view.appendChild(section("Capítulum · Responsórium breve", "Little chapter · responsory"));
