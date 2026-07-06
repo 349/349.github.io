@@ -1,0 +1,52 @@
+{
+ "_note": "Ferial Vespers psalmody per weekday (psalms with divisions + proper psalter antiphons), Rubrics 1960. Sourced from Divinum Officium, to be cross-checked vs the Breviarium Romanum. The Magnificat antiphon and collect are proper to the day (from the Sunday/feast) and are supplied by the calendar layer, not here.",
+ "sun": [
+  {"n": 109, "a": "Dixit Dóminus Dómino meo: Sede a dextris meis."},
+  {"n": 110, "a": "Magna ópera Dómini: exquisíta in omnes voluntátes eius."},
+  {"n": 111, "a": "Qui timet Dóminum, in mandátis eius cupit nimis."},
+  {"n": 112, "a": "Sit nomen Dómini benedíctum in sǽcula."},
+  {"n": 113, "a": "Deus autem noster in cælo: ómnia quæcúmque vóluit, fecit."}
+ ],
+ "mon": [
+  {"n": 114, "a": "Inclinávit Dóminus aurem suam mihi."},
+  {"n": 115, "a": "Vota mea Dómino reddam coram omni pópulo eius."},
+  {"n": 119, "a": "Clamávi et Dóminus exaudívit me."},
+  {"n": 120, "a": "Auxílium meum a Dómino, qui fecit cælum et terram."},
+  {"n": 121, "a": "Lætátus sum in his, quæ dicta sunt mihi."}
+ ],
+ "tue": [
+  {"n": 122, "a": "Qui hábitas in cælis, miserére nobis."},
+  {"n": 123, "a": "Adiutórium nostrum in nómine Dómini."},
+  {"n": 124, "a": "In circúitu pópuli sui Dóminus, ex hoc nunc et usque in sǽculum."},
+  {"n": 125, "a": "Magnificávit Dóminus fácere nobíscum: facti sumus lætántes."},
+  {"n": 126, "a": "Dóminus ædíficet nobis domum, et custódiat civitátem."}
+ ],
+ "wed": [
+  {"n": 127, "a": "Beáti omnes qui timent Dóminum."},
+  {"n": 128, "a": "Confundántur omnes qui odérunt Sion."},
+  {"n": 129, "a": "De profúndis clamávi ad te, Dómine."},
+  {"n": 130, "a": "Dómine, non est exaltátum cor meum."},
+  {"n": 131, "a": "Elégit Dóminus Sion in habitatiónem sibi."}
+ ],
+ "thu": [
+  {"n": 132, "a": "Ecce quam bonum et quam iucúndum habitáre fratres in unum."},
+  {"n": 135, "d": "1-9", "a": "Confitémini Dómino quóniam in ætérnum misericórdia eius."},
+  {"n": 135, "d": "10-26", "a": "Confitémini Dómino quia in humilitáte nostra memor fuit nostri."},
+  {"n": 136, "a": "Adhǽreat lingua mea fáucibus meis, si non memínero tui Ierúsalem."},
+  {"n": 137, "a": "Confitébor nómini tuo, Dómine, super misericórdia et veritáte tua."}
+ ],
+ "fri": [
+  {"n": 138, "d": "1-13", "a": "Dómine, probásti me et cognovísti me."},
+  {"n": 138, "d": "14-24", "a": "Mirabília ópera tua, Dómine, et ánima mea cognóscit nimis."},
+  {"n": 139, "a": "Ne derelínquas me, Dómine, virtus salútis meæ."},
+  {"n": 140, "a": "Dómine, clamávi ad te, exáudi me."},
+  {"n": 141, "a": "Educ de custódia ánimam meam, Dómine, ad confiténdum nómini tuo."}
+ ],
+ "sat": [
+  {"n": 143, "d": "1-8", "a": "Benedíctus Dóminus suscéptor meus et liberátor meus."},
+  {"n": 143, "d": "9-15", "a": "Beátus pópulus cuius Dóminus Deus eius."},
+  {"n": 144, "d": "1-7", "a": "Magnus Dóminus et laudábilis nimis: et magnitúdinis eius non est finis."},
+  {"n": 144, "d": "8-13", "a": "Suávis Dóminus univérsis: et miseratiónes eius super ómnia ópera eius."},
+  {"n": 144, "d": "14-21", "a": "Fidélis Dóminus in ómnibus verbis suis: et sanctus in ómnibus opéribus suis."}
+ ]
+}

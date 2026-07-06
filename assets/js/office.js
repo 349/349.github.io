@@ -44,13 +44,14 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {};
   function buildData(d) {
     d = d || {};
     PSALTER = A(dearray(d.PSALTER != null ? d.PSALTER : window.PSALTER));
     PT = dearray(d.POINTED != null ? d.POINTED : window.POINTED) || {};
     ORD = dearray(d.ORDINARY != null ? d.ORDINARY : window.ORDINARY) || {};
     SCHEME = dearray(d.SCHEME != null ? d.SCHEME : window.SCHEME) || {};
+    VESP = dearray(d.VESPERS != null ? d.VESPERS : window.VESPERS) || {};
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
   }
@@ -62,7 +63,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -487,7 +488,7 @@
     // — Examination & Confiteor —
     view.appendChild(section("Confíteor", "Examination of Conscience"));
     view.appendChild(direction("A short examination of conscience is made in silence; then the Confiteor is said."));
-    view.appendChild(secretoBlock("Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum quotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen."));
+    view.appendChild(secretoBlock("Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum cotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen."));
     if (c.examen) {
       var exRest = c.examen.split("<br>").slice(1).join("<br>");
       if (exRest) view.appendChild(block(null, rubricate(exRest)));
@@ -504,7 +505,8 @@
     // — Psalmody —
     view.appendChild(section("Psalmódia", "Psalms"));
     view.appendChild(direction("The psalms are sung under a single antiphon, repeated at the end."));
-    var ant = li.paschal ? "Alleluia, alleluia, alleluia." : (c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
+    var ant = li.paschal ? "Alleluia, alleluia, alleluia."
+      : ((c.antiphons && c.antiphons[li.weekdayKey]) || c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
     var psSection = el("div", "off-psalms");
     psSection.appendChild(antLine(ant));
     // Compline psalms follow the weekly cycle (Pius X), not a fixed set.
@@ -587,7 +589,7 @@
       view.appendChild(section("Introductio", "Opening"));
       view.appendChild(direction("The Pater noster and Ave Maria are said silently; then the versicle aloud."));
       view.appendChild(secretoBlock(
-        "Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum quotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen.<br>" +
+        "Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum cotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen.<br>" +
         "Ave María, grátia plena, Dóminus tecum: benedícta tu in muliéribus, et benedíctus fructus ventris tui Iesus. Sancta María, Mater Dei, ora pro nobis peccatóribus, nunc et in hora mortis nostræ. Amen."));
       view.appendChild(block(null, rubricate(
         "V. ✠ Deus, in adiutórium meum inténde.<br>R. Dómine, ad adiuvándum me festína.")));
@@ -599,7 +601,23 @@
       }
       view.appendChild(section("Psalmódia", "Psalms — 1960 ferial cycle, " + li.weekdayLat));
       var sec = el("div", "off-psalms");
-      psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
+      var vesp = hourKey === "vesperae" ? A(VESP[li.weekdayKey]) : [];
+      if (vesp.length) {
+        // Ferial Vespers: each psalm has its own proper antiphon (validated vs DO).
+        var seen = {};
+        vesp.forEach(function (e) {
+          sec.appendChild(antLine(e.a));
+          if (seen[e.n]) {
+            sec.appendChild(el("p", "off-psalm__title", "Psalmus " + e.n + (e.d ? " · vv. " + e.d : "") +
+              ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + e.n + '/">full &rsaquo;</a>'));
+          } else {
+            sec.appendChild(renderPsalm(parseInt(e.n, 10), null, true));
+            seen[e.n] = true;
+          }
+        });
+      } else {
+        psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
+      }
       view.appendChild(sec);
       view.appendChild(section("Capítulum · Responsórium · Oratio", "Proper texts"));
       view.appendChild(direction("The little chapter, brief responsory, and collect for this Hour are proper — they change with the day and season, and are being wired in from the propers next."));
