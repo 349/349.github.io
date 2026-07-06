@@ -357,6 +357,12 @@
   }
   // The psalm tone for a psalm/canticle governed by an antiphon = that antiphon's mode.
   function modeOf(antText) { var c = antText && chantFor(antText); return c ? c.mode : undefined; }
+  // The exact ending (differentia), parsed from the antiphon's own EUOUAE, when available.
+  function diffOf(antText) { var c = antText && chantFor(antText); return c && c.diff && c.diff.length ? c.diff : null; }
+  function toneWith(mode, diff) {
+    var T = toneForMode(mode);
+    return diff ? { intonation: T.intonation, tenor: T.tenor, tenor2: T.tenor2, mediant: T.mediant, termination: diff } : T;
+  }
   // The doxology, pointed as two verses, with the seasonal Alleluia appended.
   function gloriaBlock(li) {
     var wrap = el("div", "off-verses off-verses--pointed");
@@ -561,7 +567,7 @@
     });
   }
 
-  function renderPsalm(num, antiphonHtml, gloria, mode) {
+  function renderPsalm(num, antiphonHtml, gloria, mode, diff) {
     var pointed = A(PT[num]);              // accented, mediant-marked (verified) verses
     var isPointed = pointed.length > 0;
     var verses = isPointed ? pointed : A(PS[num]);  // fall back to plain text
@@ -581,7 +587,7 @@
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">Setting the tone…</p>';
       wrap.appendChild(cont);
-      renderExsurge(cont, gabcForPsalm(sungVerses, toneForMode(mode)), CHANT_W);
+      renderExsurge(cont, gabcForPsalm(sungVerses, toneWith(mode, diff)), CHANT_W);
       if (many) wrap.appendChild(el("p", "muted off-chant-more",
         "… " + verses.length + " verses; first 14 shown sung — " +
         '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
@@ -617,7 +623,7 @@
   }
 
   // Render an OT canticle (ad-hoc pointed verse array) in said or sung mode.
-  function renderCanticle(name, ref, verses, noGloria, mode) {
+  function renderCanticle(name, ref, verses, noGloria, mode, diff) {
     var wrap = el("div", "off-psalm");
     wrap.appendChild(el("p", "off-psalm__title", "Cánticum " + name + (ref ? " · " + ref : "")));
     var vv = A(verses);
@@ -626,7 +632,7 @@
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">Setting the tone…</p>';
       wrap.appendChild(cont);
-      renderExsurge(cont, gabcForPsalm(noGloria ? vv : vv.concat(GLORIA2), toneForMode(mode)), CHANT_W);
+      renderExsurge(cont, gabcForPsalm(noGloria ? vv : vv.concat(GLORIA2), toneWith(mode, diff)), CHANT_W);
     } else {
       var body = el("div", "off-verses off-verses--pointed");
       vv.forEach(function (v, i) { body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v))); });
@@ -715,12 +721,12 @@
     var ant = li.paschal ? "Alleluia, alleluia, alleluia."
       : ((c.antiphons && c.antiphons[li.weekdayKey]) || c.antiphon || "Miserere mihi, Domine, et exaudi orationem meam.");
     var psSection = el("div", "off-psalms");
-    var cm = modeOf(ant);
+    var cm = modeOf(ant), cd = diffOf(ant);
     psSection.appendChild(antLine(ant));
     // Compline psalms follow the weekly cycle (Pius X), not a fixed set.
     var psalms = A(SCHEME.completorium && SCHEME.completorium[li.weekdayKey]);
     if (!psalms.length) psalms = [4, 90, 133];
-    psalms.forEach(function (n) { psSection.appendChild(renderPsalm(n, null, true, cm)); });
+    psalms.forEach(function (n) { psSection.appendChild(renderPsalm(n, null, true, cm, cd)); });
     psSection.appendChild(el("p", "off-ant", "Ant. " + ant));
     view.appendChild(psSection);
 
@@ -814,24 +820,24 @@
         // Ferial Lauds/Vespers: each psalm has its own proper antiphon (validated vs DO).
         var seen = {};
         fer.forEach(function (e) {
-          var em = modeOf(e.a);
+          var em = modeOf(e.a), ed = diffOf(e.a);
           sec.appendChild(antLine(e.a));
           if (e.cant) {
-            sec.appendChild(renderCanticle(e.cant, e.ref, CANT[e.cant], e.cant === "Trium Puerorum", em));
+            sec.appendChild(renderCanticle(e.cant, e.ref, CANT[e.cant], e.cant === "Trium Puerorum", em, ed));
           } else if (seen[e.n]) {
             sec.appendChild(el("p", "off-psalm__title", "Psalmus " + e.n + (e.d ? " · vv. " + e.d : "") +
               ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + e.n + '/">full &rsaquo;</a>'));
           } else {
-            sec.appendChild(renderPsalm(parseInt(e.n, 10), null, true, em));
+            sec.appendChild(renderPsalm(parseInt(e.n, 10), null, true, em, ed));
             seen[e.n] = true;
           }
         });
       } else {
         // Little Hours: a single ferial antiphon over the Hour's psalms.
         var lAnt = (LITTLE[hourKey] || {})[li.weekdayKey];
-        var lm = modeOf(lAnt);
+        var lm = modeOf(lAnt), ld = diffOf(lAnt);
         if (lAnt) sec.appendChild(antLine(lAnt));
-        psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true, lm)); });
+        psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true, lm, ld)); });
         if (lAnt) sec.appendChild(antLine(lAnt));
       }
       view.appendChild(sec);
@@ -903,7 +909,7 @@
         if (gAnt) {
           view.appendChild(direction("The sign of the cross is made at the opening words; the antiphon is said before and, doubled, after the canticle."));
           view.appendChild(antLine(gAnt));
-          view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel], false, modeOf(gAnt)));
+          view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel], false, modeOf(gAnt), diffOf(gAnt)));
           view.appendChild(antLine(gAnt));
         } else {
           view.appendChild(direction("Its antiphon is proper to the day (from the Sunday or feast) — supplied by the calendar layer, to come. The sign of the cross is made at the opening words."));
