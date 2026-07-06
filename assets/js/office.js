@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -60,6 +60,7 @@
     SANCT = dearray(d.SANCTORAL != null ? d.SANCTORAL : window.SANCTORAL) || {};
     TEMPORAL = dearray(d.TEMPORAL != null ? d.TEMPORAL : window.TEMPORAL) || {};
     HYMNS = dearray(d.HYMNS != null ? d.HYMNS : window.HYMNS) || {};
+    SUNDAY_G = dearray(d.SUNDAYGOSPEL != null ? d.SUNDAYGOSPEL : window.SUNDAYGOSPEL) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -72,7 +73,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -212,11 +213,23 @@
     else if (season === "Septuagesima" && week >= 1) collectKey = "quadp-" + Math.min(week, 3);
     else if (season === "Tempus Paschale" && week >= 1) collectKey = "pasc-" + Math.min(week, 6);
     // Lent/Passiontide ferias have their own proper daily collect (week + weekday).
-    else if (season === "Quadragesima" && dow !== 0) collectKey = "lent-" + week + "-" + dow;
-    else if (season === "Tempus Passionis" && dow !== 0) collectKey = "pass-" + week + "-" + dow;
+    else if (season === "Quadragesima") collectKey = "lent-" + week + "-" + dow;
+    else if (season === "Tempus Passionis") collectKey = "pass-" + week + "-" + dow;
+
+    // Per-Sunday key for the proper gospel-canticle antiphons (Sundays only).
+    var sundayKey = null;
+    if (dow === 0 && week >= 1) {
+      if (season === "Post Pentecosten") sundayKey = "pent-" + Math.min(week, 24);
+      else if (season === "Adventus") sundayKey = "adv-" + Math.min(week, 4);
+      else if (season === "Post Epiphaniam") sundayKey = "epi-" + Math.min(week, 6);
+      else if (season === "Septuagesima") sundayKey = "quadp-" + Math.min(week, 3);
+      else if (season === "Tempus Paschale") sundayKey = "pasc-" + Math.min(week, 6);
+      else if (season === "Quadragesima") sundayKey = "quad-" + Math.min(week, 4);
+      else if (season === "Tempus Passionis") sundayKey = "pass-" + Math.min(week, 2);
+    }
 
     return {
-      collectKey: collectKey,
+      collectKey: collectKey, sundayKey: sundayKey,
       feast: feast, feastEn: feastEn, feastRank: feastRank,
       date: d, iso: fmtISO(d),
       englishDate: WD_EN[dow] + ", " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(),
@@ -757,9 +770,14 @@
         // Ferial gospel-canticle antiphon (per annum weekdays). On Sundays and feasts
         // the antiphon is proper (from the day itself) and is supplied by the calendar layer.
         var gAnt = null;
-        if ((li.color === "green" || li.season === "Septuagesima") && !li.isSunday && !li.feast && TEMPORAL.ferialGospel) {
-          var gset = gospel === "Benedictus" ? TEMPORAL.ferialGospel.benedictus : TEMPORAL.ferialGospel.magnificat;
-          if (gset) gAnt = gset[li.weekdayKey];
+        if (!li.feast) {
+          if (li.isSunday && li.sundayKey && SUNDAY_G.antiphons && SUNDAY_G.antiphons[li.sundayKey]) {
+            // Proper Sunday antiphon, from the day's own Gospel.
+            gAnt = SUNDAY_G.antiphons[li.sundayKey][gospel === "Benedictus" ? "b" : "mg"];
+          } else if ((li.color === "green" || li.season === "Septuagesima") && !li.isSunday && TEMPORAL.ferialGospel) {
+            var gset = gospel === "Benedictus" ? TEMPORAL.ferialGospel.benedictus : TEMPORAL.ferialGospel.magnificat;
+            if (gset) gAnt = gset[li.weekdayKey];
+          }
         }
         if (gAnt) {
           view.appendChild(direction("The sign of the cross is made at the opening words; the antiphon is said before and, doubled, after the canticle."));
