@@ -229,8 +229,20 @@
   // Priest vs. non-priest recitation. When a priest (or deacon) presides,
   // "Dominus vobiscum / Et cum spiritu tuo" is used; laypeople and private
   // recitation substitute "Domine, exaudi orationem meam / Et clamor meus...".
-  var ROLE = "priest";
-  var SUNG = false;   // said (pointed text) vs sung (chant notation)
+  var ROLE = "lay";   // default: no ordained minister presiding
+  var SUNG = true;    // default: sung (chant notation) vs said (pointed text)
+  // Choose the Hour whose traditional time of day is closest to now.
+  function currentHourKey(d) {
+    var h = d.getHours();
+    if (h < 4) return "matutinum";
+    if (h < 7) return "laudes";
+    if (h < 9) return "prima";
+    if (h < 11) return "tertia";
+    if (h < 14) return "sexta";
+    if (h < 16) return "nona";
+    if (h < 20) return "vesperae";
+    return "completorium";
+  }
   var CHANT_W = 660;  // available px width for chant flow (set from the view width)
   function roleize(html) {
     if (ROLE !== "lay") return html;
@@ -677,7 +689,7 @@
     if (m) current = new Date(+m[1], +m[2] - 1, +m[3]);
 
     var li = liturgical(current);
-    var activeHour = "completorium";
+    var activeHour = currentHourKey(new Date());   // open to the Hour for the current time
 
     dateEl.innerHTML =
       '<div class="office-date__pill office-color--' + li.color + '">' + li.color + '</div>' +
