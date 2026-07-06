@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -62,6 +62,7 @@
     HYMNS = dearray(d.HYMNS != null ? d.HYMNS : window.HYMNS) || {};
     SUNDAY_G = dearray(d.SUNDAYGOSPEL != null ? d.SUNDAYGOSPEL : window.SUNDAYGOSPEL) || {};
     SANCT_O = dearray(d.SANCTCOLLECTS != null ? d.SANCTCOLLECTS : window.SANCTCOLLECTS) || {};
+    SANCT_G = dearray(d.SANCTGOSPEL != null ? d.SANCTGOSPEL : window.SANCTGOSPEL) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -74,7 +75,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -197,7 +198,8 @@
     var mmdd = String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     var s = SANCT[mmdd];
     var feastCollect = null;
-    if (s && s.n && (s.r === 1 || (s.r === 2 && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; feastCollect = (SANCT_O && SANCT_O[mmdd]) || null; }
+    var feastKey = null;
+    if (s && s.n && (s.r === 1 || (s.r === 2 && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; feastCollect = (SANCT_O && SANCT_O[mmdd]) || null; feastKey = mmdd; }
     // Principal movable feasts override the fixed sanctoral.
     for (var fi = 0; fi < movable.length; fi++) {
       if (movable[fi][0].getTime() === d.getTime()) { feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = 1; break; }
@@ -231,7 +233,7 @@
     }
 
     return {
-      collectKey: collectKey, sundayKey: sundayKey, feastCollect: feastCollect,
+      collectKey: collectKey, sundayKey: sundayKey, feastCollect: feastCollect, feastKey: feastKey,
       feast: feast, feastEn: feastEn, feastRank: feastRank,
       date: d, iso: fmtISO(d),
       englishDate: WD_EN[dow] + ", " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear(),
@@ -791,7 +793,10 @@
         // Ferial gospel-canticle antiphon (per annum weekdays). On Sundays and feasts
         // the antiphon is proper (from the day itself) and is supplied by the calendar layer.
         var gAnt = null;
-        if (!li.feast) {
+        if (li.feast && li.feastKey && SANCT_G.antiphons && SANCT_G.antiphons[li.feastKey]) {
+          // Proper gospel antiphon of the feast (Apostles etc. draw on the Common).
+          gAnt = SANCT_G.antiphons[li.feastKey][gospel === "Benedictus" ? "b" : "mg"];
+        } else if (!li.feast) {
           if (li.isSunday && li.sundayKey && SUNDAY_G.antiphons && SUNDAY_G.antiphons[li.sundayKey]) {
             // Proper Sunday antiphon, from the day's own Gospel.
             gAnt = SUNDAY_G.antiphons[li.sundayKey][gospel === "Benedictus" ? "b" : "mg"];
@@ -944,9 +949,9 @@
       viewEl.innerHTML = "";
       // On a feast we can name the day, but its proper office isn't assembled yet.
       if (li.feast) viewEl.appendChild(el("p", "office-todo",
-        "Today is a feast — <strong>" + li.feast + "</strong>. Its proper <strong>collect</strong> is shown at the Oratio below" +
-        (li.feastCollect ? "" : " where available") +
-        "; the fuller proper office (proper antiphons and lessons, drawn from the Common) is not yet assembled, so the ferial framework is shown for the rest."));
+        "Today is a feast — <strong>" + li.feast + "</strong>. Its proper <strong>collect</strong> and <strong>gospel-canticle antiphons</strong> are shown below" +
+        (li.feastCollect || (li.feastKey && SANCT_G.antiphons && SANCT_G.antiphons[li.feastKey]) ? "" : " where available") +
+        "; the proper psalm antiphons, hymn, and lessons (drawn from the Common) are not yet assembled, so the ferial framework is shown for the rest."));
       try {
         viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
       } catch (err) {
