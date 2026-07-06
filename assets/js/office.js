@@ -666,9 +666,23 @@
         psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true)); });
       }
       view.appendChild(sec);
-      view.appendChild(section("Capítulum · Responsórium · Oratio", "Proper texts"));
-      view.appendChild(direction("The little chapter, brief responsory, and collect for this Hour are proper — they change with the day and season, and are being wired in from the propers next."));
-      view.appendChild(section("Conclusio", "Conclusion"));
+      view.appendChild(section("Capítulum · Responsórium breve", "Little chapter · responsory"));
+      if (hy && hy.chapter && li.color === "green") {
+        // Little-Hour chapter + versicle, per annum (validated vs Divinum Officium).
+        view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo gratias.")));
+        if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
+      } else {
+        view.appendChild(direction("The little chapter and brief responsory for this Hour are proper — they change with the day and season, and are being wired in from the propers next."));
+      }
+      // Gospel canticle: Benedictus at Lauds, Magnificat at Vespers.
+      var gospel = hourKey === "laudes" ? "Benedictus" : hourKey === "vesperae" ? "Magnificat" : null;
+      if (gospel && A(CANT[gospel]).length) {
+        view.appendChild(section(gospel === "Benedictus" ? "Canticum Zacharíæ" : "Canticum B. Maríæ Vírginis",
+          gospel === "Benedictus" ? "Benedictus — Luc. 1" : "Magnificat — Luc. 1"));
+        view.appendChild(direction("Its antiphon is proper to the day (from the Sunday or feast) — supplied by the calendar layer, to come. The sign of the cross is made at the opening words."));
+        view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel]));
+      }
+      view.appendChild(section("Oratio · Conclusio", "Collect · Conclusion"));
       view.appendChild(block(null, rubricate(roleize(
         "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>" +
         "V. Benedicámus Dómino. R. Deo grátias.<br>" +

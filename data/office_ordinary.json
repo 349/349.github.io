@@ -51,15 +51,24 @@
   },
   "tertia": {
    "hymnName": "Nunc, Sancte, nobis, Spíritus",
-   "hymn": "Nunc, Sancte, nobis, Spíritus,<br>Unum Patri cum Fílio,<br>Dignáre promptus íngeri<br>Nostro refúsus péctori.<br><br>Os, lingua, mens, sensus, vigor<br>Confessiónem pérsonent.<br>Flamméscat igne cáritas,<br>Accéndat ardor próximos.<br><br>Præsta, Pater piíssime,<br>Patríque compar Unice,<br>Cum Spíritu Paráclito<br>Regnans per omne sæculum. Amen."
+   "hymn": "Nunc, Sancte, nobis, Spíritus,<br>Unum Patri cum Fílio,<br>Dignáre promptus íngeri<br>Nostro refúsus péctori.<br><br>Os, lingua, mens, sensus, vigor<br>Confessiónem pérsonent.<br>Flamméscat igne cáritas,<br>Accéndat ardor próximos.<br><br>Præsta, Pater piíssime,<br>Patríque compar Unice,<br>Cum Spíritu Paráclito<br>Regnans per omne sæculum. Amen.",
+   "chapter": "Sana me, Dómine, et sanábor: salvum me fac, et salvus ero: quóniam laus mea tu es.",
+   "chapterRef": "Ier. 17, 14",
+   "versicle": "V. Ego dixi: Dómine, miserére mei.<br>R. Quia peccávi tibi."
   },
   "sexta": {
    "hymnName": "Rector potens, verax Deus",
-   "hymn": "Rector potens, verax Deus,<br>Qui témperas rerum vices,<br>Splendóre mane illúminas,<br>Et ígnibus merídiem:<br><br>Exstíngue flammas lítium,<br>Aufer calórem nóxium,<br>Confer salútem córporum,<br>Verámque pacem córdium.<br><br>Præsta, Pater piíssime,<br>Patríque compar Unice,<br>Cum Spíritu Paráclito<br>Regnans per omne sæculum. Amen."
+   "hymn": "Rector potens, verax Deus,<br>Qui témperas rerum vices,<br>Splendóre mane illúminas,<br>Et ígnibus merídiem:<br><br>Exstíngue flammas lítium,<br>Aufer calórem nóxium,<br>Confer salútem córporum,<br>Verámque pacem córdium.<br><br>Præsta, Pater piíssime,<br>Patríque compar Unice,<br>Cum Spíritu Paráclito<br>Regnans per omne sæculum. Amen.",
+   "chapter": "Némini quidquam debeátis, nisi ut ínvicem diligátis: qui enim díligit próximum, legem implévit.",
+   "chapterRef": "Rom. 13, 8",
+   "versicle": "V. Semper laus eius in ore meo.<br>R. In omni témpore."
   },
   "nona": {
    "hymnName": "Rerum, Deus, tenax vigor",
-   "hymn": "Rerum, Deus, tenax vigor,<br>Immótus in te pérmanens,<br>Lucis diúrnæ témpora<br>Succéssibus detérminans:<br><br>Largíre lumen véspere,<br>Quo vita nusquam décidat,<br>Sed præmium mortis sacræ<br>Perénnis instet glória.<br><br>Præsta, Pater piíssime,<br>Patríque compar Unice,<br>Cum Spíritu Paráclito<br>Regnans per omne sæculum. Amen."
+   "hymn": "Rerum, Deus, tenax vigor,<br>Immótus in te pérmanens,<br>Lucis diúrnæ témpora<br>Succéssibus detérminans:<br><br>Largíre lumen véspere,<br>Quo vita nusquam décidat,<br>Sed præmium mortis sacræ<br>Perénnis instet glória.<br><br>Præsta, Pater piíssime,<br>Patríque compar Unice,<br>Cum Spíritu Paráclito<br>Regnans per omne sæculum. Amen.",
+   "chapter": "In timóre incolátus vestri témpore conversámini: sciéntes quod non corruptibílibus auro vel argénto redémpti estis, sed pretióso sánguine quasi Agni immaculáti Christi.",
+   "chapterRef": "1 Pet. 1, 17-19",
+   "versicle": "V. Pes enim meus stetit in via recta.<br>R. Et miserére mei."
   }
  }
 }

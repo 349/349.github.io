@@ -1,6 +1,6 @@
 ---
 title: "Photography"
-lede: "Photographs, organized by what they are of."
+lede: "Photographs, organised by what they are of."
 summary: "Subject collections, not a chronological dump."
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: "Favorite poems"
+title: "Favourite poems"
 lede: "An anthology of poems I love, kept for their own sake."
 summary: "A curated anthology, with attribution."
 ---
