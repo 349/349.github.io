@@ -390,65 +390,90 @@
     return out;
   }
   var STEP = { f: 5, g: 6, h: 7, i: 8, j: 9, k: 10 };
-  function itemAdv(it) { return it.bar ? 15 : Math.max(16, it.t.length * 7.4 + 8); }
-  // Greedily wrap the stream into staff lines no wider than W px (reflows to width).
+  function sylW(t) { return Math.max(8, t.length * 6.6); }         // rough syllable text width
+  // Tight, word-aware advance: syllable + small pad; wider gap only between words.
+  function itemAdv(it, next) {
+    if (it.bar) return it.bar === "final" ? 13 : 11;
+    var w = sylW(it.t) + 3;
+    if (next) { if (next.bar) w += 5; else if (next.ws) w += 8; else w += 1; }
+    return w;
+  }
+  function lastWS(arr) { for (var k = arr.length - 1; k > 0; k--) if (arr[k].ws) return k; return -1; }
+  function firstNote(line) { for (var i = 0; i < line.length; i++) if (!line[i].bar) return line[i].note; return null; }
+  // Wrap the stream into staff lines ≤ W px, never splitting a word across lines.
   function flowChant(items, W, firstIndent) {
-    var lines = [], cur = [], x = firstIndent || 30;
-    items.forEach(function (it) {
-      var a = itemAdv(it);
-      if (x + a > W && cur.length) { lines.push(cur); cur = []; x = 30; }
+    var lines = [], cur = [], x = firstIndent || 28;
+    items.forEach(function (it, idx) {
+      var a = itemAdv(it, items[idx + 1]);
+      if (x + a > W && cur.length) {
+        if (!it.bar && it.ws) { lines.push(cur); cur = []; x = 28; }
+        else {
+          var ws = lastWS(cur);
+          if (ws > 0) { var carry = cur.splice(ws); lines.push(cur); cur = carry; x = 28; carry.forEach(function (c, ci) { x += itemAdv(c, carry[ci + 1]); }); }
+          else { lines.push(cur); cur = []; x = 28; }
+        }
+      }
       cur.push(it); x += a;
     });
     if (cur.length) lines.push(cur);
     return lines;
   }
   // One staff line → SVG in the singtheoffice manner, tuned for dark mode: red
-  // staff, light notes/text, alternating bold verses, drop cap and mode label.
+  // staff, light square notes/text, alternating bold verses, drop cap, mode, custos.
   function chantSystem(line, opts) {
     opts = opts || {};
-    var HS = 5, topY = 16, startX = opts.startX || 30;
+    var HS = 5, topY = 16, startX = opts.startX || 28;
     function y(p) { return topY + (10 - p) * HS; }
     var x = startX, notes = [], texts = [], bars = [], hys = [];
     line.forEach(function (it, i) {
+      var next = line[i + 1];
       if (it.bar) {
         if (it.bar === "final") {
           bars.push('<line x1="' + (x + 3) + '" y1="' + y(10) + '" x2="' + (x + 3) + '" y2="' + y(4) + '" stroke="#c2bcb1" stroke-width="1.3"/>' +
-            '<line x1="' + (x + 6.5) + '" y1="' + y(10) + '" x2="' + (x + 6.5) + '" y2="' + y(4) + '" stroke="#c2bcb1" stroke-width="1.3"/>');
+            '<line x1="' + (x + 6) + '" y1="' + y(10) + '" x2="' + (x + 6) + '" y2="' + y(4) + '" stroke="#c2bcb1" stroke-width="1.3"/>');
         } else {
           var full = it.bar === "verse";
-          bars.push('<line x1="' + (x + 4) + '" y1="' + y(full ? 10 : 9) + '" x2="' + (x + 4) + '" y2="' + y(full ? 4 : 6) + '" stroke="#c2bcb1" stroke-width="1.2"/>');
+          bars.push('<line x1="' + (x + 3) + '" y1="' + y(full ? 10 : 9) + '" x2="' + (x + 3) + '" y2="' + y(full ? 4 : 6) + '" stroke="#c2bcb1" stroke-width="1.1"/>');
         }
-        x += itemAdv(it); return;
+        x += itemAdv(it, next); return;
       }
-      var a = itemAdv(it), cx = x + a / 2, p = STEP[it.note] != null ? STEP[it.note] : 7, ny = y(p);
-      notes.push('<rect x="' + (cx - 4) + '" y="' + (ny - 4) + '" width="8" height="7" rx="1" fill="#ece8df"/>');
+      var a = itemAdv(it, next), cx = x + sylW(it.t) / 2, p = STEP[it.note] != null ? STEP[it.note] : 7, ny = y(p);
+      notes.push('<rect x="' + (cx - 3.5) + '" y="' + (ny - 3.5) + '" width="7" height="7" fill="#ece8df"/>');
       texts.push('<text x="' + cx + '" y="' + (y(4) + 18) + '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="' +
         (it.bold ? "#f6f4ee" : "#ded9cf") + '"' + (it.bold ? ' font-weight="700"' : "") + ">" + esc(it.t) + "</text>");
-      var nx = line[i + 1];
-      if (nx && !nx.bar && !nx.ws) hys.push('<text x="' + (x + a) + '" y="' + (y(4) + 18) +
-        '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#6f6e69">-</text>');
+      if (next && !next.bar && !next.ws) hys.push('<text x="' + (cx + sylW(it.t) / 2 + 2) + '" y="' + (y(4) + 18) +
+        '" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#7c766c">-</text>');
       x += a;
     });
-    var Wl = x + 8;
-    var st = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (Wl - 6) + '" y2="' + y(p) + '" stroke="#b6503c" stroke-width="1"/>'; }).join("");
+    var contentR = x, custos = "";
+    if (opts.custos != null) {
+      var cp = STEP[opts.custos] != null ? STEP[opts.custos] : 7, cyy = y(cp), cxx = contentR + 6;
+      custos = '<path d="M' + cxx + " " + (cyy + 3) + " L" + (cxx + 5) + " " + (cyy - 1) + " L" + (cxx + 5) + " " + (cyy - 6) + '" fill="none" stroke="#ece8df" stroke-width="1.3"/>' +
+        '<rect x="' + (cxx - 1) + '" y="' + (cyy - 1) + '" width="5" height="5" fill="#ece8df"/>';
+      contentR = cxx + 8;
+    }
+    var Wl = contentR + 6;
+    var st = [10, 8, 6, 4].map(function (p) { return '<line x1="6" y1="' + y(p) + '" x2="' + (Wl - 4) + '" y2="' + y(p) + '" stroke="#b6503c" stroke-width="1"/>'; }).join("");
     var clefX = opts.clefX || 10, cy = y(8);
     var clef = '<rect x="' + clefX + '" y="' + (cy - 9) + '" width="6" height="7" fill="#ece8df"/><rect x="' + clefX + '" y="' + (cy + 1) + '" width="6" height="7" fill="#ece8df"/>';
     var extra = "";
     if (opts.dropcap) extra += '<text x="6" y="' + (y(4) + 14) + '" font-family="Georgia,serif" font-weight="700" font-size="42" fill="#cf5442">' + esc(opts.dropcap) + "</text>";
     if (opts.mode) extra += '<text x="6" y="10" font-family="Georgia,serif" font-style="italic" font-size="11" fill="#cf5442">' + esc(opts.mode) + "</text>";
     return '<svg viewBox="0 0 ' + Wl + " " + (y(4) + 26) + '" width="' + Wl + '" xmlns="http://www.w3.org/2000/svg" class="off-staff">' +
-      st + clef + extra + bars.join("") + notes.join("") + hys.join("") + texts.join("") + "</svg>";
+      st + clef + extra + bars.join("") + custos + notes.join("") + hys.join("") + texts.join("") + "</svg>";
   }
   function psalmChant(verses, mode) {
-    var stream = chantStream(verses), dc = null, fi = 30;
+    var stream = chantStream(verses), dc = null, fi = 28;
     for (var i = 0; i < stream.length; i++) {
       if (!stream[i].bar) {
-        if (stream[i].t && stream[i].t.length > 1) { dc = stream[i].t.charAt(0); stream[i].t = stream[i].t.slice(1); fi = 74; }
+        if (stream[i].t && stream[i].t.length > 1) { dc = stream[i].t.charAt(0); stream[i].t = stream[i].t.slice(1); fi = 72; }
         break;
       }
     }
-    return flowChant(stream, CHANT_W, fi).map(function (l, idx) {
-      return chantSystem(l, { startX: idx === 0 ? fi : 30, clefX: idx === 0 && dc ? 50 : 10, dropcap: idx === 0 ? dc : null, mode: idx === 0 ? mode : null });
+    var lines = flowChant(stream, CHANT_W, fi);
+    return lines.map(function (l, idx) {
+      var nx = lines[idx + 1];
+      return chantSystem(l, { startX: idx === 0 ? fi : 28, clefX: idx === 0 && dc ? 50 : 10, dropcap: idx === 0 ? dc : null, mode: idx === 0 ? mode : null, custos: nx ? firstNote(nx) : null });
     }).join("");
   }
 
