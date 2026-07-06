@@ -1,0 +1,52 @@
+{
+ "_note": "Ferial Lauds (scheme I) per weekday: 3 psalms + an OT canticle + a Laudate psalm, each with its proper antiphon. Rubrics 1960, sourced from Divinum Officium. Canticle texts are not yet ingested (the antiphon + reference are shown). Benedictus antiphon and collect are proper to the day (calendar layer).",
+ "sun": [
+  {"n": 92, "a": "Allelúia, Dóminus regnávit, decórem índuit, allelúia, allelúia."},
+  {"n": 99, "a": "Iubiláte Deo omnis terra, allelúia."},
+  {"n": 62, "a": "Benedícam te in vita mea, Dómine: et in nómine tuo levábo manus meas, allelúia."},
+  {"cant": "Trium Puerorum", "ref": "Dan. 3, 57-88", "a": "Tres púeri iussu regis in fornácem missi sunt, non timéntes flammam ignis, dicéntes: Benedíctus Deus, allelúia."},
+  {"n": 148, "a": "Allelúia, laudáte Dóminum de cælis, allelúia, allelúia."}
+ ],
+ "mon": [
+  {"n": 46, "a": "Iubiláte Deo in voce exsultatiónis."},
+  {"n": 5, "a": "Inténde voci oratiónis meæ, Rex meus et Deus meus."},
+  {"n": 28, "a": "Deus maiestátis intónuit: afférte glóriam nómini eius."},
+  {"cant": "David", "ref": "1 Par. 29, 10-13", "a": "Laudámus nomen tuum ínclitum, Deus noster."},
+  {"n": 116, "a": "Laudáte Dóminum omnes gentes."}
+ ],
+ "tue": [
+  {"n": 95, "a": "Cantáte Dómino et benedícite nómini eius."},
+  {"n": 42, "a": "Salutáre vultus mei, Deus meus."},
+  {"n": 66, "a": "Illúmina, Dómine, vultum tuum super nos."},
+  {"cant": "Tobiæ", "ref": "Tob. 13, 1-10", "a": "Exaltáte Regem sæculórum in opéribus vestris."},
+  {"n": 134, "a": "Laudáte nomen Dómini, qui statis in domo Dómini."}
+ ],
+ "wed": [
+  {"n": 96, "a": "Dóminus regnávit, exsúltet terra."},
+  {"n": 64, "a": "Te decet hymnus, Deus, in Sion."},
+  {"n": 100, "a": "Tibi, Dómine, psallam, et intéllegam in via immaculáta."},
+  {"cant": "Iudith", "ref": "Iudith 16, 15-21", "a": "Dómine, magnus es tu, et præclárus in virtúte tua."},
+  {"n": 145, "a": "Laudábo Deum meum in vita mea."}
+ ],
+ "thu": [
+  {"n": 97, "a": "Iubiláte in conspéctu regis Dómini."},
+  {"n": 89, "a": "Dómine, refúgium factus es nobis."},
+  {"n": 35, "a": "Dómine, in cælo misericórdia tua."},
+  {"cant": "Ieremiæ", "ref": "Ier. 31, 10-14", "a": "Pópulus meus, ait Dóminus, bonis meis adimplébitur."},
+  {"n": 146, "a": "Deo nostro iucúnda sit laudátio."}
+ ],
+ "fri": [
+  {"n": 98, "a": "Exaltáte Dóminum Deum nostrum, et adoráte in monte sancto eius."},
+  {"n": 142, "a": "Éripe me de inimícis meis, Dómine, ad te confúgi."},
+  {"n": 84, "a": "Benedixísti, Dómine, terram tuam: remisísti iniquitátem plebis tuæ."},
+  {"cant": "Isaiæ", "ref": "Is. 45, 15-26", "a": "In Dómino iustificábitur et laudábitur omne semen Israël."},
+  {"n": 147, "a": "Lauda, Ierúsalem, Dóminum."}
+ ],
+ "sat": [
+  {"n": 149, "a": "Fílii Sion exsúltent in Rege suo."},
+  {"n": 91, "a": "Quam magnificáta sunt ópera tua, Dómine."},
+  {"n": 63, "a": "Lætábitur iustus in Dómino et sperábit in eo."},
+  {"cant": "Ecclesiastici", "ref": "Ecclus. 36, 1-16", "a": "Osténde nobis, Dómine, lucem miseratiónum tuárum."},
+  {"n": 150, "a": "Omnis spíritus laudet Dóminum."}
+ ]
+}

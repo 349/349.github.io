@@ -44,7 +44,9 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {};
+  // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
+  var FERIAL = {};
   function buildData(d) {
     d = d || {};
     PSALTER = A(dearray(d.PSALTER != null ? d.PSALTER : window.PSALTER));
@@ -52,6 +54,8 @@
     ORD = dearray(d.ORDINARY != null ? d.ORDINARY : window.ORDINARY) || {};
     SCHEME = dearray(d.SCHEME != null ? d.SCHEME : window.SCHEME) || {};
     VESP = dearray(d.VESPERS != null ? d.VESPERS : window.VESPERS) || {};
+    LAUD = dearray(d.LAUDS != null ? d.LAUDS : window.LAUDS) || {};
+    FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
   }
@@ -63,7 +67,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -397,8 +401,17 @@
         var score = exsurge.Gabc.loadChantScore(ctxt, gabc, true);
         score.performLayout(ctxt, function () {
           score.layoutChantLines(ctxt, Math.max(280, width || 640), function () {
-            try { container.innerHTML = score.createDrawable(ctxt); }
-            catch (e) { container.innerHTML = '<p class="muted">(chant could not render)</p>'; }
+            try {
+              var svg = score.createDrawable(ctxt);
+              // Exsurge omits a viewBox, so max-width:100% clips instead of scaling.
+              // Inject one from the width/height so the staff scales down to fit.
+              svg = svg.replace(/<svg\b([^>]*)>/, function (m, at) {
+                if (/viewBox/.test(at)) return m;
+                var w = (at.match(/width="([\d.]+)"/) || [])[1], h = (at.match(/height="([\d.]+)"/) || [])[1];
+                return (w && h) ? "<svg" + at + ' viewBox="0 0 ' + w + " " + h + '">' : m;
+              });
+              container.innerHTML = svg;
+            } catch (e) { container.innerHTML = '<p class="muted">(chant could not render)</p>'; }
           });
         });
       } catch (e) { container.innerHTML = '<p class="muted">(chant unavailable)</p>'; }
@@ -601,13 +614,18 @@
       }
       view.appendChild(section("Psalmódia", "Psalms — 1960 ferial cycle, " + li.weekdayLat));
       var sec = el("div", "off-psalms");
-      var vesp = hourKey === "vesperae" ? A(VESP[li.weekdayKey]) : [];
-      if (vesp.length) {
-        // Ferial Vespers: each psalm has its own proper antiphon (validated vs DO).
+      var fer = A((FERIAL[hourKey] || {})[li.weekdayKey]);
+      if (fer.length) {
+        // Ferial Lauds/Vespers: each psalm has its own proper antiphon (validated vs DO).
         var seen = {};
-        vesp.forEach(function (e) {
+        fer.forEach(function (e) {
           sec.appendChild(antLine(e.a));
-          if (seen[e.n]) {
+          if (e.cant) {
+            // OT canticle at Lauds — antiphon + reference (text not yet ingested).
+            sec.appendChild(el("p", "off-psalm__title", "Cánticum " + e.cant +
+              (e.ref ? ' <span class="off-pointed" style="background:var(--rule);color:var(--ink-muted)">' + e.ref + "</span>" : "")));
+            sec.appendChild(el("p", "muted", "(canticle text to be added)"));
+          } else if (seen[e.n]) {
             sec.appendChild(el("p", "off-psalm__title", "Psalmus " + e.n + (e.d ? " · vv. " + e.d : "") +
               ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + e.n + '/">full &rsaquo;</a>'));
           } else {
@@ -712,7 +730,7 @@
     if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(modeEl, viewEl);
 
     function renderHour(scroll) {
-      CHANT_W = Math.max(300, Math.min(viewEl.clientWidth || 680, 760)) - 4;
+      CHANT_W = Math.max(280, Math.min(viewEl.clientWidth || 660, 680)) - 6;
       viewEl.innerHTML = "";
       try {
         viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
