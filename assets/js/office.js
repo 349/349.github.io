@@ -190,6 +190,13 @@
     // on set calendar dates) is a separate data layer, ingested next.
     var octLast = new Date(d.getFullYear(), 9, 31);
     var christKing = addDays(octLast, -octLast.getDay());
+    // Holy Name of Jesus: the Sunday falling 2–5 Jan; if none, 2 Jan.
+    var yy = d.getFullYear(), holyName = null;
+    for (var hn = 2; hn <= 5; hn++) { var hnd = new Date(yy, 0, hn); if (hnd.getDay() === 0) { holyName = hnd; break; } }
+    if (!holyName) holyName = new Date(yy, 0, 2);
+    // Holy Family: the Sunday within the octave of the Epiphany (first Sunday after 6 Jan).
+    var epiph6 = new Date(yy, 0, 6);
+    var holyFamily = addDays(epiph6, ((7 - epiph6.getDay()) % 7) || 7);
     var movable = [
       [addDays(E, -7), "Dominica in Palmis", "Palm Sunday", "violet"],
       [addDays(E, -3), "Feria V in Cena Dómini", "Maundy Thursday", "white"],
@@ -201,7 +208,9 @@
       [addDays(E, 56), "Sanctíssima Trínitas", "Trinity Sunday", "white", "trinity"],
       [addDays(E, 60), "Corpus Christi", "Corpus Christi", "white", "corpus"],
       [addDays(E, 68), "Sacratíssimum Cor Iesu", "Sacred Heart", "white", "sacredheart"],
-      [christKing, "D. N. Iesu Christi Regis", "Christ the King", "white", "christking"]
+      [christKing, "D. N. Iesu Christi Regis", "Christ the King", "white", "christking"],
+      [holyName, "Ss.mi Nóminis Iesu", "Holy Name of Jesus", "white", "holyname", 2],
+      [holyFamily, "S. Famíliæ Iesu, Maríæ, Ioseph", "Holy Family", "white", "holyfamily", 2]
     ];
     var feast = null, feastEn = null, feastRank = null;
     // Fixed sanctoral (simplified precedence: I class always takes the day; II class
@@ -217,7 +226,7 @@
     // Principal movable feasts override the fixed sanctoral.
     for (var fi = 0; fi < movable.length; fi++) {
       if (movable[fi][0].getTime() === d.getTime()) {
-        feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = 1;
+        feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = movable[fi][5] || 1;
         var mvk = movable[fi][4];
         if (mvk && MOVPROP[mvk]) { feastKey = mvk; feastCollect = MOVPROP[mvk].o || null; }
         break;
@@ -619,22 +628,20 @@
       try {
         var ctxt = new exsurge.ChantContext();
         var score = exsurge.Gabc.loadChantScore(ctxt, gabc, true);
-        score.performLayout(ctxt, function () {
-          score.layoutChantLines(ctxt, Math.max(280, width || 640), function () {
-            try {
-              var svg = score.createDrawable(ctxt);
-              // Exsurge omits a viewBox, so max-width:100% clips instead of scaling.
-              // Inject one from the width/height so the staff scales down to fit.
-              svg = svg.replace(/<svg\b([^>]*)>/, function (m, at) {
-                if (/viewBox/.test(at)) return m;
-                var w = (at.match(/width="([\d.]+)"/) || [])[1], h = (at.match(/height="([\d.]+)"/) || [])[1];
-                return (w && h) ? "<svg" + at + ' viewBox="0 0 ' + w + " " + h + '">' : m;
-              });
-              container.innerHTML = svg;
-            } catch (e) { container.innerHTML = '<p class="muted">(chant could not render)</p>'; }
-          });
+        // NB: in this Exsurge build performLayout / layoutChantLines do NOT invoke their
+        // completion callbacks, so we run them synchronously and draw immediately after.
+        score.performLayout(ctxt, function () {});
+        score.layoutChantLines(ctxt, Math.max(280, width || 640), function () {});
+        var svg = score.createDrawable(ctxt);
+        // Exsurge omits a viewBox, so max-width:100% clips instead of scaling.
+        // Inject one from the width/height so the staff scales down to fit.
+        svg = svg.replace(/<svg\b([^>]*)>/, function (m, at) {
+          if (/viewBox/.test(at)) return m;
+          var w = (at.match(/width="([\d.]+)"/) || [])[1], h = (at.match(/height="([\d.]+)"/) || [])[1];
+          return (w && h) ? "<svg" + at + ' viewBox="0 0 ' + w + " " + h + '">' : m;
         });
-      } catch (e) { container.innerHTML = '<p class="muted">(chant unavailable)</p>'; }
+        container.innerHTML = svg;
+      } catch (e) { container.innerHTML = '<p class="muted">(chant could not render)</p>'; }
     });
   }
 
