@@ -1,212 +1,332 @@
 {
- "apostles": {
-  "lAnts": [
-   "Hoc est præcéptum meum, ut diligátis ínvicem, sicut diléxi vos.",
-   "Maiórem caritátem nemo habet, ut ánimam suam ponat quis pro amícis suis.",
-   "Vos amíci mei estis, si fecéritis quæ præcípio vobis, dicit Dóminus.",
-   "Beáti pacífici, beáti mundo corde: quóniam ipsi Deum vidébunt.",
-   "In patiéntia vestra possidébitis ánimas vestras."
-  ],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [
-   "Hoc est præcéptum meum, ut diligátis ínvicem, sicut diléxi vos.",
-   "Maiórem caritátem nemo habet, ut ánimam suam ponat quis pro amícis suis.",
-   "Vos amíci mei estis, si fecéritis quæ præcípio vobis, dicit Dóminus.",
-   "Beáti pacífici, beáti mundo corde: quóniam ipsi Deum vidébunt.",
-   "In patiéntia vestra possidébitis ánimas vestras."
-  ],
-  "vPs": [
-   109,
-   110,
-   111,
-   112,
-   113
-  ]
- },
- "martyr": {
-  "lAnts": [
-   "Qui me conféssus fúerit coram homínibus, confitébor et ego eum coram Patre meo.",
-   "Qui séquitur me, non ámbulat in ténebris, sed habébit lumen vitæ, dicit Dóminus.",
-   "Qui mihi minístrat, me sequátur: et ubi ego sum, illic sit et miníster meus.",
-   "Si quis mihi ministráverit, honorificábit eum Pater meus, qui est in cælis, dicit Dóminus.",
-   "Volo Pater, ut ubi ego sum, illic sit et miníster meus."
-  ],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [
-   "Qui me conféssus fúerit coram homínibus, confitébor et ego eum coram Patre meo.",
-   "Qui séquitur me, non ámbulat in ténebris, sed habébit lumen vitæ, dicit Dóminus.",
-   "Qui mihi minístrat, me sequátur: et ubi ego sum, illic sit et miníster meus.",
-   "Si quis mihi ministráverit, honorificábit eum Pater meus, qui est in cælis, dicit Dóminus.",
-   "Volo Pater, ut ubi ego sum, illic sit et miníster meus."
-  ],
-  "vPs": [
-   109,
-   110,
-   111,
-   112,
-   113
-  ]
- },
- "martyrs": {
-  "lAnts": [
-   "Omnes Sancti, quanta passi sunt torménta, ut secúri pervenírent ad palmam martýrii.",
-   "Cum palma ad regna pervenérunt Sancti, corónas decóris meruérunt de manu Dei.",
-   "Córpora Sanctórum in pace sepúlta sunt: et vivent nómina eórum in ætérnum.",
-   "Mártyres Dómini Dóminum benedícite in ætérnum.",
-   "Mártyrum chorus laudáte Dóminum de cælis, allelúia."
-  ],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [
-   "Omnes Sancti, quanta passi sunt torménta, ut secúri pervenírent ad palmam martýrii.",
-   "Cum palma ad regna pervenérunt Sancti, corónas decóris meruérunt de manu Dei.",
-   "Córpora Sanctórum in pace sepúlta sunt: et vivent nómina eórum in ætérnum.",
-   "Mártyres Dómini Dóminum benedícite in ætérnum.",
-   "Mártyrum chorus laudáte Dóminum de cælis, allelúia."
-  ],
-  "vPs": [
-   109,
-   110,
-   111,
-   112,
-   113
-  ]
- },
- "confBishop": {
-  "lAnts": [
-   "Ecce sacérdos magnus, qui in diébus suis plácuit Deo, et invéntus est iustus.",
-   "Non est invéntus símilis illi, qui conserváret legem Excélsi.",
-   "Ideo iureiurándo fecit illum Dóminus créscere in plebem suam.",
-   "Sacerdótes Dei, benedícite Dóminum: servi Dómini, hymnum dícite Deo. Allelúia.",
-   "Serve bone et fidélis, intra in gáudium Dómini tui."
-  ],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [
-   "Ecce sacérdos magnus, qui in diébus suis plácuit Deo, et invéntus est iustus.",
-   "Non est invéntus símilis illi, qui conserváret legem Excélsi.",
-   "Ideo iureiurándo fecit illum Dóminus créscere in plebem suam.",
-   "Sacerdótes Dei, benedícite Dóminum: servi Dómini, hymnum dícite Deo. Allelúia.",
-   "Serve bone et fidélis, intra in gáudium Dómini tui."
-  ],
-  "vPs": [
-   109,
-   110,
-   111,
-   112,
-   113
-  ]
- },
- "conf": {
-  "lAnts": [
-   "Dómine, quinque talénta tradidísti mihi, ecce ália quinque superlucrátus sum.",
-   "Euge, serve bone in módico fidélis, intra in gáudium Dómini tui.",
-   "Fidélis servus et prudens, quem constítuit Dóminus super famíliam suam.",
-   "Beátus ille servus, quem, cum vénerit Dóminus eius et pulsáverit iánuam, invénerit vigilántem.",
-   "Serve bone et fidélis, intra in gáudium Dómini tui."
-  ],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [
-   "Dómine, quinque talénta tradidísti mihi, ecce ália quinque superlucrátus sum.",
-   "Euge, serve bone in módico fidélis, intra in gáudium Dómini tui.",
-   "Fidélis servus et prudens, quem constítuit Dóminus super famíliam suam.",
-   "Beátus ille servus, quem, cum vénerit Dóminus eius et pulsáverit iánuam, invénerit vigilántem.",
-   "Serve bone et fidélis, intra in gáudium Dómini tui."
-  ],
-  "vPs": [
-   109,
-   110,
-   111,
-   112,
-   113
-  ]
- },
- "virginMartyr": {
-  "lAnts": [],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [
-   "Hæc est Virgo sápiens, et una de número prudéntum.",
-   "Hæc est Virgo sápiens, quam Dóminus vigilántem invénit.",
-   "Hæc est quæ nescívit torum in delícto: habébit fructum in respectióne animárum sanctárum.",
-   "Veni, elécta mea, et ponam in te thronum meum, allelúia.",
-   "Ista est speciósa inter fílias Ierúsalem."
-  ],
-  "vPs": [
-   109,
-   112,
-   121,
-   126,
-   147
-  ]
- },
- "holyWoman": {
-  "lAnts": [],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [
-   "Dum esset Rex in accúbitu suo, nardus mea dedit odórem suavitátis.",
-   "In odórem unguentórum tuórum cúrrimus: adolescéntulæ dilexérunt te nimis.",
-   "Iam hiems tránsiit, imber ábiit et recéssit: surge, amíca mea, et veni.",
-   "Veni, elécta mea, et ponam in te thronum meum, allelúia.",
-   "Ista est speciósa inter fílias Ierúsalem."
-  ],
-  "vPs": [
-   109,
-   112,
-   121,
-   126,
-   147
-  ]
- },
- "bvm": {
-  "lAnts": [],
-  "lPs": [
-   92,
-   99,
-   62,
-   "cant",
-   148
-  ],
-  "vAnts": [],
-  "vPs": []
- }
+"apostles": {
+"lAnts": [
+"Hoc est præcéptum meum, ut diligátis ínvicem, sicut diléxi vos.",
+"Maiórem caritátem nemo habet, ut ánimam suam ponat quis pro amícis suis.",
+"Vos amíci mei estis, si fecéritis quæ præcípio vobis, dicit Dóminus.",
+"Beáti pacífici, beáti mundo corde: quóniam ipsi Deum vidébunt.",
+"In patiéntia vestra possidébitis ánimas vestras."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Hoc est præcéptum meum, ut diligátis ínvicem, sicut diléxi vos.",
+"Maiórem caritátem nemo habet, ut ánimam suam ponat quis pro amícis suis.",
+"Vos amíci mei estis, si fecéritis quæ præcípio vobis, dicit Dóminus.",
+"Beáti pacífici, beáti mundo corde: quóniam ipsi Deum vidébunt.",
+"In patiéntia vestra possidébitis ánimas vestras."
+],
+"vPs": [
+109,
+110,
+111,
+112,
+113
+]
+},
+"martyr": {
+"lAnts": [
+"Qui me conféssus fúerit coram homínibus, confitébor et ego eum coram Patre meo.",
+"Qui séquitur me, non ámbulat in ténebris, sed habébit lumen vitæ, dicit Dóminus.",
+"Qui mihi minístrat, me sequátur: et ubi ego sum, illic sit et miníster meus.",
+"Si quis mihi ministráverit, honorificábit eum Pater meus, qui est in cælis, dicit Dóminus.",
+"Volo Pater, ut ubi ego sum, illic sit et miníster meus."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Qui me conféssus fúerit coram homínibus, confitébor et ego eum coram Patre meo.",
+"Qui séquitur me, non ámbulat in ténebris, sed habébit lumen vitæ, dicit Dóminus.",
+"Qui mihi minístrat, me sequátur: et ubi ego sum, illic sit et miníster meus.",
+"Si quis mihi ministráverit, honorificábit eum Pater meus, qui est in cælis, dicit Dóminus.",
+"Volo Pater, ut ubi ego sum, illic sit et miníster meus."
+],
+"vPs": [
+109,
+110,
+111,
+112,
+113
+]
+},
+"martyrs": {
+"lAnts": [
+"Omnes Sancti, quanta passi sunt torménta, ut secúri pervenírent ad palmam martýrii.",
+"Cum palma ad regna pervenérunt Sancti, corónas decóris meruérunt de manu Dei.",
+"Córpora Sanctórum in pace sepúlta sunt: et vivent nómina eórum in ætérnum.",
+"Mártyres Dómini Dóminum benedícite in ætérnum.",
+"Mártyrum chorus laudáte Dóminum de cælis, allelúia."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Omnes Sancti, quanta passi sunt torménta, ut secúri pervenírent ad palmam martýrii.",
+"Cum palma ad regna pervenérunt Sancti, corónas decóris meruérunt de manu Dei.",
+"Córpora Sanctórum in pace sepúlta sunt: et vivent nómina eórum in ætérnum.",
+"Mártyres Dómini Dóminum benedícite in ætérnum.",
+"Mártyrum chorus laudáte Dóminum de cælis, allelúia."
+],
+"vPs": [
+109,
+110,
+111,
+112,
+113
+]
+},
+"confBishop": {
+"lAnts": [
+"Ecce sacérdos magnus, qui in diébus suis plácuit Deo, et invéntus est iustus.",
+"Non est invéntus símilis illi, qui conserváret legem Excélsi.",
+"Ideo iureiurándo fecit illum Dóminus créscere in plebem suam.",
+"Sacerdótes Dei, benedícite Dóminum: servi Dómini, hymnum dícite Deo. Allelúia.",
+"Serve bone et fidélis, intra in gáudium Dómini tui."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Ecce sacérdos magnus, qui in diébus suis plácuit Deo, et invéntus est iustus.",
+"Non est invéntus símilis illi, qui conserváret legem Excélsi.",
+"Ideo iureiurándo fecit illum Dóminus créscere in plebem suam.",
+"Sacerdótes Dei, benedícite Dóminum: servi Dómini, hymnum dícite Deo. Allelúia.",
+"Serve bone et fidélis, intra in gáudium Dómini tui."
+],
+"vPs": [
+109,
+110,
+111,
+112,
+113
+]
+},
+"conf": {
+"lAnts": [
+"Dómine, quinque talénta tradidísti mihi, ecce ália quinque superlucrátus sum.",
+"Euge, serve bone in módico fidélis, intra in gáudium Dómini tui.",
+"Fidélis servus et prudens, quem constítuit Dóminus super famíliam suam.",
+"Beátus ille servus, quem, cum vénerit Dóminus eius et pulsáverit iánuam, invénerit vigilántem.",
+"Serve bone et fidélis, intra in gáudium Dómini tui."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Dómine, quinque talénta tradidísti mihi, ecce ália quinque superlucrátus sum.",
+"Euge, serve bone in módico fidélis, intra in gáudium Dómini tui.",
+"Fidélis servus et prudens, quem constítuit Dóminus super famíliam suam.",
+"Beátus ille servus, quem, cum vénerit Dóminus eius et pulsáverit iánuam, invénerit vigilántem.",
+"Serve bone et fidélis, intra in gáudium Dómini tui."
+],
+"vPs": [
+109,
+110,
+111,
+112,
+113
+]
+},
+"virginMartyr": {
+"lAnts": [],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Hæc est Virgo sápiens, et una de número prudéntum.",
+"Hæc est Virgo sápiens, quam Dóminus vigilántem invénit.",
+"Hæc est quæ nescívit torum in delícto: habébit fructum in respectióne animárum sanctárum.",
+"Veni, elécta mea, et ponam in te thronum meum, allelúia.",
+"Ista est speciósa inter fílias Ierúsalem."
+],
+"vPs": [
+109,
+112,
+121,
+126,
+147
+]
+},
+"holyWoman": {
+"lAnts": [],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Dum esset Rex in accúbitu suo, nardus mea dedit odórem suavitátis.",
+"In odórem unguentórum tuórum cúrrimus: adolescéntulæ dilexérunt te nimis.",
+"Iam hiems tránsiit, imber ábiit et recéssit: surge, amíca mea, et veni.",
+"Veni, elécta mea, et ponam in te thronum meum, allelúia.",
+"Ista est speciósa inter fílias Ierúsalem."
+],
+"vPs": [
+109,
+112,
+121,
+126,
+147
+]
+},
+"bvm": {
+"lAnts": [],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [],
+"vPs": []
+},
+"trinity": {
+"lAnts": [
+"Glória tibi, Trínitas * æquális, una Déitas, et ante ómnia sǽcula, et nunc et in perpétuum.",
+"Laus et perénnis glória * Deo Patri, et Fílio, Sancto simul Paráclito, in sæculórum sǽcula.",
+"Glória laudis * résonet in ore ómnium, Patri, genitǽque Proli, Spirítui Sancto páriter resúltet laude perénni.",
+"Laus Deo Patri, * parilíque Proli, et tibi, Sancte, stúdio perénni, Spíritus, nostro résonet ab ore, omne per ævum.",
+"Ex quo ómnia, * per quem ómnia, in quo ómnia: ipsi glória in sǽcula."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Glória tibi, Trínitas * æquális, una Déitas, et ante ómnia sǽcula, et nunc et in perpétuum.",
+"Laus et perénnis glória * Deo Patri, et Fílio, Sancto simul Paráclito, in sæculórum sǽcula.",
+"Glória laudis * résonet in ore ómnium, Patri, genitǽque Proli, Spirítui Sancto páriter resúltet laude perénni.",
+"Laus Deo Patri, * parilíque Proli, et tibi, Sancte, stúdio perénni, Spíritus, nostro résonet ab ore, omne per ævum.",
+"Ex quo ómnia, * per quem ómnia, in quo ómnia: ipsi glória in sǽcula."
+],
+"vPs": [
+109,
+110,
+111,
+112,
+113
+]
+},
+"corpus": {
+"lAnts": [
+"Sapiéntia * ædificávit sibi domum, míscuit vinum et pósuit mensam, allelúia.",
+"Angelórum esca * nutrivísti pópulum tuum, et panem de cælo præstitísti eis, allelúia.",
+"Pinguis est panis * Christi, et præbébit delícias régibus, allelúia.",
+"Sacerdótes sancti * incénsum et panes ófferunt Deo, allelúia.",
+"Vincénti dabo * manna abscónditum, et nomen novum, allelúia."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Sacérdos in ætérnum * Christus Dóminus secúndum órdinem Melchísedech, panem et vinum óbtulit.",
+"Miserátor Dóminus * escam dedit timéntibus se in memóriam suórum mirabílium.",
+"Cálicem salutáris * accípiam: et sacrificábo hóstiam laudis.",
+"Sicut novéllæ olivárum, * Ecclésiæ fílii sint in circúitu mensæ Dómini.",
+"Qui pacem * ponit fines Ecclésiæ, fruménti ádipe sátiat nos Dóminus."
+],
+"vPs": [
+109,
+110,
+115,
+127,
+147
+]
+},
+"sacredheart": {
+"lAnts": [
+"Unus mílitum * láncea latus eius apéruit et contínuo exívit sanguis et aqua.",
+"Stans Iesus * clamábat dicens: Si quis sitit, véniat ad me et bibat.",
+"In caritáte perpétua * diléxit nos Deus, ídeo, exaltátus a terra, attráxit nos ad Cor suum, míserans.",
+"Veníte ad me * omnes qui laborátis et oneráti estis et ego refíciam vos.",
+"Fili, * præbe mihi cor tuum, et óculi tui custódiant vias meas."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Unus mílitum * láncea latus eius apéruit et contínuo exívit sanguis et aqua.",
+"Stans Iesus * clamábat dicens: Si quis sitit, véniat ad me et bibat.",
+"In caritáte perpétua * diléxit nos Deus, ídeo, exaltátus a terra, attráxit nos ad Cor suum, míserans.",
+"Veníte ad me * omnes qui laborátis et oneráti estis et ego refíciam vos.",
+"Fili, * præbe mihi cor tuum, et óculi tui custódiant vias meas."
+],
+"vPs": [
+109,
+110,
+115,
+127,
+147
+]
+},
+"christking": {
+"lAnts": [
+"Suscitábit * Deus cæli regnum quod commínuet et consúmet univérsa regna, et ipsum stabit in ætérnum.",
+"Dedit ei Dóminus * potestátem et honórem et regnum; et omnes pópuli, tribus et linguæ ipsi sérvient.",
+"Exíbunt aquæ vivæ * de Ierúsalem; et erit Dóminus Rex super omnem terram.",
+"Magnificábitur * usque ad términos terræ, et erit iste pax.",
+"Gens et regnum * quod non servíerit tibi, períbit: et gentes solitúdine vastabúntur."
+],
+"lPs": [
+92,
+99,
+62,
+"cant",
+148
+],
+"vAnts": [
+"Pacíficus * vocábitur, et thronus eius erit firmíssimus in perpétuum.",
+"Regnum eius * regnum sempitérnum est, et omnes reges sérvient ei et obédient.",
+"Ecce Vir Oriens * nomen eius: sedébit et dominábitur, et loquétur pacem géntibus.",
+"Dóminus * iudex noster, Dóminus légifer noster: Dóminus Rex noster, ipse salvábit nos.",
+"Ecce dedi te * in lucem géntium, ut sis salus mea usque ad extrémum terræ."
+],
+"vPs": [
+109,
+110,
+111,
+112,
+116
+]
+}
 }

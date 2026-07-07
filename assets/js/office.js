@@ -956,11 +956,13 @@
         view.appendChild(hymnBlock(hy.hymn));
       }
       // On a feast, use the festal psalm scheme + the Common's psalm antiphons.
-      var fp = (li.feast && li.feastCommon && (hourKey === "laudes" || hourKey === "vesperae")) ? FESTAL[li.feastCommon] : null;
+      // Festal psalmody: keyed by the feast's Common, or by the feast key itself for the
+      // movable feasts of the Lord (Trinity, Corpus Christi, Sacred Heart, Christ the King).
+      var fp = (li.feast && (hourKey === "laudes" || hourKey === "vesperae")) ? (FESTAL[li.feastCommon] || FESTAL[li.feastKey]) : null;
       var fpAnts = fp ? (hourKey === "laudes" ? fp.lAnts : fp.vAnts) : null;
       var fpPs = fp ? (hourKey === "laudes" ? fp.lPs : fp.vPs) : null;
       var useFestal = fpAnts && fpAnts.length && fpPs && fpPs.length;
-      view.appendChild(section("Psalmódia", useFestal ? "Psalms — festal, of the Common" : "Psalms — 1960 ferial cycle, " + li.weekdayLat));
+      view.appendChild(section("Psalmódia", useFestal ? ("Psalms — festal, " + (li.feastCommon ? "of the Common" : "proper")) : "Psalms — 1960 ferial cycle, " + li.weekdayLat));
       var sec = el("div", "off-psalms");
       var fer = A((FERIAL[hourKey] || {})[li.weekdayKey]);
       if (useFestal) {
