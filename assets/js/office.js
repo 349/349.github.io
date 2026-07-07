@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -66,6 +66,8 @@
     COMMONS = dearray(d.COMMONS != null ? d.COMMONS : window.COMMONS) || {};
     CHANT_IDX = dearray(d.CHANT != null ? d.CHANT : window.CHANT) || {};
     FESTAL = dearray(d.FESTAL != null ? d.FESTAL : window.FESTAL) || {};
+    LITTLEHR = dearray(d.LITTLEHR != null ? d.LITTLEHR : window.LITTLEHR) || {};
+    PRECES = dearray(d.PRECES != null ? d.PRECES : window.PRECES) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -78,7 +80,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -680,6 +682,19 @@
     if (sk && V[sk]) return isL ? V[sk].laudes : V[sk].vespera;
     return null;
   }
+  // Season key for the Little Hours brief responsory data.
+  function lhSeason(li) {
+    if (li.season === "Adventus") return "adv";
+    if (li.season === "Quadragesima" || li.season === "Tempus Passionis") return "quad";
+    if (li.season === "Tempus Paschale") return "pasch";
+    return "pa";
+  }
+  // Ferial preces: at Lauds & Vespers on ferias (no feast) of Advent, Lent, Passiontide.
+  function precesApply(li, hourKey) {
+    if (hourKey !== "laudes" && hourKey !== "vesperae") return false;
+    if (li.feast || li.weekdayIndex === 0) return false;
+    return li.season === "Adventus" || li.season === "Quadragesima" || li.season === "Tempus Passionis";
+  }
   // "Alleluia" is said all year EXCEPT Septuagesima through Holy Saturday.
   function alleluiaTag(li) {
     var pen = li.season === "Septuagesima" || li.season === "Quadragesima" || li.season === "Tempus Passionis";
@@ -855,6 +870,13 @@
         if (lAnt) sec.appendChild(antLine(lAnt));
       }
       view.appendChild(sec);
+      // Athanasian Creed (Symbolum "Quicúmque") at Prime — under Rubrics 1960 only on Trinity Sunday
+      // (the First Sunday after Pentecost), said after the psalmody before the little chapter.
+      if (hourKey === "prima" && li.collectKey === "pent-1" && li.weekdayIndex === 0 && hy && hy.athanasian) {
+        view.appendChild(section("Symbolum Athanasianum", "Athanasian Creed"));
+        view.appendChild(direction("Said only today, the feast of the Most Holy Trinity."));
+        view.appendChild(block(null, rubricate(hy.athanasian)));
+      }
       view.appendChild(section("Capítulum · Responsórium breve", "Little chapter · responsory"));
       var lvChap = (hourKey === "laudes" || hourKey === "vesperae") ? chapterFor(li, hourKey) : null;
       if (hourKey === "prima" && hy && hy.chapter) {
@@ -863,9 +885,12 @@
         if (hy.responsory) view.appendChild(block(null, rubricate(hy.responsory)));
         if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
       } else if (hy && hy.chapter && li.color === "green") {
-        // Little-Hour chapter + versicle, per annum (validated vs Divinum Officium).
-        view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo gratias.")));
-        if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
+        // Little Hour (Terce/Sext/None), per annum: chapter, brief responsory, versicle.
+        view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
+        var lhr = LITTLEHR[hourKey] && LITTLEHR[hourKey][lhSeason(li)];
+        if (lhr && lhr.resp) view.appendChild(block(null, rubricate(lhr.resp)));
+        if (lhr && lhr.vers) view.appendChild(block(null, rubricate(lhr.vers)));
+        else if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
       } else if (lvChap && lvChap.text) {
         // Little chapter at Lauds/Vespers, temporal (per annum or seasonal).
         view.appendChild(block(lvChap.ref ? "Capitulum — " + lvChap.ref : null, rubricate(lvChap.text + "<br>R. Deo grátias.")));
@@ -934,6 +959,12 @@
           view.appendChild(direction("Its antiphon is proper to the day (from the Sunday or feast) — supplied by the calendar layer, to come. The sign of the cross is made at the opening words."));
           view.appendChild(renderCanticle(gospel, gospel === "Benedictus" ? "Luc. 1, 68-79" : "Luc. 1, 46-55", CANT[gospel]));
         }
+      }
+      // Ferial preces (kneeling) before the collect, on penitential ferias.
+      if (precesApply(li, hourKey) && PRECES.feriales) {
+        view.appendChild(section("Preces feriales", "Ferial Preces"));
+        view.appendChild(direction("Said kneeling. The collect of the day follows."));
+        view.appendChild(block(null, rubricate(PRECES.feriales)));
       }
       view.appendChild(section("Oratio · Conclusio", "Collect · Conclusion"));
       var col = null, primeColl = hourKey === "prima" && hy && hy.collect;
