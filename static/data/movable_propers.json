@@ -1,0 +1,23 @@
+{
+"_note": "Proper collect (o), Benedictus (b) and Magnificat (mg) antiphons for the movable feasts of the Lord (Rubrics 1960). Keyed by the movable-feast key in office.js.",
+"trinity": {
+"o": "Omnípotens sempitérne Deus, qui dedísti fámulis tuis in confessióne veræ fídei, ætérnæ Trinitátis glóriam agnóscere, et in poténtia maiestátis adoráre Unitátem: quǽsumus; ut, eiúsdem fídei firmitáte, ab ómnibus semper muniámur advérsis.",
+"b": "Benedícta sit * sancta creátrix et gubernátrix ómnium, sancta et indivídua Trínitas, nunc, et semper, et per infiníta sǽcula sæculórum.",
+"mg": "Te Deum * Patrem ingénitum, te Fílium unigénitum, te Spíritum Sanctum Paráclitum, sanctam et indivíduam Trinitátem, toto corde et ore confitémur, laudámus, atque benedícimus: tibi glória in sǽcula."
+},
+"corpus": {
+"o": "Deus, qui nobis sub Sacraménto mirábili passiónis tuæ memóriam reliquísti: tríbue, quǽsumus, ita nos Córporis, et Sánguinis tui sacra mystéria venerári; ut redemptiónis tuæ fructum in nobis iúgiter sentiámus:",
+"b": "Ego sum * panis vivus, qui de cælo descéndi: si quis manducáverit ex hoc pane, vivet in ætérnum, allelúia.",
+"mg": "O sacrum convívium, * in quo Christus súmitur: recólitur memória passiónis eius: mens implétur grátia: et futúræ glóriæ nobis pignus datur, allelúia."
+},
+"sacredheart": {
+"o": "Deus, qui nobis in Corde Fílii tui, nostris vulneráto peccátis, infinítos dilectiónis thesáuros misericórditer largíri dignáris; concéde, quǽsumus, ut illi devótum pietátis nostræ præstántes obséquium, dignæ quoque satisfactiónis exhibeámus offícium.",
+"b": "Facta sunt * enim hæc ut Scriptúra implerétur quæ dicit: Vidébunt in quem transfixérunt.",
+"mg": "Ad Iesum autem * cum veníssent, ut vidérunt eum iam mórtuum, non fregérunt eius crura, sed unus mílitum láncea latus eius apéruit et contínuo exívit sanguis et aqua."
+},
+"christking": {
+"o": "Omnípotens sempitérne Deus, qui in dilécto Fílio tuo, universórum Rege, ómnia instauráre voluísti: concéde propítius; ut cunctæ famíliæ géntium, peccáti vúlnere disgregátæ, eius suavíssimo subdántur império:",
+"b": "Fecit nos Deo * et Patri suo regnum, primogénitus mortuórum, et Princeps regum terræ, allelúia.",
+"mg": "Habet in vestiménto * et in fémore suo scriptum: Rex regum, et Dóminus dominántium. Ipsi glória et impérium, in sǽcula sæculórum."
+}
+}

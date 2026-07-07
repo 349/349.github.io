@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {}, MOVPROP = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -73,6 +73,7 @@
     MARIANC = dearray(d.MARIANC != null ? d.MARIANC : window.MARIANC) || {};
     HYMNC = dearray(d.HYMNC != null ? d.HYMNC : window.HYMNC) || {};
     RESPC = dearray(d.RESPC != null ? d.RESPC : window.RESPC) || {};
+    MOVPROP = dearray(d.MOVPROP != null ? d.MOVPROP : window.MOVPROP) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -85,7 +86,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json", MOVPROP: "movable_propers.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -197,10 +198,10 @@
       [E, "Dominica Resurrectiónis", "Easter Sunday", "white"],
       [addDays(E, 39), "Ascénsio Dómini", "Ascension", "white"],
       [pent, "Dominica Pentecóstes", "Pentecost", "red"],
-      [addDays(E, 56), "Sanctíssima Trínitas", "Trinity Sunday", "white"],
-      [addDays(E, 60), "Corpus Christi", "Corpus Christi", "white"],
-      [addDays(E, 68), "Sacratíssimum Cor Iesu", "Sacred Heart", "white"],
-      [christKing, "D. N. Iesu Christi Regis", "Christ the King", "white"]
+      [addDays(E, 56), "Sanctíssima Trínitas", "Trinity Sunday", "white", "trinity"],
+      [addDays(E, 60), "Corpus Christi", "Corpus Christi", "white", "corpus"],
+      [addDays(E, 68), "Sacratíssimum Cor Iesu", "Sacred Heart", "white", "sacredheart"],
+      [christKing, "D. N. Iesu Christi Regis", "Christ the King", "white", "christking"]
     ];
     var feast = null, feastEn = null, feastRank = null;
     // Fixed sanctoral (simplified precedence: I class always takes the day; II class
@@ -215,7 +216,12 @@
     if (s && s.n && (s.r === 1 || ((s.r === 2 || s.r === 3) && dow !== 0))) { feast = s.n; feastRank = s.r; color = s.c || color; feastCollect = (SANCT_O && SANCT_O[mmdd]) || null; feastKey = mmdd; feastCommon = s.co || null; }
     // Principal movable feasts override the fixed sanctoral.
     for (var fi = 0; fi < movable.length; fi++) {
-      if (movable[fi][0].getTime() === d.getTime()) { feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = 1; break; }
+      if (movable[fi][0].getTime() === d.getTime()) {
+        feast = movable[fi][1]; feastEn = movable[fi][2]; color = movable[fi][3]; feastRank = 1;
+        var mvk = movable[fi][4];
+        if (mvk && MOVPROP[mvk]) { feastKey = mvk; feastCollect = MOVPROP[mvk].o || null; }
+        break;
+      }
     }
     if (feast) { title = feast; wr = ""; }
 
@@ -397,13 +403,25 @@
     for (var kk in HYMNC) { if (kk.length > 6 && k.indexOf(kk + " ") === 0 && (!best || kk.length > best.length)) best = kk; }
     return best ? HYMNC[best] : null;
   }
+  // Count stanzas a hymn's GABC covers (stanza markers "2." "3." … before a note/word).
+  function chantStanzaCount(g) {
+    var m = String(g).match(/[\s)]\d{1,2}\.[\s(]/g);
+    return (m ? m.length : 0) + 1;
+  }
   function hymnBlock(h) {
     var c = SUNG ? hymnChant(h) : null;
     if (c && c.g) {
+      // GregoBase usually gives only the first stanza's melody; sing that, then show
+      // the remaining stanzas as text (they are sung to the same melody).
+      var wrap = el("div", "off-hymn-wrap");
       var cont = el("div", "off-exsurge off-hymn-chant");
       cont.innerHTML = '<span class="muted">…</span>';
+      wrap.appendChild(cont);
       renderExsurge(cont, prepAntGabc(c.g), CHANT_W);
-      return cont;
+      var stanzas = String(h).split(/<br>\s*<br>/);
+      var rest = stanzas.slice(chantStanzaCount(c.g)).filter(function (s) { return s.replace(/<[^>]*>/g, "").trim(); });
+      if (rest.length) wrap.appendChild(block(null, '<div class="off-hymn off-hymn-rest">' + rest.join("<br><br>") + "</div>"));
+      return wrap;
     }
     return block(null, '<div class="off-hymn">' + dropCap(h) + "</div>");
   }
@@ -1027,6 +1045,9 @@
         if (li.firstVespers && FIRSTVESP && FIRSTVESP[li.feastKey] && FIRSTVESP[li.feastKey].mag) {
           // Proper First Vespers Magnificat antiphon.
           gAnt = FIRSTVESP[li.feastKey].mag;
+        } else if (li.feast && li.feastKey && MOVPROP[li.feastKey]) {
+          // Movable feast of the Lord (Trinity, Corpus Christi, Sacred Heart, Christ the King).
+          gAnt = MOVPROP[li.feastKey][gospel === "Benedictus" ? "b" : "mg"];
         } else if (li.feast && li.feastKey && SANCT_G.antiphons && SANCT_G.antiphons[li.feastKey]) {
           // Proper gospel antiphon of the feast (major feasts).
           gAnt = SANCT_G.antiphons[li.feastKey][gospel === "Benedictus" ? "b" : "mg"];
