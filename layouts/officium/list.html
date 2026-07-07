@@ -25,6 +25,9 @@
   // literal quote in the string. This is a root site, so these paths are stable.
   window.DATA_BASE = "/data/";
   window.PSALTER_BASE = "/psalmi/";
+  // Build timestamp — appended to /data/*.json fetches so a new deploy busts the
+  // browser cache (returning visitors otherwise see stale office data for ~10 min).
+  window.DATA_VER = "{{ now.Unix }}";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/exsurge@0.0.0/dist/exsurge.js" defer></script>
 <script>{{ (resources.Get "js/office.js").Content | safeJS }}</script>

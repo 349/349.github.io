@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {}, MOVPROP = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {}, MOVPROP = {}, I18N = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -74,6 +74,7 @@
     HYMNC = dearray(d.HYMNC != null ? d.HYMNC : window.HYMNC) || {};
     RESPC = dearray(d.RESPC != null ? d.RESPC : window.RESPC) || {};
     MOVPROP = dearray(d.MOVPROP != null ? d.MOVPROP : window.MOVPROP) || {};
+    I18N = dearray(d.I18N != null ? d.I18N : window.I18N) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -86,11 +87,12 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json", MOVPROP: "movable_propers.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json", MOVPROP: "movable_propers.json", I18N: "i18n.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
+    var ver = window.DATA_VER ? "?v=" + window.DATA_VER : "";
     keys.forEach(function (k) {
-      var url = base + names[k];
+      var url = base + names[k] + ver;
       fetch(url)
         .then(function (r) {
           DIAG.push(k + ": HTTP " + r.status + " (" + url + ")");
@@ -327,6 +329,23 @@
   // recitation substitute "Domine, exaudi orationem meam / Et clamor meus...".
   var ROLE = "lay";   // default: no ordained minister presiding
   var SUNG = true;    // default: sung (chant notation) vs said (pointed text)
+  // UI language for the English scaffolding (rubric directions, section labels, banners).
+  // The Latin liturgical text is never translated. en | de | fr.
+  var LANG = (function () { try { return localStorage.getItem("officeLang") || "en"; } catch (e) { return "en"; } })();
+  // Translate a whole English UI string via the i18n map (falls back to English).
+  function T(s) { if (s == null || LANG === "en") return s; var e = I18N[s]; return (e && e[LANG]) || s; }
+  // Translate a composite label ("Hymn — Te lucis…", "Collect · Conclusion"): look up the
+  // whole string, else translate each segment around " — ", " · ", " & " (Latin parts, having
+  // no entry, pass through unchanged).
+  function Tlabel(s) {
+    if (s == null || LANG === "en") return s;
+    if (I18N[s]) return I18N[s][LANG] || s;
+    var seps = [" — ", " · ", " & "];
+    for (var i = 0; i < seps.length; i++) {
+      if (s.indexOf(seps[i]) >= 0) return s.split(seps[i]).map(function (p) { return T(p); }).join(seps[i]);
+    }
+    return T(s);
+  }
   // Choose the Hour whose traditional time of day is closest to now.
   function currentHourKey(d) {
     var h = d.getHours();
@@ -350,10 +369,10 @@
   }
   // A structural section heading (Latin + English) within an Hour.
   function section(lat, en) {
-    return el("h3", "off-section", "<span>" + lat + "</span>" + (en ? '<span class="en">' + en + "</span>" : ""));
+    return el("h3", "off-section", "<span>" + lat + "</span>" + (en ? '<span class="en">' + Tlabel(en) + "</span>" : ""));
   }
   // A red italic direction: tells the person what to do; never said aloud.
-  function direction(text) { return el("p", "off-direction", text); }
+  function direction(text) { return el("p", "off-direction", T(text)); }
   // An antiphon line: the "Ant." marker set apart from the antiphon text itself.
   function prepAntGabc(g) {
     g = String(g); var i = g.indexOf("%%"); if (i >= 0) g = g.slice(i + 2);
@@ -950,8 +969,8 @@
     if (hourKey === "vesperae") { var _fv = firstVespersFor(li); if (_fv) li = fvLi(li, _fv); }
     var meta = HOURS[hourKey];
     var view = el("div", "office-hour");
-    view.appendChild(el("h2", "office-hour__title", meta.lat + " <span class='muted'>· " + meta.en + "</span>"));
-    if (li.firstVespers) view.appendChild(direction("First Vespers of tomorrow's feast — " + li.feast + " (" + ({ 1: "First", 2: "Second" }[li.feastRank] || "") + " class). Its proper collect and Magnificat antiphon are shown; where the feast has no Common, the psalms shown are ferial."));
+    view.appendChild(el("h2", "office-hour__title", meta.lat + " <span class='muted'>· " + T(meta.en) + "</span>"));
+    if (li.firstVespers) view.appendChild(direction(T("First Vespers of tomorrow's feast:") + " " + li.feast + ". " + T("Its proper collect and Magnificat antiphon are shown; where the feast has no Common, the ferial psalms are used.")));
     var scheme = SCHEME[hourKey];
     var psalms = A(scheme ? (scheme[li.weekdayKey] || scheme.all) : null);
     if (psalms.length) {
@@ -1146,7 +1165,7 @@
         var cm = COMM[li.iso.slice(5)];
         if (cm && cm.o) {
           view.appendChild(section("Commemoratio", "Commemoration — at Lauds only"));
-          view.appendChild(direction("Commemoration of " + cm.n + " (a IV-class feast, kept as a commemoration): its antiphon and versicle from the Common, then its collect."));
+          view.appendChild(direction(T("Commemoration of") + " " + cm.n + " — " + T("a IV-class feast, kept as a commemoration; its antiphon and versicle from the Common, then its collect.")));
           var cset = cm.c && COMM._ant && COMM._ant[cm.c];
           var cbody = "";
           if (cset) cbody += "Ant. " + cset.a + "<br>V. " + cset.v + "<br>R. " + cset.r + "<br>";
@@ -1196,21 +1215,28 @@
     var li = liturgical(current);
     var activeHour = currentHourKey(new Date());   // open to the Hour for the current time
 
-    dateEl.innerHTML =
-      '<div class="office-date__pill office-color--' + li.color + '">' + li.color + '</div>' +
-      '<div><div class="office-date__lat">' + li.title + "</div>" +
-      '<div class="office-date__en">' + li.englishDate + " &mdash; " +
-      (li.feast ? (li.feastEn || ({ 1: "First", 2: "Second", 3: "Third" }[li.feastRank] || "Third") + " class feast · " + li.seasonEn)
-        : li.seasonEn + (li.weekRoman ? " · week " + li.weekRoman : "") + (li.paschal ? " (Paschaltide)" : "")) +
-      "</div></div>";
+    function localDate() {
+      try { return new Intl.DateTimeFormat(LANG === "en" ? "en-US" : LANG, { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(li.date); }
+      catch (e) { return li.englishDate; }
+    }
+    function renderBanner() {
+      dateEl.innerHTML =
+        '<div class="office-date__pill office-color--' + li.color + '">' + T(li.color) + '</div>' +
+        '<div><div class="office-date__lat">' + li.title + "</div>" +
+        '<div class="office-date__en">' + localDate() + " &mdash; " +
+        (li.feast ? T(li.feastEn || (({ 1: "First", 2: "Second", 3: "Third" }[li.feastRank] || "Third") + " class feast")) + (li.feastEn ? "" : " · " + T(li.seasonEn))
+          : T(li.seasonEn) + (li.weekRoman ? " · " + T("week") + " " + li.weekRoman : "") + (li.paschal ? " (" + T("Paschaltide") + ")" : "")) +
+        "</div></div>";
+    }
+    renderBanner();
 
     // Date picker — browse the office for any day (not just today).
     var pick = el("div", "office-datepick");
     pick.innerHTML =
-      '<button class="office-datenav" data-nav="-1" title="Previous day" aria-label="Previous day">&lsaquo;</button>' +
+      '<button class="office-datenav" data-nav="-1" title="' + T("Previous day") + '" aria-label="' + T("Previous day") + '">&lsaquo;</button>' +
       '<input type="date" class="office-dateinput" value="' + li.iso + '">' +
-      '<button class="office-datenav" data-nav="1" title="Next day" aria-label="Next day">&rsaquo;</button>' +
-      '<button class="office-datenav office-datenav--today" data-nav="today">Today</button>';
+      '<button class="office-datenav" data-nav="1" title="' + T("Next day") + '" aria-label="' + T("Next day") + '">&rsaquo;</button>' +
+      '<button class="office-datenav office-datenav--today" data-nav="today">' + T("Today") + '</button>';
     pick.querySelector(".office-dateinput").onchange = function () {
       if (this.value) location.href = location.pathname + "?date=" + this.value;
     };
@@ -1227,7 +1253,7 @@
     // hour nav
     navEl.innerHTML = "";
     HOUR_ORDER.forEach(function (k) {
-      var a = el("button", "office-hour-btn" + (k === activeHour ? " is-active" : ""), HOURS[k].en);
+      var a = el("button", "office-hour-btn" + (k === activeHour ? " is-active" : ""), T(HOURS[k].en));
       a.setAttribute("data-hour", k);
       var hasPs = k === "completorium" || (SCHEME[k] && SCHEME[k][li.weekdayKey] && SCHEME[k][li.weekdayKey].length);
       if (hasPs) a.className += " is-ready";
@@ -1244,9 +1270,9 @@
     var roleEl = el("div", "office-roles");
     function paintRoles() {
       roleEl.innerHTML =
-        '<span class="office-roles__label">Led by</span>' +
-        '<button class="office-role-btn' + (ROLE === "priest" ? " is-active" : "") + '" data-role="priest">A priest or deacon</button>' +
-        '<button class="office-role-btn' + (ROLE === "lay" ? " is-active" : "") + '" data-role="lay">No ordained minister</button>';
+        '<span class="office-roles__label">' + T("Led by") + '</span>' +
+        '<button class="office-role-btn' + (ROLE === "priest" ? " is-active" : "") + '" data-role="priest">' + T("A priest or deacon") + '</button>' +
+        '<button class="office-role-btn' + (ROLE === "lay" ? " is-active" : "") + '" data-role="lay">' + T("No ordained minister") + '</button>';
       Array.prototype.forEach.call(roleEl.querySelectorAll("button"), function (b) {
         b.onclick = function () { ROLE = b.getAttribute("data-role"); paintRoles(); renderHour(false); };
       });
@@ -1258,9 +1284,9 @@
     var modeEl = el("div", "office-roles");
     function paintMode() {
       modeEl.innerHTML =
-        '<span class="office-roles__label">Mode</span>' +
-        '<button class="office-role-btn' + (!SUNG ? " is-active" : "") + '" data-mode="said">Said · pointed text</button>' +
-        '<button class="office-role-btn' + (SUNG ? " is-active" : "") + '" data-mode="sung">Sung · chant</button>';
+        '<span class="office-roles__label">' + T("Mode") + '</span>' +
+        '<button class="office-role-btn' + (!SUNG ? " is-active" : "") + '" data-mode="said">' + Tlabel("Said · pointed text") + '</button>' +
+        '<button class="office-role-btn' + (SUNG ? " is-active" : "") + '" data-mode="sung">' + Tlabel("Sung · chant") + '</button>';
       Array.prototype.forEach.call(modeEl.querySelectorAll("button"), function (b) {
         b.onclick = function () { SUNG = b.getAttribute("data-mode") === "sung"; paintMode(); renderHour(false); };
       });
@@ -1268,16 +1294,32 @@
     paintMode();
     if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(modeEl, viewEl);
 
+    // Language selector — English / German / French for the rubric directions and labels
+    // (the Latin liturgical text is unchanged). Persists and reloads to re-render everything.
+    var langEl = el("div", "office-roles");
+    var LANG_NAMES = { en: "English", de: "Deutsch", fr: "Français" };
+    langEl.innerHTML =
+      '<span class="office-roles__label">' + T("Language") + '</span>' +
+      ["en", "de", "fr"].map(function (l) {
+        return '<button class="office-role-btn' + (LANG === l ? " is-active" : "") + '" data-lang="' + l + '">' + LANG_NAMES[l] + "</button>";
+      }).join("");
+    Array.prototype.forEach.call(langEl.querySelectorAll("button"), function (b) {
+      b.onclick = function () {
+        var l = b.getAttribute("data-lang");
+        if (l === LANG) return;
+        try { localStorage.setItem("officeLang", l); } catch (e) {}
+        location.reload();
+      };
+    });
+    if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(langEl, viewEl);
+
     function renderHour(scroll) {
       CHANT_W = Math.max(280, Math.min(viewEl.clientWidth || 660, 680)) - 6;
       viewEl.innerHTML = "";
       // On a feast we can name the day, but its proper office isn't assembled yet.
       if (li.feast) viewEl.appendChild(el("p", "office-todo",
-        li.feastCommon
-          ? ("Today is a feast — <strong>" + li.feast + "</strong>. Its proper <strong>collect</strong> and <strong>gospel antiphons</strong>, and the <strong>hymn and chapter</strong> from its Common, are shown below; the proper psalm antiphons and lessons are not yet assembled, so the ferial psalms are shown beneath the proper parts.")
-          : ("Today is a feast — <strong>" + li.feast + "</strong>. Its proper <strong>collect</strong> and <strong>gospel-canticle antiphons</strong> are shown below" +
-            (li.feastCollect || (li.feastKey && SANCT_G.antiphons && SANCT_G.antiphons[li.feastKey]) ? "" : " where available") +
-            "; the fuller proper office (hymn, chapter, proper psalm antiphons, lessons) is not yet assembled, so the ferial framework is shown for the rest.")));
+        T("Today's feast:") + " <strong>" + li.feast + "</strong>. " +
+        T("Matins lessons are not yet assembled; the rest of the Hour is shown below.")));
       try {
         viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
       } catch (err) {
