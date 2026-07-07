@@ -991,10 +991,13 @@
         view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
         if (hy.responsory) view.appendChild(respBlock(hy.responsory));
         if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
-      } else if (hy && hy.chapter && li.color === "green") {
-        // Little Hour (Terce/Sext/None), per annum: chapter, brief responsory, versicle.
-        view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
+      } else if (hy && hy.chapter && !li.feast) {
+        // Little Hour (Terce/Sext/None) on a non-feast day: chapter (seasonal when we have
+        // it, else per annum), brief responsory, versicle.
         var lhr = LITTLEHR[hourKey] && LITTLEHR[hourKey][lhSeason(li)];
+        var lhChap = lhr && lhr.chap;
+        if (lhChap) view.appendChild(block(lhChap.ref ? "Capitulum — " + lhChap.ref : null, rubricate(lhChap.text + "<br>R. Deo grátias.")));
+        else view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
         if (lhr && lhr.resp) view.appendChild(respBlock(lhr.resp));
         if (lhr && lhr.vers) view.appendChild(block(null, rubricate(lhr.vers)));
         else if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
@@ -1107,9 +1110,12 @@
         var cm = COMM[li.iso.slice(5)];
         if (cm && cm.o) {
           view.appendChild(section("Commemoratio", "Commemoration — at Lauds only"));
-          view.appendChild(direction("Commemoration of " + cm.n + " (a IV-class feast, kept as a commemoration): after the collect of the day come its antiphon and versicle from the Common, then this collect."));
-          view.appendChild(block(null, rubricate(roleize(
-            "Orémus.<br>" + cm.o + "<br>" + (TEMPORAL.conclusion || "Per Dóminum nostrum Iesum Christum. R. Amen.")))));
+          view.appendChild(direction("Commemoration of " + cm.n + " (a IV-class feast, kept as a commemoration): its antiphon and versicle from the Common, then its collect."));
+          var cset = cm.c && COMM._ant && COMM._ant[cm.c];
+          var cbody = "";
+          if (cset) cbody += "Ant. " + cset.a + "<br>V. " + cset.v + "<br>R. " + cset.r + "<br>";
+          cbody += "Orémus.<br>" + cm.o + "<br>" + (TEMPORAL.conclusion || "Per Dóminum nostrum Iesum Christum. R. Amen.");
+          view.appendChild(block(null, rubricate(roleize(cbody))));
         }
       }
       view.appendChild(block(null, rubricate(roleize(conclusion))));

@@ -1,21 +1,93 @@
 {
  "_note": "Brief responsory + following versicle at Terce/Sext/None, per season (pa = per annum; adv/quad/pasch; Passiontide uses quad). Source: Divinum Officium (Rubrics 1960), i-spelling. Chapters remain in office_ordinary.json hours.",
  "tertia": {
-  "pa": {"resp": "R.br. Sana ánimam meam, * Quia peccávi tibi.<br>R. Sana ánimam meam, * Quia peccávi tibi.<br>V. Ego dixi: Dómine, miserére mei.<br>R. Quia peccávi tibi.<br>R. Sana ánimam meam, * Quia peccávi tibi.", "vers": "V. Adiútor meus, esto, ne derelínquas me.<br>R. Neque despícias me, Deus, salutáris meus."},
-  "adv": {"resp": "R.br. Veni ad liberándum nos, * Dómine, Deus virtútum.<br>R. Veni ad liberándum nos, * Dómine, Deus virtútum.<br>V. Osténde fáciem tuam, et salvi érimus.<br>R. Dómine, Deus virtútum.<br>R. Veni ad liberándum nos, * Dómine, Deus virtútum.", "vers": "V. Timébunt gentes nomen tuum, Dómine.<br>R. Et omnes reges terræ glóriam tuam."},
-  "quad": {"resp": "R.br. Ipse liberávit me * De láqueo venántium.<br>R. Ipse liberávit me * De láqueo venántium.<br>V. Et a verbo áspero.<br>R. De láqueo venántium.<br>R. Ipse liberávit me * De láqueo venántium.", "vers": "V. Scápulis suis obumbrábit tibi.<br>R. Et sub pennis eius sperábis."},
-  "pasch": {"resp": "R.br. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>V. Qui pro nobis pepéndit in ligno.<br>R. Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.", "vers": "V. Surréxit Dóminus vere, allelúia.<br>R. Et appáruit Simóni, allelúia."}
+  "pa": {
+   "resp": "R.br. Sana ánimam meam, * Quia peccávi tibi.<br>R. Sana ánimam meam, * Quia peccávi tibi.<br>V. Ego dixi: Dómine, miserére mei.<br>R. Quia peccávi tibi.<br>R. Sana ánimam meam, * Quia peccávi tibi.",
+   "vers": "V. Adiútor meus, esto, ne derelínquas me.<br>R. Neque despícias me, Deus, salutáris meus."
+  },
+  "adv": {
+   "resp": "R.br. Veni ad liberándum nos, * Dómine, Deus virtútum.<br>R. Veni ad liberándum nos, * Dómine, Deus virtútum.<br>V. Osténde fáciem tuam, et salvi érimus.<br>R. Dómine, Deus virtútum.<br>R. Veni ad liberándum nos, * Dómine, Deus virtútum.",
+   "vers": "V. Timébunt gentes nomen tuum, Dómine.<br>R. Et omnes reges terræ glóriam tuam.",
+   "chap": {
+    "ref": "Ier 23:5",
+    "text": "Ecce dies véniunt, dicit Dóminus, et suscitábo David germen iustum: et regnábit rex, et sápiens erit: et fáciet iudícium et iustítiam in terra."
+   }
+  },
+  "quad": {
+   "resp": "R.br. Ipse liberávit me * De láqueo venántium.<br>R. Ipse liberávit me * De láqueo venántium.<br>V. Et a verbo áspero.<br>R. De láqueo venántium.<br>R. Ipse liberávit me * De láqueo venántium.",
+   "vers": "V. Scápulis suis obumbrábit tibi.<br>R. Et sub pennis eius sperábis.",
+   "chap": {
+    "ref": "Ioël 2:12-13",
+    "text": "Convertímini ad me in toto corde vestro, in ieiúnio, et fletu, et planctu. Et scíndite corda vestra, et non vestiménta vestra, ait Dóminus omnípotens."
+   }
+  },
+  "pasch": {
+   "resp": "R.br. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>V. Qui pro nobis pepéndit in ligno.<br>R. Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.",
+   "vers": "V. Surréxit Dóminus vere, allelúia.<br>R. Et appáruit Simóni, allelúia.",
+   "chap": {
+    "ref": "Rom 6:9-10",
+    "text": "Christus resúrgens ex mórtuis iam non móritur, mors illi ultra non dominábitur. Quod enim mórtuus est peccáto, mórtuus est semel: quod autem vivit, vivit Deo."
+   }
+  }
  },
  "sexta": {
-  "pa": {"resp": "R.br. Benedícam Dóminum * In omni témpore.<br>R. Benedícam Dóminum * In omni témpore.<br>V. Semper laus eius in ore meo.<br>R. In omni témpore.<br>R. Benedícam Dóminum * In omni témpore.", "vers": "V. Dóminus regit me, et nihil mihi déerit.<br>R. In loco páscuæ ibi me collocávit."},
-  "adv": {"resp": "R.br. Osténde nobis, Dómine, * Misericórdiam tuam.<br>R. Osténde nobis, Dómine, * Misericórdiam tuam.<br>V. Et salutáre tuum da nobis.<br>R. Misericórdiam tuam.<br>R. Osténde nobis, Dómine, * Misericórdiam tuam.", "vers": "V. Meménto nostri, Dómine, in beneplácito pópuli tui.<br>R. Vísita nos in salutári tuo."},
-  "quad": {"resp": "R.br. Scápulis suis * Obumbrábit tibi.<br>R. Scápulis suis * Obumbrábit tibi.<br>V. Et sub pennis eius sperábis.<br>R. Obumbrábit tibi.<br>R. Scápulis suis * Obumbrábit tibi.", "vers": "V. Scuto circúmdabit te véritas eius.<br>R. Non timébis a timóre noctúrno."},
-  "pasch": {"resp": "R.br. Surréxit Dóminus vere, * Allelúia, allelúia.<br>R. Surréxit Dóminus vere, * Allelúia, allelúia.<br>V. Et appáruit Simóni.<br>R. Allelúia, allelúia.<br>R. Surréxit Dóminus vere, * Allelúia, allelúia.", "vers": "V. Gavísi sunt discípuli, allelúia.<br>R. Viso Dómino, allelúia."}
+  "pa": {
+   "resp": "R.br. Benedícam Dóminum * In omni témpore.<br>R. Benedícam Dóminum * In omni témpore.<br>V. Semper laus eius in ore meo.<br>R. In omni témpore.<br>R. Benedícam Dóminum * In omni témpore.",
+   "vers": "V. Dóminus regit me, et nihil mihi déerit.<br>R. In loco páscuæ ibi me collocávit."
+  },
+  "adv": {
+   "resp": "R.br. Osténde nobis, Dómine, * Misericórdiam tuam.<br>R. Osténde nobis, Dómine, * Misericórdiam tuam.<br>V. Et salutáre tuum da nobis.<br>R. Misericórdiam tuam.<br>R. Osténde nobis, Dómine, * Misericórdiam tuam.",
+   "vers": "V. Meménto nostri, Dómine, in beneplácito pópuli tui.<br>R. Vísita nos in salutári tuo.",
+   "chap": {
+    "ref": "Ier 23:6",
+    "text": "In diébus illis salvábitur Iuda, et Israël habitábit confidénter: et hoc est nomen, quod vocábunt eum, Dóminus iustus noster."
+   }
+  },
+  "quad": {
+   "resp": "R.br. Scápulis suis * Obumbrábit tibi.<br>R. Scápulis suis * Obumbrábit tibi.<br>V. Et sub pennis eius sperábis.<br>R. Obumbrábit tibi.<br>R. Scápulis suis * Obumbrábit tibi.",
+   "vers": "V. Scuto circúmdabit te véritas eius.<br>R. Non timébis a timóre noctúrno.",
+   "chap": {
+    "ref": "Isa 55:7",
+    "text": "Derelínquat ímpius viam suam, et vir iníquus cogitatiónes suas, et revertátur ad Dóminum, et miserébitur eius, et ad Deum nostrum, quóniam multus est ad ignoscéndum."
+   }
+  },
+  "pasch": {
+   "resp": "R.br. Surréxit Dóminus vere, * Allelúia, allelúia.<br>R. Surréxit Dóminus vere, * Allelúia, allelúia.<br>V. Et appáruit Simóni.<br>R. Allelúia, allelúia.<br>R. Surréxit Dóminus vere, * Allelúia, allelúia.",
+   "vers": "V. Gavísi sunt discípuli, allelúia.<br>R. Viso Dómino, allelúia.",
+   "chap": {
+    "ref": "1 Cor 15:20-22",
+    "text": "Christus resurréxit a mórtuis primítiæ dormiéntium: quóniam quidem per hóminem mors, et per hóminem resurréctio mortuórum. Et sicut in Adam omnes moriúntur, ita et in Christo omnes vivificabúntur."
+   }
+  }
  },
  "nona": {
-  "pa": {"resp": "R.br. Rédime me, Dómine, * Et miserére mei.<br>R. Rédime me, Dómine, * Et miserére mei.<br>V. Pes enim meus stetit in via recta.<br>R. Et miserére mei.<br>R. Rédime me, Dómine, * Et miserére mei.", "vers": "V. Ab occúltis meis munda me, Dómine.<br>R. Et ab aliénis parce servo tuo."},
-  "adv": {"resp": "R.br. Super te, Ierúsalem, * Oriétur Dóminus.<br>R. Super te, Ierúsalem, * Oriétur Dóminus.<br>V. Et glória eius in te vidébitur.<br>R. Oriétur Dóminus.<br>R. Super te, Ierúsalem, * Oriétur Dóminus.", "vers": "V. Dómine, Deus virtútum, convérte nos.<br>R. Et osténde fáciem tuam, et salvi érimus."},
-  "quad": {"resp": "R.br. Scuto circúmdabit te * Véritas eius.<br>R. Scuto circúmdabit te * Véritas eius.<br>V. Non timébis a timóre noctúrno.<br>R. Véritas eius.<br>R. Scuto circúmdabit te * Véritas eius.", "vers": "V. Ángelis suis Deus mandávit de te.<br>R. Ut custódiant te in ómnibus viis tuis."},
-  "pasch": {"resp": "R.br. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>V. Qui pro nobis pepéndit in ligno.<br>R. Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.", "vers": "V. Gavísi sunt discípuli, allelúia.<br>R. Viso Dómino, allelúia."}
+  "pa": {
+   "resp": "R.br. Rédime me, Dómine, * Et miserére mei.<br>R. Rédime me, Dómine, * Et miserére mei.<br>V. Pes enim meus stetit in via recta.<br>R. Et miserére mei.<br>R. Rédime me, Dómine, * Et miserére mei.",
+   "vers": "V. Ab occúltis meis munda me, Dómine.<br>R. Et ab aliénis parce servo tuo."
+  },
+  "adv": {
+   "resp": "R.br. Super te, Ierúsalem, * Oriétur Dóminus.<br>R. Super te, Ierúsalem, * Oriétur Dóminus.<br>V. Et glória eius in te vidébitur.<br>R. Oriétur Dóminus.<br>R. Super te, Ierúsalem, * Oriétur Dóminus.",
+   "vers": "V. Dómine, Deus virtútum, convérte nos.<br>R. Et osténde fáciem tuam, et salvi érimus.",
+   "chap": {
+    "ref": "Isa 14:1",
+    "text": "Prope est ut véniat tempus eius, et dies eius non elongabúntur: miserébitur enim Dóminus Iacob, et Israël salvábitur."
+   }
+  },
+  "quad": {
+   "resp": "R.br. Scuto circúmdabit te * Véritas eius.<br>R. Scuto circúmdabit te * Véritas eius.<br>V. Non timébis a timóre noctúrno.<br>R. Véritas eius.<br>R. Scuto circúmdabit te * Véritas eius.",
+   "vers": "V. Ángelis suis Deus mandávit de te.<br>R. Ut custódiant te in ómnibus viis tuis.",
+   "chap": {
+    "ref": "Isa 58:7",
+    "text": "Frange esuriénti panem tuum, et egénos vagósque induc in domum tuam: cum víderis nudum, óperi eum, et carnem tuam ne despéxeris."
+   }
+  },
+  "pasch": {
+   "resp": "R.br. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.<br>V. Qui pro nobis pepéndit in ligno.<br>R. Allelúia, allelúia.<br>R. Surréxit Dóminus de sepúlcro, * Allelúia, allelúia.",
+   "vers": "V. Gavísi sunt discípuli, allelúia.<br>R. Viso Dómino, allelúia.",
+   "chap": {
+    "ref": "1 Pet 3:18",
+    "text": "Christus semel pro peccátis nostris mórtuus est, iustus pro iniústis, ut nos offérret Deo, mortificátus quidem carne, vivificátus autem spíritu."
+   }
+  }
  }
 }
