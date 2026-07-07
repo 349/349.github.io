@@ -1047,8 +1047,10 @@
         var hk = hourKey === "laudes" ? "laudes" : "vespera";
         var htext = null, satNote = false;
         if (li.feast) {
-          // A feast draws its hymn from its Common (Apostles, Martyr, BVM, …).
+          // A feast draws its hymn from its Common (Apostles, Martyr, BVM, …), or — for the
+          // movable feasts of the Lord — from its proper hymn in movable_propers.
           if (li.feastCommon && COMMONS[li.feastCommon]) htext = COMMONS[li.feastCommon][hk === "laudes" ? "hymnL" : "hymnV"];
+          else if (li.feastKey && MOVPROP[li.feastKey]) htext = MOVPROP[li.feastKey][hk === "laudes" ? "hymnL" : "hymnV"];
         } else {
           // Green time and Septuagesima use the per-weekday cycle; the penitential and
           // Paschal seasons use a single seasonal hymn.
