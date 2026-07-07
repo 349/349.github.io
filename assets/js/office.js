@@ -618,6 +618,19 @@
     T = T || PTONES[8];
     return "(c4) " + verses.map(function (v, i) { return gabcVerse(v, i === 0, T) + (i < verses.length - 1 ? " (:) " : " (::)"); }).join("");
   }
+  // Render a pointed psalm/canticle as chant: one staff PER VERSE (this Exsurge build
+  // cannot wrap a long line into multiple staves — its line-break callback never fires —
+  // so a single all-verses GABC would collapse onto one over-long, scaled-down line).
+  function renderPsalmChant(container, verses, T) {
+    T = T || PTONES[8];
+    container.innerHTML = "";
+    A(verses).forEach(function (v, i) {
+      if (!String(v).trim()) return;
+      var line = el("div", "off-chant-verse");
+      container.appendChild(line);
+      renderExsurge(line, "(c4) " + gabcVerse(v, i === 0, T) + " (::)", CHANT_W);
+    });
+  }
   // Render GABC with Exsurge into a container (async; recolored for dark mode via CSS).
   function whenExsurge(cb) {
     if (window.exsurge && window.exsurge.Gabc) return cb();
@@ -677,7 +690,7 @@
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">Setting the tone…</p>';
       wrap.appendChild(cont);
-      renderExsurge(cont, gabcForPsalm(sungVerses, toneWith(mode, diff)), CHANT_W);
+      renderPsalmChant(cont, sungVerses, toneWith(mode, diff));
       if (many) wrap.appendChild(el("p", "muted off-chant-more",
         "… " + verses.length + " verses; first 14 shown sung — " +
         '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
@@ -722,7 +735,7 @@
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">Setting the tone…</p>';
       wrap.appendChild(cont);
-      renderExsurge(cont, gabcForPsalm(noGloria ? vv : vv.concat(GLORIA2), toneWith(mode, diff)), CHANT_W);
+      renderPsalmChant(cont, noGloria ? vv : vv.concat(GLORIA2), toneWith(mode, diff));
     } else {
       var body = el("div", "off-verses off-verses--pointed");
       vv.forEach(function (v, i) { body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v))); });
@@ -881,7 +894,7 @@
         var ndc = el("div", "off-exsurge");
         ndc.innerHTML = '<p class="muted">Setting the tone…</p>';
         nd.appendChild(ndc);
-        renderExsurge(ndc, gabcForPsalm(ndv.concat(GLORIA2), toneWith(ndMode, ndDiff)), CHANT_W);
+        renderPsalmChant(ndc, ndv.concat(GLORIA2), toneWith(ndMode, ndDiff));
       } else {
         var body = el("div", "off-verses off-verses--pointed");
         ndv.forEach(function (v, i) {

@@ -454,6 +454,7 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
   color: var(--rubric); margin: 0.5rem 0 0.1rem;
 }
 .off-exsurge { margin: 0.2rem 0 1rem; overflow-x: auto; }
+.off-chant-verse { margin: 0 0 0.15rem; }
 .off-exsurge svg { max-width: 100%; height: auto; display: block; }
 .off-exsurge svg .StaffLine { stroke: #b6503c; }
 .off-exsurge svg path, .off-exsurge svg use, .off-exsurge svg rect { fill: #ece8df; }
