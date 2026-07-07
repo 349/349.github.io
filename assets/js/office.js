@@ -628,19 +628,31 @@
       try {
         var ctxt = new exsurge.ChantContext();
         var score = exsurge.Gabc.loadChantScore(ctxt, gabc, true);
-        // NB: in this Exsurge build performLayout / layoutChantLines do NOT invoke their
-        // completion callbacks, so we run them synchronously and draw immediately after.
+        // NB: in this pinned Exsurge (0.0.0) build, performLayout / layoutChantLines do
+        // NOT invoke their completion callbacks, and the finalisation those callbacks would
+        // do (computing score.bounds) never runs — so createDrawable emits width/height="NaN"
+        // and no viewBox. We run the layout synchronously, then derive real dimensions from
+        // the drawn content's bounding box (measured in a temporary attached holder).
         score.performLayout(ctxt, function () {});
         score.layoutChantLines(ctxt, Math.max(280, width || 640), function () {});
         var svg = score.createDrawable(ctxt);
-        // Exsurge omits a viewBox, so max-width:100% clips instead of scaling.
-        // Inject one from the width/height so the staff scales down to fit.
-        svg = svg.replace(/<svg\b([^>]*)>/, function (m, at) {
-          if (/viewBox/.test(at)) return m;
-          var w = (at.match(/width="([\d.]+)"/) || [])[1], h = (at.match(/height="([\d.]+)"/) || [])[1];
-          return (w && h) ? "<svg" + at + ' viewBox="0 0 ' + w + " " + h + '">' : m;
-        });
-        container.innerHTML = svg;
+        var holder = document.createElement("div");
+        holder.style.cssText = "position:absolute;left:-9999px;top:0;visibility:hidden";
+        document.body.appendChild(holder);
+        holder.innerHTML = svg;
+        var el = holder.querySelector("svg");
+        try {
+          var b = el.getBBox(), pad = 2;
+          var vx = Math.floor(b.x - pad), vy = Math.floor(b.y - pad);
+          var vw = Math.ceil(b.width + pad * 2), vh = Math.ceil(b.height + pad * 2);
+          if (isFinite(vw) && isFinite(vh) && vw > 0 && vh > 0) {
+            el.setAttribute("viewBox", vx + " " + vy + " " + vw + " " + vh);
+            el.setAttribute("width", vw);
+            el.setAttribute("height", vh);
+          }
+        } catch (e) {}
+        container.innerHTML = el ? el.outerHTML : svg;
+        holder.parentNode && holder.parentNode.removeChild(holder);
       } catch (e) { container.innerHTML = '<p class="muted">(chant could not render)</p>'; }
     });
   }
