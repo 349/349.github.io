@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -69,6 +69,7 @@
     LITTLEHR = dearray(d.LITTLEHR != null ? d.LITTLEHR : window.LITTLEHR) || {};
     PRECES = dearray(d.PRECES != null ? d.PRECES : window.PRECES) || {};
     FIRSTVESP = dearray(d.FIRSTVESP != null ? d.FIRSTVESP : window.FIRSTVESP) || {};
+    COMM = dearray(d.COMM != null ? d.COMM : window.COMM) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -81,7 +82,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -1013,6 +1014,16 @@
         view.appendChild(block(null, rubricate(roleize(
           "V. Dominus vobiscum. R. Et cum spiritu tuo.<br>Orémus.<br>" + col + "<br>" +
           (TEMPORAL.conclusion || "Per Dóminum nostrum Iesum Christum. R. Amen.")))));
+      }
+      // Commemoration of a IV-class feast (former Simplex) — at Lauds only, on a free feria.
+      if (hourKey === "laudes" && !li.feast && !li.isSunday && !li.paschal) {
+        var cm = COMM[li.iso.slice(5)];
+        if (cm && cm.o) {
+          view.appendChild(section("Commemoratio", "Commemoration — at Lauds only"));
+          view.appendChild(direction("Commemoration of " + cm.n + " (a IV-class feast, kept as a commemoration): after the collect of the day come its antiphon and versicle from the Common, then this collect."));
+          view.appendChild(block(null, rubricate(roleize(
+            "Orémus.<br>" + cm.o + "<br>" + (TEMPORAL.conclusion || "Per Dóminum nostrum Iesum Christum. R. Amen.")))));
+        }
       }
       view.appendChild(block(null, rubricate(roleize(conclusion))));
       if (primeColl && hy.pretiosa) {
