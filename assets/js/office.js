@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -70,6 +70,9 @@
     PRECES = dearray(d.PRECES != null ? d.PRECES : window.PRECES) || {};
     FIRSTVESP = dearray(d.FIRSTVESP != null ? d.FIRSTVESP : window.FIRSTVESP) || {};
     COMM = dearray(d.COMM != null ? d.COMM : window.COMM) || {};
+    MARIANC = dearray(d.MARIANC != null ? d.MARIANC : window.MARIANC) || {};
+    HYMNC = dearray(d.HYMNC != null ? d.HYMNC : window.HYMNC) || {};
+    RESPC = dearray(d.RESPC != null ? d.RESPC : window.RESPC) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -82,7 +85,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -380,6 +383,51 @@
   function dropCap(s) {
     var m = String(s).match(/^(\s*)([A-Za-zÆŒÁÉÍÓÚÝ])([\s\S]*)$/);
     return m ? m[1] + '<span class="off-dropcap">' + m[2] + "</span>" + m[3] : String(s);
+  }
+  // Hymn: in sung mode render its GregoBase melody (chant) if we have it; else the text.
+  function normIncipitHy(h) {
+    return String(h).split("<br>")[0].replace(/<[^>]+>/g, " ").toLowerCase()
+      .replace(/æ/g, "ae").replace(/œ/g, "oe").normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function hymnChant(h) {
+    var k = normIncipitHy(h);
+    if (HYMNC[k] && HYMNC[k].g) return HYMNC[k];
+    var best = null;
+    for (var kk in HYMNC) { if (kk.length > 6 && k.indexOf(kk + " ") === 0 && (!best || kk.length > best.length)) best = kk; }
+    return best ? HYMNC[best] : null;
+  }
+  function hymnBlock(h) {
+    var c = SUNG ? hymnChant(h) : null;
+    if (c && c.g) {
+      var cont = el("div", "off-exsurge off-hymn-chant");
+      cont.innerHTML = '<span class="muted">…</span>';
+      renderExsurge(cont, prepAntGabc(c.g), CHANT_W);
+      return cont;
+    }
+    return block(null, '<div class="off-hymn">' + dropCap(h) + "</div>");
+  }
+  // Brief responsory: in sung mode render its GregoBase melody (chant) if we have it.
+  function normIncipitResp(t) {
+    return String(t).split("<br>")[0].replace(/<[^>]+>/g, " ").replace(/R\.?\s*br\.?/gi, " ")
+      .replace(/^\s*[RVrv]\.\s*/, " ").replace(/\*.*$/, " ").toLowerCase()
+      .replace(/æ/g, "ae").replace(/œ/g, "oe").normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function respChant(t) {
+    var k = normIncipitResp(t), best = null;
+    for (var kk in RESPC) { if (kk.length > 6 && (k === kk || k.indexOf(kk + " ") === 0) && (!best || kk.length > best.length)) best = kk; }
+    return best ? RESPC[best] : null;
+  }
+  function respBlock(t) {
+    var c = SUNG ? respChant(t) : null;
+    if (c && c.g) {
+      var cont = el("div", "off-exsurge off-resp-chant");
+      cont.innerHTML = '<span class="muted">…</span>';
+      renderExsurge(cont, prepAntGabc(c.g), CHANT_W);
+      return cont;
+    }
+    return block(null, rubricate(t));
   }
   // Prayers said silently: a "secreto" marker plus the text in a quiet style.
   function secretoBlock(html) {
@@ -768,7 +816,7 @@
 
     // — Hymn —
     view.appendChild(section("Hymnus", "Hymn — Te lucis ante términum"));
-    if (c.hymn) view.appendChild(block(null, '<div class="off-hymn">' + dropCap(c.hymn) + "</div>"));
+    if (c.hymn) view.appendChild(hymnBlock(c.hymn));
 
     // — Little chapter —
     view.appendChild(section("Capítulum", "Little Chapter — Ier. 14, 9"));
@@ -777,7 +825,7 @@
     // — Short responsory —
     view.appendChild(section("Responsórium breve", "Short Responsory"));
     view.appendChild(direction("The cantor intones the response; all repeat it. Responses said by all are in bold."));
-    if (c.responsory) view.appendChild(block(null, rubricate(c.responsory)));
+    if (c.responsory) view.appendChild(respBlock(c.responsory));
 
     // — Nunc dimittis —
     view.appendChild(section("Canticum Simeónis", "Nunc dimittis — Luc. 2"));
@@ -785,19 +833,29 @@
     if (c.nunc_dimittis) {
       var nd = el("div", "off-canticle");
       var ndAnt = li.paschal ? (c.nunc_ant + " Alleluia.") : c.nunc_ant;
+      var ndMode = modeOf(ndAnt), ndDiff = diffOf(ndAnt);
       nd.appendChild(antLine(ndAnt));
-      var body = el("div", "off-verses off-verses--pointed");
       var ndv = A(c.nunc_dimittis);
       // The stored final line is the doxology; render the Gloria as its two verses.
       if (ndv.length && /^Gloria Patri/i.test(String(ndv[ndv.length - 1]))) ndv = ndv.slice(0, -1);
-      ndv.forEach(function (v, i) {
-        var cross = i === 0 ? '<span class="off-cross" aria-hidden="true">✠</span> ' : "";
-        body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + cross + pointedHtml(v)));
-      });
-      GLORIA2.forEach(function (g) {
-        body.appendChild(el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g)));
-      });
-      nd.appendChild(body);
+      if (SUNG) {
+        // Sung to its psalm tone (from the antiphon's mode), like the other canticles.
+        nd.appendChild(el("p", "off-tone-label", "Tonus " + romanTone(ndMode)));
+        var ndc = el("div", "off-exsurge");
+        ndc.innerHTML = '<p class="muted">Setting the tone…</p>';
+        nd.appendChild(ndc);
+        renderExsurge(ndc, gabcForPsalm(ndv.concat(GLORIA2), toneWith(ndMode, ndDiff)), CHANT_W);
+      } else {
+        var body = el("div", "off-verses off-verses--pointed");
+        ndv.forEach(function (v, i) {
+          var cross = i === 0 ? '<span class="off-cross" aria-hidden="true">✠</span> ' : "";
+          body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + cross + pointedHtml(v)));
+        });
+        GLORIA2.forEach(function (g) {
+          body.appendChild(el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g)));
+        });
+        nd.appendChild(body);
+      }
       nd.appendChild(antLine(ndAnt));
       view.appendChild(nd);
     }
@@ -822,7 +880,15 @@
     if (m) {
       view.appendChild(section("Antíphona finális B.M.V.", m.title));
       view.appendChild(direction("The seasonal antiphon of the Blessed Virgin Mary concludes the day."));
-      view.appendChild(block(null, '<div class="off-hymn">' + dropCap(m.text) + "</div>"));
+      var mc = MARIANC[li.marian];
+      if (SUNG && mc && mc.g) {
+        var mcont = el("div", "off-exsurge");
+        mcont.innerHTML = '<span class="muted">…</span>';
+        view.appendChild(mcont);
+        renderExsurge(mcont, prepAntGabc(mc.g), CHANT_W);
+      } else {
+        view.appendChild(block(null, '<div class="off-hymn">' + dropCap(m.text) + "</div>"));
+      }
     }
 
     return view;
@@ -850,7 +916,7 @@
       var hy = (ORD.hours || {})[hourKey];
       if (hy && hy.hymn) {
         view.appendChild(section("Hymnus", "Hymn — " + hy.hymnName));
-        view.appendChild(block(null, '<div class="off-hymn">' + dropCap(hy.hymn) + "</div>"));
+        view.appendChild(hymnBlock(hy.hymn));
       }
       // On a feast, use the festal psalm scheme + the Common's psalm antiphons.
       var fp = (li.feast && li.feastCommon && (hourKey === "laudes" || hourKey === "vesperae")) ? FESTAL[li.feastCommon] : null;
@@ -905,13 +971,13 @@
       if (hourKey === "prima" && hy && hy.chapter) {
         // Prime: fixed chapter (Regi sæculórum) + short responsory (Christe Fili Dei vivi) + versicle.
         view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
-        if (hy.responsory) view.appendChild(block(null, rubricate(hy.responsory)));
+        if (hy.responsory) view.appendChild(respBlock(hy.responsory));
         if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
       } else if (hy && hy.chapter && li.color === "green") {
         // Little Hour (Terce/Sext/None), per annum: chapter, brief responsory, versicle.
         view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
         var lhr = LITTLEHR[hourKey] && LITTLEHR[hourKey][lhSeason(li)];
-        if (lhr && lhr.resp) view.appendChild(block(null, rubricate(lhr.resp)));
+        if (lhr && lhr.resp) view.appendChild(respBlock(lhr.resp));
         if (lhr && lhr.vers) view.appendChild(block(null, rubricate(lhr.vers)));
         else if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
       } else if (lvChap && lvChap.text) {
@@ -944,7 +1010,7 @@
         if (htext) {
           view.appendChild(section("Hymnus", "Hymn"));
           if (satNote) view.appendChild(direction("Saturday Vespers is the First Vespers of the coming Sunday."));
-          view.appendChild(block(null, '<div class="off-hymn">' + dropCap(htext) + "</div>"));
+          view.appendChild(hymnBlock(htext));
         }
       }
       // Brief versicle after the hymn (temporal Lauds/Vespers).
