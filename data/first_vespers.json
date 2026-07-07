@@ -1,0 +1,14 @@
+{
+ "_note": "Proper First Vespers Magnificat antiphon, keyed by feast MM-DD. Under Rubrics 1960 First Vespers is proper to I-class feasts and I-class Sundays only (II-class feasts, even of the Lord, have Second Vespers alone — verified against Divinum Officium). Where a feast is absent here it falls back to its Second Vespers / Common antiphon. Source: Divinum Officium (Rubrics 1960).",
+ "01-01": {"mag": "Propter nímiam * caritátem suam, qua diléxit nos Deus, Fílium suum misit in similitúdinem carnis peccáti, allelúia."},
+ "01-06": {"mag": "Magi vidéntes * stellam, dixérunt ad ínvicem: Hoc signum magni Regis est: eámus et inquirámus eum, et offerámus ei múnera, aurum, thus, et myrrham, allelúia."},
+ "03-19": {"mag": "Exsúrgens Ioseph a somno, * fecit sicut præcépit ei Angelus Dómini, et accépit cóniugem suam."},
+ "03-25": {"mag": "Spíritus Sanctus * in te descéndet, María, et virtus Altíssimi obumbrábit tibi."},
+ "05-01": {"mag": "Christus Dóminus * fabri fílius putári dignátus est, allelúia."},
+ "07-01": {"mag": "Accessístis * ad Sion montem, et civitátem Dei vivéntis, Ierúsalem cæléstem, et Testaménti novi mediatórem Iesum, et sánguinis aspersiónem mélius loquéntem quam Abel."},
+ "08-15": {"mag": "Virgo prudentíssima, * quo progréderis, quasi auróra valde rútilans? Fília Sion, tota formósa et suávis es, pulchra ut luna, elécta ut sol."},
+ "09-29": {"mag": "Dum sacrum mystérium * cérneret Ioánnes, Archángelus Míchaël tuba cécinit: Ignósce, Dómine, Deus noster, qui áperis librum, et solvis signácula eius, allelúia."},
+ "11-01": {"mag": "Ángeli, * Archángeli, Throni et Dominatiónes, Principátus et Potestátes, Virtútes cælórum, Chérubim atque Séraphim, Patriárchæ et Prophétæ, sancti legis Doctóres, Apóstoli, omnes Christi Mártyres, sancti Confessóres, Vírgines Dómini, Anachorítæ, Sanctíque omnes, intercédite pro nobis."},
+ "12-08": {"mag": "Beátam me dicent * omnes generatiónes, quia fecit mihi magna, qui potens est, allelúia."},
+ "12-25": {"mag": "Cum ortus fúerit * sol de cælo, vidébitis Regem regum procedéntem a Patre, tamquam sponsum de thálamo suo."}
+}

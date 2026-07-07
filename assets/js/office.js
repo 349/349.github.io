@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -68,6 +68,7 @@
     FESTAL = dearray(d.FESTAL != null ? d.FESTAL : window.FESTAL) || {};
     LITTLEHR = dearray(d.LITTLEHR != null ? d.LITTLEHR : window.LITTLEHR) || {};
     PRECES = dearray(d.PRECES != null ? d.PRECES : window.PRECES) || {};
+    FIRSTVESP = dearray(d.FIRSTVESP != null ? d.FIRSTVESP : window.FIRSTVESP) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -80,7 +81,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     keys.forEach(function (k) {
@@ -689,6 +690,24 @@
     if (li.season === "Tempus Paschale") return "pasch";
     return "pa";
   }
+  // First Vespers: under Rubrics 1960 proper to I-class feasts (and I-class Sundays) only;
+  // II-class feasts have Second Vespers alone. Celebrated on the eve when it outranks the day.
+  function hasFirstVespers(t) { return !!(t.feast && t.feastRank === 1); }
+  function firstVespersFor(li) {
+    if (!li || !li.date) return null;
+    var t = liturgical(addDays(li.date, 1));
+    if (!hasFirstVespers(t)) return null;
+    var priv = li.season === "Adventus" || li.season === "Quadragesima" || li.season === "Tempus Passionis";
+    var dignity = li.feast ? li.feastRank : (li.weekdayIndex === 0 ? (priv ? 1 : 2) : 4);
+    return (t.feastRank < dignity) ? t : null;
+  }
+  function fvLi(li, t) {
+    var o = {}; for (var k in li) o[k] = li[k];
+    o.feast = t.feast; o.feastEn = t.feastEn; o.feastRank = t.feastRank;
+    o.feastCommon = t.feastCommon; o.feastCollect = t.feastCollect;
+    o.feastKey = t.feastKey; o.color = t.color; o.firstVespers = true;
+    return o;
+  }
   // Ferial preces: at Lauds & Vespers on ferias (no feast) of Advent, Lent, Passiontide.
   function precesApply(li, hourKey) {
     if (hourKey !== "laudes" && hourKey !== "vesperae") return false;
@@ -810,9 +829,12 @@
 
   /* ---------- generic Hour (from ferial scheme, lights up as data is filled) ---------- */
   function buildGenericHour(hourKey, li) {
+    // First Vespers of a feast falls on the preceding evening — swap in the feast's office.
+    if (hourKey === "vesperae") { var _fv = firstVespersFor(li); if (_fv) li = fvLi(li, _fv); }
     var meta = HOURS[hourKey];
     var view = el("div", "office-hour");
     view.appendChild(el("h2", "office-hour__title", meta.lat + " <span class='muted'>· " + meta.en + "</span>"));
+    if (li.firstVespers) view.appendChild(direction("First Vespers of tomorrow's feast — " + li.feast + " (" + ({ 1: "First", 2: "Second" }[li.feastRank] || "") + " class). Its proper collect and Magnificat antiphon are shown; where the feast has no Common, the psalms shown are ferial."));
     var scheme = SCHEME[hourKey];
     var psalms = A(scheme ? (scheme[li.weekdayKey] || scheme.all) : null);
     if (psalms.length) {
@@ -935,7 +957,10 @@
         // Ferial gospel-canticle antiphon (per annum weekdays). On Sundays and feasts
         // the antiphon is proper (from the day itself) and is supplied by the calendar layer.
         var gAnt = null;
-        if (li.feast && li.feastKey && SANCT_G.antiphons && SANCT_G.antiphons[li.feastKey]) {
+        if (li.firstVespers && FIRSTVESP && FIRSTVESP[li.feastKey] && FIRSTVESP[li.feastKey].mag) {
+          // Proper First Vespers Magnificat antiphon.
+          gAnt = FIRSTVESP[li.feastKey].mag;
+        } else if (li.feast && li.feastKey && SANCT_G.antiphons && SANCT_G.antiphons[li.feastKey]) {
           // Proper gospel antiphon of the feast (major feasts).
           gAnt = SANCT_G.antiphons[li.feastKey][gospel === "Benedictus" ? "b" : "mg"];
         } else if (li.feast && li.feastCommon && COMMONS[li.feastCommon] && COMMONS[li.feastCommon].ben) {
