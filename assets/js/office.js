@@ -666,6 +666,14 @@
         // and no viewBox. We run the layout synchronously, then derive real dimensions from
         // the drawn content's bounding box (measured in a temporary attached holder).
         score.performLayout(ctxt, function () {});
+        // score.performLayout does NOT cascade layout to the individual notations in this
+        // build, so every note's glyph visualizer is left unbuilt and its bounds stay NaN.
+        // That NaN then poisons line height → lyricVerticalOffset → every syllable gets
+        // translate(x, NaN) (text piles up, notes bunch to the right). Lay each notation out
+        // explicitly first; then line justification and lyric baselines compute correctly.
+        (score.notations || []).forEach(function (nt) {
+          try { if (nt && nt.performLayout) nt.performLayout(ctxt); } catch (e) {}
+        });
         score.layoutChantLines(ctxt, Math.max(280, width || 640), function () {});
         var svg = score.createDrawable(ctxt);
         var holder = document.createElement("div");
