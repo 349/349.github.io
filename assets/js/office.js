@@ -475,6 +475,43 @@
     }
     return block(null, rubricate(t));
   }
+  // Ferial versicle tone (Tonus versiculorum, Liber Usualis p. 263): the line is sung on
+  // the reciting note; the LAST accent drops a step, the closing syllable returns. This is
+  // exactly the ferial "Deus in adjutórium" shape — e.g. inténde → tén(g)de(h). c3 clef.
+  function versicleLineGABC(text) {
+    var syls = toneSyls(String(text).replace(/[✠]/g, ""));
+    var n = syls.length; if (!n) return "";
+    var la = -1; for (var i = n - 1; i >= 0; i--) if (syls[i].acc) { la = i; break; }
+    var out = "";
+    for (i = 0; i < n; i++) {
+      var note = (i === la) ? "g" : "h";
+      if (i === n - 1) note += ".";           // mora vocis on the final syllable
+      out += (i > 0 && syls[i].ws ? " " : "") + syls[i].t.replace(/[()]/g, "") + "(" + note + ")";
+    }
+    return "(c3) " + out + " (::)";
+  }
+  // A versicle/response block: in sung mode each line is set to the ferial versicle tone
+  // (its ℣/℟ — and any ✠ — kept beside the staff); in said mode, the rubricated text.
+  function versicleBlock(text) {
+    if (!SUNG) return block(null, rubricate(text));
+    var lines = String(text).replace(/<br\s*\/?>/gi, "\n").replace(/\s+(?=[VR]\.\s)/g, "\n")
+      .split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+    var wrap = el("div", "off-versicle");
+    lines.forEach(function (ln) {
+      var m = ln.match(/^([VR])\.\s*(.*)$/);
+      var marker = m ? (m[1] === "V" ? "℣" : "℟") : null;
+      var bodyRaw = m ? m[2] : ln;
+      var cross = /✠/.test(bodyRaw) ? '<span class="off-cross" aria-hidden="true">✠</span> ' : "";
+      var row = el("div", "off-vers-row");
+      row.appendChild(el("span", "off-vers-marker", (marker ? '<span class="rub-vr">' + marker + "</span> " : "") + cross));
+      var cont = el("div", "off-exsurge off-vers-chant");
+      cont.innerHTML = '<span class="muted">…</span>';
+      row.appendChild(cont);
+      renderExsurge(cont, versicleLineGABC(bodyRaw), CHANT_W, true);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
   // Prayers said silently: a "secreto" marker plus the text in a quiet style.
   function secretoBlock(html) {
     var b = el("div", "off-block off-secreto");
@@ -756,11 +793,11 @@
     if (window.exsurge && window.exsurge.Gabc) return cb();
     var n = 0, t = setInterval(function () { if (window.exsurge && window.exsurge.Gabc) { clearInterval(t); cb(); } else if (++n > 160) clearInterval(t); }, 60);
   }
-  function renderExsurge(container, gabc, width) {
+  function renderExsurge(container, gabc, width, noDropCap) {
     whenExsurge(function () {
       try {
         var ctxt = new exsurge.ChantContext();
-        var score = exsurge.Gabc.loadChantScore(ctxt, gabc, true);
+        var score = exsurge.Gabc.loadChantScore(ctxt, gabc, !noDropCap);
         // NB: in this pinned Exsurge (0.0.0) build, performLayout / layoutChantLines do
         // NOT invoke their completion callbacks, and the finalisation those callbacks would
         // do (computing score.bounds) never runs — so createDrawable emits width/height="NaN"
@@ -974,9 +1011,9 @@
     // — Opening versicles —
     view.appendChild(section("Versus", "Opening Versicles"));
     view.appendChild(direction("At ✠ Deus, in adiutórium, all make the sign of the cross."));
-    view.appendChild(block(null, rubricate(
-      "V. Converte nos, Deus, salutaris noster.<br>R. Et averte iram tuam a nobis.<br>" +
-      "V. ✠ Deus, in adiutorium meum intende.<br>R. Domine, ad adiuvandum me festina.")));
+    view.appendChild(versicleBlock(
+      "V. Convérte nos, Deus, salutáris noster.<br>R. Et avérte iram tuam a nobis.<br>" +
+      "V. ✠ Deus, in adiutórium meum inténde.<br>R. Dómine, ad adiuvándum me festína."));
     view.appendChild(gloriaBlock(li));
 
     // — Psalmody —
@@ -1090,8 +1127,8 @@
       view.appendChild(secretoBlock(
         "Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum cotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris: et ne nos indúcas in tentatiónem: sed líbera nos a malo. Amen.<br>" +
         "Ave María, grátia plena, Dóminus tecum: benedícta tu in muliéribus, et benedíctus fructus ventris tui Iesus. Sancta María, Mater Dei, ora pro nobis peccatóribus, nunc et in hora mortis nostræ. Amen."));
-      view.appendChild(block(null, rubricate(
-        "V. ✠ Deus, in adiutórium meum inténde.<br>R. Dómine, ad adiuvándum me festína.")));
+      view.appendChild(versicleBlock(
+        "V. ✠ Deus, in adiutórium meum inténde.<br>R. Dómine, ad adiuvándum me festína."));
       view.appendChild(gloriaBlock(li));
       var hy = (ORD.hours || {})[hourKey];
       if (hy && hy.hymn) {
@@ -1154,7 +1191,7 @@
         // Prime: fixed chapter (Regi sæculórum) + short responsory (Christe Fili Dei vivi) + versicle.
         view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
         if (hy.responsory) view.appendChild(respBlock(hy.responsory));
-        if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
+        if (hy.versicle) view.appendChild(versicleBlock(hy.versicle));
       } else if (hy && hy.chapter && !li.feast) {
         // Little Hour (Terce/Sext/None) on a non-feast day: chapter (seasonal when we have
         // it, else per annum), brief responsory, versicle.
@@ -1163,8 +1200,8 @@
         if (lhChap) view.appendChild(block(lhChap.ref ? "Capitulum — " + lhChap.ref : null, rubricate(lhChap.text + "<br>R. Deo grátias.")));
         else view.appendChild(block(hy.chapterRef ? "Capitulum — " + hy.chapterRef : null, rubricate(hy.chapter + "<br>R. Deo grátias.")));
         if (lhr && lhr.resp) view.appendChild(respBlock(lhr.resp));
-        if (lhr && lhr.vers) view.appendChild(block(null, rubricate(lhr.vers)));
-        else if (hy.versicle) view.appendChild(block(null, rubricate(hy.versicle)));
+        if (lhr && lhr.vers) view.appendChild(versicleBlock(lhr.vers));
+        else if (hy.versicle) view.appendChild(versicleBlock(hy.versicle));
       } else if (lvChap && lvChap.text) {
         // Little chapter at Lauds/Vespers, temporal (per annum or seasonal).
         view.appendChild(block(lvChap.ref ? "Capitulum — " + lvChap.ref : null, rubricate(lvChap.text + "<br>R. Deo grátias.")));
@@ -1202,7 +1239,7 @@
       }
       // Brief versicle after the hymn (temporal Lauds/Vespers).
       var lvVers = versicleFor(li, hourKey);
-      if (lvVers) view.appendChild(block(null, rubricate(lvVers)));
+      if (lvVers) view.appendChild(versicleBlock(lvVers));
       // Gospel canticle: Benedictus at Lauds, Magnificat at Vespers.
       var gospel = hourKey === "laudes" ? "Benedictus" : hourKey === "vesperae" ? "Magnificat" : null;
       if (gospel && A(CANT[gospel]).length) {

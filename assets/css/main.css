@@ -461,6 +461,10 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 .off-exsurge svg line:not(.StaffLine) { stroke: #ece8df; }
 .off-exsurge svg text, .off-exsurge svg tspan { fill: #ded9cf; font-style: normal; }
 .off-exsurge svg .DropCap text, .off-exsurge svg .DropCap tspan { fill: #cf5442; }
+.off-versicle { margin: 0.4rem 0 1rem; }
+.off-vers-row { display: flex; align-items: baseline; gap: 0.5rem; margin: 0 0 0.15rem; }
+.off-vers-marker { flex: 0 0 auto; }
+.off-vers-chant { flex: 1 1 auto; min-width: 0; margin: 0; }
 .off-verses--pointed { margin: 0.4rem 0; }
 .off-pverse {
   position: relative; margin: 0 0 0.4rem; padding-left: 2.1rem;
