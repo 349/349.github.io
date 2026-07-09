@@ -592,6 +592,106 @@
   function toneForMode(m) { return PTONES[m] || PTONES[8]; }
   var ROMAN8 = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V", 6: "VI", 7: "VII", 8: "VIII", peregrinus: "Per." };
   function romanTone(m) { return ROMAN8[m] || "VIII"; }
+
+  /* ---------- authentic psalm tones (Liber Usualis, via the jgabc tone data) ----------
+     Each tone gives its clef, intonation (initium, sung only on the first verse of a
+     psalm), reciting note (tenor), and the mediant + termination cadences. A cadence is
+     an accent-anchored template: `prep` notes fall on the fixed syllables just before the
+     first cadential accent; each `acc` group places its note(s) on an accented syllable,
+     with `post` notes on the syllables that follow it (the tenor recites elastically over
+     any extra syllables). Ported from Benjamin Bloomfield's jgabc Psalm Tone Tool
+     (github.com/bbloomf/jgabc), whose tones follow the Antiphonale/Liber Usualis. Complex
+     ornamental neumes (ixi, gvFED) are simplified to plain steps so Exsurge renders them. */
+  var PT2 = {
+    1: { clef: "c4", inton: ["f", "gh"], tenor: "h", flex: "g",
+         med:  { prep: [],        acc: [ { n: ["i"], post: [] }, { n: ["g"], post: ["h"] } ] },
+         term: { prep: ["g", "f"], acc: [ { n: ["gh"], post: ["gfed"] } ] } },
+    2: { clef: "f3", inton: ["e", "f"], tenor: "h", flex: "g",
+         med:  { prep: [],        acc: [ { n: ["i"], post: ["h"] } ] },
+         term: { prep: ["g"],     acc: [ { n: ["e"], post: ["f"] } ] } },
+    3: { clef: "c4", inton: ["g", "hj"], tenor: "j", flex: "i",
+         med:  { prep: [],        acc: [ { n: ["k"], post: [] }, { n: ["ih"], post: ["j"] } ] },
+         term: { prep: ["h"],     acc: [ { n: ["j"], post: ["i"] } ] } },
+    4: { clef: "c4", inton: ["h", "gh"], tenor: "h", flex: "g",
+         med:  { prep: ["g", "h"], acc: [ { n: ["i"], post: ["h"] } ] },
+         term: { prep: [],        acc: [ { n: ["h"], post: ["g"] } ] } },
+    5: { clef: "c3", inton: ["d", "f"], tenor: "h", flex: "g",
+         med:  { prep: [],        acc: [ { n: ["i"], post: ["h"] } ] },
+         term: { prep: [],        acc: [ { n: ["i"], post: [] }, { n: ["h"], post: ["f"] } ] } },
+    6: { clef: "c4", inton: ["f", "gh"], tenor: "h", flex: "g",
+         med:  { prep: [],        acc: [ { n: ["i"], post: [] }, { n: ["g"], post: ["h"] } ] },
+         term: { prep: ["f", "gh"], acc: [ { n: ["g"], post: ["f"] } ] } },
+    7: { clef: "c3", inton: ["hg", "hi"], tenor: "i", flex: "h",
+         med:  { prep: [],        acc: [ { n: ["k"], post: [] }, { n: ["i"], post: ["j"] } ] },
+         term: { prep: [],        acc: [ { n: ["j"], post: [] }, { n: ["h"], post: ["gf"] } ] } },
+    8: { clef: "c4", inton: ["g", "h"], tenor: "j", flex: "i",
+         med:  { prep: [],        acc: [ { n: ["k"], post: ["j"] } ] },
+         term: { prep: ["i", "j"], acc: [ { n: ["h"], post: ["g"] } ] } }
+  };
+  function tone2ForMode(m) { return PT2[m] || PT2[8]; }
+  var ACC_RE = /[áéíóúýǽÁÉÍÓÚÝǼ]/;
+  // Split a hemistich into syllables, flagging the accented one and each word's first syllable.
+  function toneSyls(text) {
+    var words = String(text).replace(/[*‡†]/g, "").trim().split(/\s+/).filter(Boolean), out = [];
+    words.forEach(function (w) {
+      var sy = syllabify(w), ai = -1;
+      for (var i = 0; i < sy.length; i++) { if (ACC_RE.test(sy[i])) { ai = i; break; } }
+      if (ai < 0 && sy.length > 1) ai = sy.length - 2; // no marked accent: Latin penult default
+      sy.forEach(function (s, i) { out.push({ t: s, acc: i === ai, ws: i === 0 }); });
+    });
+    return out;
+  }
+  // Build the GABC for one hemistich set to a cadence (mediant or termination).
+  function hemiGABC2(text, cad, tone, useInton) {
+    var syls = toneSyls(text), n = syls.length;
+    if (!n) return "";
+    var note = [], i, iStart = 0;
+    for (i = 0; i < n; i++) note[i] = tone.tenor;
+    if (useInton) for (i = 0; i < tone.inton.length && i < n; i++) { note[i] = tone.inton[i]; iStart = i + 1; }
+    var accIdx = []; for (i = 0; i < n; i++) if (syls[i].acc) accIdx.push(i);
+    var need = cad.acc.length, used = accIdx.slice(-need);
+    if (need > 0 && used.length === need) {
+      for (var g = 0; g < need; g++) {
+        var si = used[g], end = (g < need - 1) ? used[g + 1] : n, post = cad.acc[g].post;
+        note[si] = cad.acc[g].n.join("");
+        var trail = []; for (var x = si + 1; x < end; x++) trail.push(x);
+        if (post.length) {
+          if (!trail.length) { note[si] += post.join(""); }
+          else {
+            var p = post.length - 1;
+            for (var y = trail.length - 1; y >= 0 && p >= 0; y--) { note[trail[y]] = post[p]; p--; }
+            if (p >= 0) note[trail[0]] = post.slice(0, p + 1).join("") + note[trail[0]];
+          }
+        }
+      }
+      var firstAcc = used[0];
+      for (var q = 0; q < cad.prep.length; q++) {
+        var idx = firstAcc - cad.prep.length + q;
+        if (idx >= iStart && idx < n) note[idx] = cad.prep[q];
+      }
+    }
+    var out = "";
+    for (i = 0; i < n; i++) {
+      var syl = syls[i].t.replace(/[()]/g, "");
+      out += (i > 0 && syls[i].ws ? " " : "") + syl + "(" + note[i] + ")";
+    }
+    return out;
+  }
+  // One verse (two hemistichs) → GABC; mediant on the first, termination on the second.
+  function verseGABC2(v, tone, useInton) {
+    var h = String(v).split(/\s*\*\s*/);
+    var first = hemiGABC2(h[0], tone.med, tone, useInton);
+    var second = hemiGABC2(h.slice(1).join(" ") || "eúouae", tone.term, tone, false);
+    return first + " *(;) " + second;
+  }
+  // Whole psalm/canticle → a single GABC score in the tone's own clef.
+  function gabcForPsalm2(verses, mode, repeatInton) {
+    var tone = tone2ForMode(mode);
+    var body = A(verses).map(function (v, i) {
+      return verseGABC2(v, tone, repeatInton || i === 0) + (i < verses.length - 1 ? " (:) " : " (::)");
+    }).join(" ");
+    return "(" + tone.clef + ") " + body;
+  }
   // Normalise antiphon text the same way the GregoBase index keys were built.
   function normAnt(s) {
     return String(s).replace(/<[^>]+>/g, "").toLowerCase().normalize("NFD")
@@ -637,18 +737,19 @@
     T = T || PTONES[8];
     return "(c4) " + verses.map(function (v, i) { return gabcVerse(v, i === 0, T) + (i < verses.length - 1 ? " (:) " : " (::)"); }).join("");
   }
-  // Render a pointed psalm/canticle as chant: one staff PER VERSE (this Exsurge build
-  // cannot wrap a long line into multiple staves — its line-break callback never fires —
-  // so a single all-verses GABC would collapse onto one over-long, scaled-down line).
-  function renderPsalmChant(container, verses, T) {
-    T = T || PTONES[8];
+  // Render a pointed psalm/canticle as ONE continuous chant score: a single drop cap,
+  // verses separated by bar lines, wrapping across as many staves as the width needs.
+  // (Earlier we rendered a staff per verse — each got its own drop cap — because this
+  // Exsurge build left every notation unlaid-out, which broke line wrapping AND lyric
+  // baselines. With notations now laid out explicitly (see renderExsurge), layoutChantLines
+  // wraps correctly, so the whole psalm is one score.)
+  function renderPsalmChant(container, verses, mode, repeatInton) {
     container.innerHTML = "";
-    A(verses).forEach(function (v, i) {
-      if (!String(v).trim()) return;
-      var line = el("div", "off-chant-verse");
-      container.appendChild(line);
-      renderExsurge(line, "(c4) " + gabcVerse(v, i === 0, T) + " (::)", CHANT_W);
-    });
+    var vv = A(verses).filter(function (v) { return String(v).trim(); });
+    if (!vv.length) return;
+    var line = el("div", "off-chant-verse");
+    container.appendChild(line);
+    renderExsurge(line, gabcForPsalm2(vv, mode, repeatInton), CHANT_W);
   }
   // Render GABC with Exsurge into a container (async; recolored for dark mode via CSS).
   function whenExsurge(cb) {
@@ -677,7 +778,9 @@
         score.layoutChantLines(ctxt, Math.max(280, width || 640), function () {});
         var svg = score.createDrawable(ctxt);
         var holder = document.createElement("div");
-        holder.style.cssText = "position:absolute;left:-9999px;top:0;visibility:hidden";
+        // position:fixed + zero box so measuring never extends the scrollable area (a prior
+        // left:-9999px holder could add horizontal overflow / nudge scroll on mobile).
+        holder.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none";
         document.body.appendChild(holder);
         holder.innerHTML = svg;
         var el = holder.querySelector("svg");
@@ -693,7 +796,7 @@
         } catch (e) {}
         container.innerHTML = el ? el.outerHTML : svg;
         holder.parentNode && holder.parentNode.removeChild(holder);
-      } catch (e) { container.innerHTML = '<p class="muted">(chant could not render)</p>'; }
+      } catch (e) { container.innerHTML = '<p class="muted">' + T("(chant could not render)") + '</p>'; }
     });
   }
 
@@ -703,10 +806,10 @@
     var verses = isPointed ? pointed : A(PS[num]);  // fall back to plain text
     var wrap = el("div", "off-psalm");
     wrap.appendChild(el("p", "off-psalm__title", "Psalmus " + num +
-      (isPointed ? ' <span class="off-pointed">pointed</span>' : '') +
-      ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full &rsaquo;</a>'));
+      (isPointed ? ' <span class="off-pointed">' + T("pointed") + '</span>' : '') +
+      ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">' + T("full") + ' &rsaquo;</a>'));
     if (antiphonHtml) wrap.appendChild(antLine(antiphonHtml));
-    if (!verses.length) { wrap.appendChild(el("p", "muted", "(psalm text not loaded)")); return wrap; }
+    if (!verses.length) { wrap.appendChild(el("p", "muted", T("(psalm text not loaded)"))); return wrap; }
 
     // Sung mode: render the psalm to Gregorian notation (Exsurge), dark-recolored.
     if (SUNG && isPointed) {
@@ -715,12 +818,12 @@
       if (!many && gloria !== false) sungVerses = sungVerses.concat(GLORIA2);
       wrap.appendChild(el("p", "off-tone-label", "Tonus " + romanTone(mode)));
       var cont = el("div", "off-exsurge");
-      cont.innerHTML = '<p class="muted">Setting the tone…</p>';
+      cont.innerHTML = '<p class="muted">' + T("Setting the tone…") + '</p>';
       wrap.appendChild(cont);
-      renderPsalmChant(cont, sungVerses, toneWith(mode, diff));
+      renderPsalmChant(cont, sungVerses, mode);
       if (many) wrap.appendChild(el("p", "muted off-chant-more",
-        "… " + verses.length + " verses; first 14 shown sung — " +
-        '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a>'));
+        "… " + verses.length + " " + T("verses; first 14 shown sung —") + " " +
+        '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">' + T("full psalm") + ' ›</a>'));
       return wrap;
     }
 
@@ -738,7 +841,7 @@
     if (verses.length > 30) {
       body.appendChild(el("p", isPointed ? "off-pverse muted" : "psalm-verse",
         (isPointed ? '' : '<span class="v-num"></span>') + '<span class="v-text muted">… (' + verses.length +
-        ' verses; prayed here in portions) — <a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">full psalm ›</a></span>'));
+        ' ' + T("verses; prayed here in portions") + ') — <a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">' + T("full psalm") + ' ›</a></span>'));
       gloria = false;
     }
     if (gloria !== false) {
@@ -760,9 +863,9 @@
     if (!vv.length) { wrap.appendChild(el("p", "muted", "(canticle text to be added)")); return wrap; }
     if (SUNG) {
       var cont = el("div", "off-exsurge");
-      cont.innerHTML = '<p class="muted">Setting the tone…</p>';
+      cont.innerHTML = '<p class="muted">' + T("Setting the tone…") + '</p>';
       wrap.appendChild(cont);
-      renderPsalmChant(cont, noGloria ? vv : vv.concat(GLORIA2), toneWith(mode, diff));
+      renderPsalmChant(cont, noGloria ? vv : vv.concat(GLORIA2), mode, true);
     } else {
       var body = el("div", "off-verses off-verses--pointed");
       vv.forEach(function (v, i) { body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v))); });
@@ -919,9 +1022,9 @@
         // Sung to its psalm tone (from the antiphon's mode), like the other canticles.
         nd.appendChild(el("p", "off-tone-label", "Tonus " + romanTone(ndMode)));
         var ndc = el("div", "off-exsurge");
-        ndc.innerHTML = '<p class="muted">Setting the tone…</p>';
+        ndc.innerHTML = '<p class="muted">' + T("Setting the tone…") + '</p>';
         nd.appendChild(ndc);
-        renderPsalmChant(ndc, ndv.concat(GLORIA2), toneWith(ndMode, ndDiff));
+        renderPsalmChant(ndc, ndv.concat(GLORIA2), ndMode, true);
       } else {
         var body = el("div", "off-verses off-verses--pointed");
         ndv.forEach(function (v, i) {
@@ -1332,13 +1435,18 @@
         viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
       } catch (err) {
         viewEl.appendChild(el("p", "office-todo",
-          "This Hour failed to render: " + (err && err.message ? err.message : String(err))));
+          T("This Hour failed to render:") + " " + (err && err.message ? err.message : String(err))));
       }
       if (scroll) viewEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    // Re-flow the chant when the width changes.
-    var rzTimer;
+    // Re-flow the chant when the width changes — but ONLY the width. On mobile, scrolling
+    // shows/hides the URL bar, which fires resize with a changed HEIGHT; re-rendering there
+    // rebuilt the Hour and threw the reader back to the top on every scroll. Ignore
+    // height-only resizes so scrolling stays put.
+    var rzTimer, lastW = window.innerWidth;
     window.addEventListener("resize", function () {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
       clearTimeout(rzTimer);
       rzTimer = setTimeout(function () { if (SUNG) renderHour(false); }, 200);
     });
