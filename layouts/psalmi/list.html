@@ -30,7 +30,7 @@
 
   <section class="psalm-all">
     <h2>All 150 psalms</h2>
-    <p class="muted">Vulgate numbering. Live psalms are linked; the rest are on the way.</p>
+    <p class="muted">Numbered by the Vulgate/Septuagint (as the Office uses them); each psalm also shows its Hebrew (Masoretic) number, which differs from Psalm 9 onward.</p>
     <ul class="psalm-grid">
       {{- range seq 1 150 }}
       {{- with site.GetPage (printf "/psalmi/%d" .) }}

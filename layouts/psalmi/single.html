@@ -1,9 +1,26 @@
 {{ define "main" }}
 {{- $n := .Params.number -}}
+{{/* Hebrew (Masoretic) numbering for this Vulgate/Septuagint-numbered psalm. The two
+     systems diverge because the Hebrew text splits and merges psalms differently:
+     Vulg 9 = Hebr 9-10; Vulg 10-112 = Hebr +1; Vulg 113 = Hebr 114-115; Vulg 114-115 =
+     Hebr 116; Vulg 116-145 = Hebr +1; Vulg 146-147 = Hebr 147; the rest coincide. */}}
+{{- $heb := "" -}}
+{{- if le $n 8 -}}{{ $heb = string $n }}
+{{- else if eq $n 9 -}}{{ $heb = "9–10" }}
+{{- else if le $n 112 -}}{{ $heb = string (add $n 1) }}
+{{- else if eq $n 113 -}}{{ $heb = "114–115" }}
+{{- else if eq $n 114 -}}{{ $heb = "116 (1–9)" }}
+{{- else if eq $n 115 -}}{{ $heb = "116 (10–19)" }}
+{{- else if le $n 145 -}}{{ $heb = string (add $n 1) }}
+{{- else if eq $n 146 -}}{{ $heb = "147 (1–11)" }}
+{{- else if eq $n 147 -}}{{ $heb = "147 (12–20)" }}
+{{- else -}}{{ $heb = string $n }}
+{{- end -}}
 <article class="wrap">
   <header class="page-head">
     <p class="entry-meta">
       <span class="kicker">Psalmus {{ $n }}</span>
+      <span class="dot"></span> <span title="Hebrew (Masoretic) numbering">Hebr. {{ $heb }}</span>
       {{- with .Params.penitential }} <span class="dot"></span> <span>{{ . }}</span>{{ end -}}
     </p>
     <h1>{{ .Params.incipit | default .Title }}</h1>

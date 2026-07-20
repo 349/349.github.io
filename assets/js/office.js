@@ -44,7 +44,7 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {}, MOVPROP = {}, I18N = {};
+  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {}, MOVPROP = {}, I18N = {}, MATINS = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
@@ -75,6 +75,7 @@
     RESPC = dearray(d.RESPC != null ? d.RESPC : window.RESPC) || {};
     MOVPROP = dearray(d.MOVPROP != null ? d.MOVPROP : window.MOVPROP) || {};
     I18N = dearray(d.I18N != null ? d.I18N : window.I18N) || {};
+    MATINS = dearray(d.MATINS != null ? d.MATINS : window.MATINS) || {};
     FERIAL = { vesperae: VESP, laudes: LAUD };
     PS = {};
     PSALTER.forEach(function (p) { if (p && p.n != null) PS[p.n] = p.verses; });
@@ -87,7 +88,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json", MOVPROP: "movable_propers.json", I18N: "i18n.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json", MOVPROP: "movable_propers.json", I18N: "i18n.json", MATINS: "matins_ferial.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     var ver = window.DATA_VER ? "?v=" + window.DATA_VER : "";
@@ -1111,6 +1112,144 @@
     return view;
   }
 
+  /* ---------- Matins (Matutinum) — invitatory, hymn, one nocturn, lessons ---------- */
+  // The Te Deum (said at the end of Matins on Sundays and feasts, not on ordinary ferias).
+  var TE_DEUM = [
+    "Te Deum laudámus: * te Dóminum confitémur.",
+    "Te ætérnum Patrem * omnis terra venerátur.",
+    "Tibi omnes Ángeli, * tibi Cæli et univérsæ Potestátes:",
+    "Tibi Chérubim et Séraphim * incessábili voce proclámant:",
+    "Sanctus, Sanctus, Sanctus * Dóminus Deus Sábaoth.",
+    "Pleni sunt cæli et terra * maiestátis glóriæ tuæ.",
+    "Te gloriósus * Apostolórum chorus,",
+    "Te Prophetárum * laudábilis númerus,",
+    "Te Mártyrum candidátus * laudat exércitus.",
+    "Te per orbem terrárum * sancta confitétur Ecclésia,",
+    "Patrem * imménsæ maiestátis;",
+    "Venerándum tuum verum * et únicum Fílium;",
+    "Sanctum quoque * Paráclitum Spíritum.",
+    "Tu Rex glóriæ, * Christe.",
+    "Tu Patris * sempitérnus es Fílius.",
+    "Tu, ad liberándum susceptúrus hóminem: * non horruísti Vírginis úterum.",
+    "Tu, devícto mortis acúleo, * aperuísti credéntibus regna cælórum.",
+    "Tu ad déxteram Dei sedes, * in glória Patris.",
+    "Iudex créderis * esse ventúrus.",
+    "Te ergo quǽsumus, tuis fámulis súbveni, * quos pretióso sánguine redemísti.",
+    "Ætérna fac cum sanctis tuis * in glória numerári.",
+    "Salvum fac pópulum tuum, Dómine, * et bénedic hereditáti tuæ.",
+    "Et rege eos, * et extólle illos usque in ætérnum.",
+    "Per síngulos dies * benedícimus te.",
+    "Et laudámus nomen tuum in sǽculum, * et in sǽculum sǽculi.",
+    "Dignáre, Dómine, die isto * sine peccáto nos custodíre.",
+    "Miserére nostri, Dómine, * miserére nostri.",
+    "Fiat misericórdia tua, Dómine, super nos, * quemádmodum sperávimus in te.",
+    "In te, Dómine, sperávi: * non confúndar in ætérnum."
+  ];
+  var MATINS_BEN = [
+    "Benedictióne perpétua benedícat nos Pater ætérnus.",
+    "Unigénitus Dei Fílius nos benedícere et adiuváre dignétur.",
+    "Spíritus Sancti grátia illúminet sensus et corda nostra."
+  ];
+  // Antiphon text without the intonation asterisk (for the repeat after each psalm).
+  function antPlain(a) { return String(a).replace(/\s*\*\s*/, " ").trim(); }
+  // Render a nocturn psalm from its spec — a whole psalm ("29") or a portion ("17(2-16b)").
+  function renderNocturnPsalm(spec, ant) {
+    var m = String(spec).match(/^(\d+)(?:\(([^)]*)\))?$/);
+    var num = m ? +m[1] : parseInt(spec, 10), rng = m && m[2];
+    var mode = modeOf(ant), diff = diffOf(ant);
+    var wrap;
+    if (!rng) {
+      wrap = renderPsalm(num, ant, true, mode, diff);
+    } else {
+      // Portion: the plain psalter is Vulgate-versified 1:1, so slice by verse number.
+      var rm = rng.match(/(\d+)[a-z]?\s*-\s*(\d+)/);
+      var from = rm ? +rm[1] : 1, to = rm ? +rm[2] : 9999;
+      var verses = A(PS[num]).slice(from - 1, to);
+      wrap = el("div", "off-psalm");
+      wrap.appendChild(el("p", "off-psalm__title", "Psalmus " + num +
+        ' <span class="off-pointed">' + from + "–" + to + "</span>" +
+        ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">' + T("full") + " &rsaquo;</a>"));
+      wrap.appendChild(antLine(ant));
+      var body = el("div", "off-verses");
+      verses.forEach(function (v, i) {
+        body.appendChild(el("p", "psalm-verse", '<span class="v-num">' + (from + i) + '</span><span class="v-text">' + esc(v) + "</span>"));
+      });
+      GLORIA2.forEach(function (g) {
+        body.appendChild(el("p", "psalm-verse off-gloria", '<span class="v-num"></span><span class="v-text">' + esc(g) + "</span>"));
+      });
+      wrap.appendChild(body);
+    }
+    wrap.appendChild(el("p", "off-ant", "Ant. " + antPlain(ant)));
+    return wrap;
+  }
+  function buildMatins(li) {
+    var wd = (li.weekdayIndex || 0) + 1;               // MATINS is keyed 1=Sun … 7=Sat
+    var md = MATINS[wd] || MATINS[String(wd)];
+    var view = el("div", "office-hour");
+    view.appendChild(el("h2", "office-hour__title", "Matutínum <span class='muted'>· " + T("Matins") + "</span>"));
+    view.appendChild(el("p", "off-hour-note", "The night Office of readings — the first and longest Hour."));
+    if (!md) { view.appendChild(el("p", "office-todo", T("Matins lessons are not yet assembled; the rest of the Hour is shown below."))); return view; }
+    var feast = !!li.feast;
+    if (feast) view.appendChild(direction("On feasts the invitatory, hymn, antiphons and lessons are proper; the ferial nocturn is shown here as a placeholder."));
+
+    // — Incipit —
+    view.appendChild(section("Incipit", "Opening"));
+    view.appendChild(versicleBlock("V. Dómine, lábia ✠ mea apéries.<br>R. Et os meum annuntiábit laudem tuam."));
+    view.appendChild(versicleBlock("V. ✠ Deus, in adiutórium meum inténde.<br>R. Dómine, ad adiuvándum me festína."));
+    view.appendChild(gloriaBlock(li));
+
+    // — Invitatory (Ps 94, Venite) —
+    view.appendChild(section("Invitatórium", "Invitatory — Ps 94"));
+    view.appendChild(direction("The invitatory antiphon is intoned and repeated after each strophe of the Venite."));
+    var invPs = el("div", "off-psalms");
+    invPs.appendChild(renderPsalm(94, md.inv, true, modeOf(md.inv), diffOf(md.inv)));
+    invPs.appendChild(el("p", "off-ant", "Ant. " + antPlain(md.inv)));
+    view.appendChild(invPs);
+
+    // — Hymn —
+    view.appendChild(section("Hymnus", "Hymn — " + (md.hymn || "").split("\n")[0].replace(/,\s*$/, "")));
+    if (md.hymn) view.appendChild(hymnBlock(md.hymn.replace(/\n/g, "<br>").replace(/(<br>\s*){2,}/g, "<br><br>")));
+
+    // — Nocturn —
+    view.appendChild(section("Nocturnus", "Nocturn — 9 psalms with antiphons"));
+    var noct = el("div", "off-psalms");
+    A(md.psalms).forEach(function (p) { noct.appendChild(renderNocturnPsalm(p[1], p[0])); });
+    view.appendChild(noct);
+    if (md.versicle) view.appendChild(versicleBlock("V. " + md.versicle.v + "<br>R. " + md.versicle.r));
+
+    // — Lessons —
+    view.appendChild(section("Lectiónes", "Lessons"));
+    view.appendChild(direction("The Pater noster is said silently; then the absolution and, before each lesson, a blessing."));
+    view.appendChild(secretoBlock("Pater noster, qui es in cælis, sanctificétur nomen tuum: advéniat regnum tuum: fiat volúntas tua, sicut in cælo, et in terra. Panem nostrum cotidiánum da nobis hódie: et dimítte nobis débita nostra, sicut et nos dimíttimus debitóribus nostris:"));
+    view.appendChild(versicleBlock("V. Et ne nos indúcas in tentatiónem.<br>R. Sed líbera nos a malo."));
+    view.appendChild(block("Absolutio", rubricate("Exáudi, Dómine Iesu Christe, preces servórum tuórum, et miserére nobis: Qui cum Patre et Spíritu Sancto vivis et regnas in sǽcula sæculórum. <span class='rub-vr'>℟</span>. Amen.")));
+    for (var i = 0; i < 3; i++) {
+      view.appendChild(versicleBlock("V. Iube, Dómine, benedícere."));
+      view.appendChild(block("Benedictio", rubricate(MATINS_BEN[i] + " <span class='rub-vr'>℟</span>. Amen.")));
+      var lz = el("div", "off-block");
+      lz.appendChild(el("p", "off-label", "Léctio " + (i + 1)));
+      lz.appendChild(el("p", "off-direction muted", T("The occurring Scripture reading (lesson " + (i + 1) + ") is to be added.")));
+      lz.appendChild(el("p", "off-versicle-line", '<span class="rub-vr">℣</span>. Tu autem, Dómine, miserére nobis. <span class="rub-vr">℟</span>. Deo grátias.'));
+      view.appendChild(lz);
+    }
+
+    // — Te Deum (Sundays & feasts) —
+    if (li.weekdayIndex === 0 || feast) {
+      view.appendChild(section("Hymnus Ambrosiánus", "Te Deum"));
+      // The Te Deum has its own proper melody (not a psalm tone), so it is shown as
+      // pointed text rather than forced onto the psalm-tone renderer.
+      var tdWrap = el("div", "off-psalm");
+      var tb = el("div", "off-verses off-verses--pointed");
+      TE_DEUM.forEach(function (v) { tb.appendChild(el("p", "off-pverse", pointedHtml(v))); });
+      tdWrap.appendChild(tb);
+      view.appendChild(tdWrap);
+    } else {
+      view.appendChild(direction("On ferias the Te Deum is omitted; Matins concludes and Lauds follows."));
+    }
+    view.appendChild(direction("Matins is joined to Lauds; the versicle, collect and conclusion are said there."));
+    return view;
+  }
+
   /* ---------- generic Hour (from ferial scheme, lights up as data is filled) ---------- */
   function buildGenericHour(hourKey, li) {
     // First Vespers of a feast falls on the preceding evening — swap in the feast's office.
@@ -1469,7 +1608,9 @@
         T("Today's feast:") + " <strong>" + li.feast + "</strong>. " +
         T("Matins lessons are not yet assembled; the rest of the Hour is shown below.")));
       try {
-        viewEl.appendChild(activeHour === "completorium" ? buildCompline(li) : buildGenericHour(activeHour, li));
+        viewEl.appendChild(activeHour === "completorium" ? buildCompline(li)
+          : activeHour === "matutinum" ? buildMatins(li)
+          : buildGenericHour(activeHour, li));
       } catch (err) {
         viewEl.appendChild(el("p", "office-todo",
           T("This Hour failed to render:") + " " + (err && err.message ? err.message : String(err))));
