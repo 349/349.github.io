@@ -472,6 +472,9 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 }
 .off-pverse.off-gloria { color: var(--ink-muted); font-style: italic; }
 .off-med { color: var(--accent); font-weight: 600; padding: 0 0.05em; }
+/* the cadence accent — the syllable on which the psalm tone's accented cadence note
+   falls — set in bold so the pointed text is singable at a glance */
+.off-accent { font-weight: 700; }
 
 /* subtle verse numbers in the left gutter */
 .off-vn {

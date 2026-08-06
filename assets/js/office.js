@@ -556,8 +556,47 @@
     return esc(v).replace(/\s\*/g, ' <span class="off-med">*</span>')
                  .replace(/‡/g, '<span class="off-med">‡</span>');
   }
-  // Escape a hemistich and style any flex (‡) inline, glued to the preceding word.
-  function pointFlex(s) { return esc(s).replace(/\s*‡/g, '&nbsp;<span class="off-med">‡</span>'); }
+  // Escape a hemistich, bold its cadence accent, and style any flex (‡) inline.
+  // The cadence accent — the last marked accent of the hemistich, the syllable on
+  // which the psalm tone's accented cadence note falls — is set in bold so the text
+  // is singable at a glance (the pointing convention used by printed antiphonaries
+  // and by Breviarium Gregorianum). Only that one syllable is bolded; preparatory
+  // syllables are left plain, which keeps the rule exact rather than tone-guessing.
+  var ACCENT_CH = "áéíóúýǽÁÉÍÓÚÝǼ";
+  var WORD_RE = /[A-Za-zÀ-ÿœŒǽǼ'’]+/g;
+  function lastAccentIndex(s) {
+    for (var i = s.length - 1; i >= 0; i--) { if (ACCENT_CH.indexOf(s.charAt(i)) >= 0) return i; }
+    return -1;
+  }
+  function boldCadence(s) {
+    var words = [], m;
+    WORD_RE.lastIndex = 0;
+    while ((m = WORD_RE.exec(s))) words.push({ t: m[0], a: m.index });
+    if (!words.length) return esc(s);
+    // The cadence accent is the hemistich's final tonic accent: scan words from the end
+    // and take the last that is either marked-accented or polysyllabic (unstressed
+    // monosyllables — me, nos, est, in — are skipped, being preparatory to the cadence).
+    var target = null;
+    for (var i = words.length - 1; i >= 0; i--) {
+      var sy = syllabify(words[i].t), marked = lastAccentIndex(words[i].t) >= 0;
+      if (marked || sy.length >= 2) { target = { w: words[i], sylls: sy, marked: marked }; break; }
+    }
+    if (!target) { var lw = words[words.length - 1]; target = { w: lw, sylls: syllabify(lw.t), marked: false }; }
+    var w = target.w, sylls = target.sylls, si;
+    if (target.marked) {
+      // The syllable carrying the marked accent.
+      var accRel = lastAccentIndex(w.t), pos0 = 0; si = sylls.length - 1;
+      for (var k = 0; k < sylls.length; k++) { var l = sylls[k].length; if (accRel >= pos0 && accRel < pos0 + l) { si = k; break; } pos0 += l; }
+    } else {
+      // Unmarked word: default to penultimate stress (the regular Latin case).
+      si = sylls.length >= 2 ? sylls.length - 2 : 0;
+    }
+    var pos = 0; for (var j = 0; j < si; j++) pos += sylls[j].length;
+    var sa = w.a + pos, sb = sa + sylls[si].length - 1;
+    return esc(s.slice(0, sa)) + '<strong class="off-accent">' + esc(s.slice(sa, sb + 1)) +
+           "</strong>" + esc(s.slice(sb + 1));
+  }
+  function pointFlex(s) { return boldCadence(String(s)).replace(/\s*‡/g, '&nbsp;<span class="off-med">‡</span>'); }
   // Render a pointed verse as hemistichs: split at the mediant (*), the first half
   // ending with the gold asterisk (glued on with a non-breaking space so it never
   // wraps alone), the later half on its own indented line.
