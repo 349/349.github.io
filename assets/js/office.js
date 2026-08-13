@@ -375,12 +375,47 @@
   // A red italic direction: tells the person what to do; never said aloud.
   function direction(text) { return el("p", "off-direction", T(text)); }
   // An antiphon line: the "Ant." marker set apart from the antiphon text itself.
+  // GregoBase scores write the incipit's opening syllable/word in UPPERCASE (e.g.
+  // "EC(h')ce(h)…" for Ecce). Exsurge's drop cap consumes only the first letter, so the
+  // rest of that syllable is left shouting ("C-"). Lowercase every all-caps lyric word
+  // (length ≥ 2 — single capitals like the EUOUAE "E u o u a e" differentia are left
+  // alone), then restore the single leading capital for the drop cap. Only the lyric text
+  // (outside parentheses) is touched; note codes inside (…) are untouched.
+  function normalizeGabcCase(g) {
+    g = String(g);
+    var res = "", buf = "", inParen = false, capped = false;
+    function flush() {
+      var t = buf.replace(/[A-Za-zÀ-ÿœŒǽǼ']+/g, function (w) {
+        return (w.length >= 2 && !/[a-zà-ÿ]/.test(w)) ? w.toLowerCase() : w;
+      });
+      if (!capped) {
+        var mm = t.match(/[A-Za-zÀ-ÿœŒǽǼ]/);
+        if (mm) { var idx = t.indexOf(mm[0]); t = t.slice(0, idx) + t.charAt(idx).toUpperCase() + t.slice(idx + 1); capped = true; }
+      }
+      res += t; buf = "";
+    }
+    for (var i = 0; i < g.length; i++) {
+      var c = g.charAt(i);
+      if (c === "(") { flush(); inParen = true; res += c; }
+      else if (c === ")") { inParen = false; res += c; }
+      else if (inParen) res += c;
+      else buf += c;
+    }
+    flush();
+    return res;
+  }
   function prepAntGabc(g) {
     g = String(g); var i = g.indexOf("%%"); if (i >= 0) g = g.slice(i + 2);
     // Safety net: the data is pre-sanitised, but strip tags/annotations and (critically)
     // any empty neumes "()", which throw Exsurge into a synchronous freeze.
-    return g.replace(/<[^>]*>/g, "").replace(/\{[^}]*\}/g, "")
-      .replace(/[\r\n]+/g, " ").replace(/\(\s*\)/g, "").replace(/\s+/g, " ").trim();
+    // Also strip GABC 1.x position hints [oh:h], [uh:l], [ll:1], [alt:…] etc.: this pinned
+    // Exsurge (0.0.0, 2016) predates them and mis-parses the note-letters inside the brackets
+    // as PHANTOM NOTES — an extra note that also shoves the following syllables off their own
+    // notes. Removing the hints (Exsurge can't use them) keeps the real rhythmic marks (' ictus,
+    // _ episema, . mora) intact. ~21% of our GregoBase antiphons carry these hints.
+    return normalizeGabcCase(g.replace(/<[^>]*>/g, "").replace(/\{[^}]*\}/g, "")
+      .replace(/\[[^\]]*\]/g, "")
+      .replace(/[\r\n]+/g, " ").replace(/\(\s*\)/g, "").replace(/\s+/g, " ").trim());
   }
   function antLine(text) {
     // In sung mode, if we have the antiphon's own Gregorian melody (GregoBase), draw it.
@@ -629,6 +664,18 @@
     var nuclei = [];
     for (var i = 0; i < w.length; i++) {
       if (isVowelCh(w[i])) {
+        // 'u' after 'q' belongs to the consonant (qu-) and is never its own syllable
+        // ("qui", "quam", "quæ") — otherwise it splits as "qu-i".
+        if ((w[i] === "u" || w[i] === "U") && i > 0 && (w[i - 1] === "q" || w[i - 1] === "Q")) continue;
+        // Consonantal i/j (semivowel): word-initial before a vowel ("Iesus", "Ierúsalem")
+        // or between two vowels ("eius", "maior", "allelúia") — carries no syllable of its
+        // own, so it must not be counted as a nucleus (was splitting "e-i-us", "I-e-rú-sa-lem").
+        if (/[ij]/i.test(w[i]) && !isAccentCh(w[i])) {
+          var pv = i > 0 ? w[i - 1] : "", nx = i + 1 < w.length ? w[i + 1] : "";
+          // NB isVowelCh("") is true (indexOf("") === 0), so a missing neighbour must be
+          // excluded explicitly — else word-final i ("Dei", "fílii") is wrongly swallowed.
+          if ((i === 0 && nx && isVowelCh(nx)) || (pv && isVowelCh(pv) && nx && isVowelCh(nx))) continue;
+        }
         var start = i, pair = w.substr(i, 2).toLowerCase();
         if (["ae", "oe", "au"].indexOf(pair) >= 0 && !isAccentCh(w[i])) i++;
         nuclei.push([start, i]);
