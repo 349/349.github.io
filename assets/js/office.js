@@ -413,9 +413,13 @@
     // as PHANTOM NOTES — an extra note that also shoves the following syllables off their own
     // notes. Removing the hints (Exsurge can't use them) keeps the real rhythmic marks (' ictus,
     // _ episema, . mora) intact. ~21% of our GregoBase antiphons carry these hints.
-    return normalizeGabcCase(g.replace(/<[^>]*>/g, "").replace(/\{[^}]*\}/g, "")
+    g = g.replace(/<[^>]*>/g, "").replace(/\{[^}]*\}/g, "")
       .replace(/\[[^\]]*\]/g, "")
-      .replace(/[\r\n]+/g, " ").replace(/\(\s*\)/g, "").replace(/\s+/g, " ").trim());
+      .replace(/[\r\n]+/g, " ").replace(/\(\s*\)/g, "").replace(/\s+/g, " ").trim()
+      // Some GregoBase scores carry the rubric "Ant." as a lyric word right after the clef;
+      // drop it so it isn't sung as a drop-cap "A" + "nt." ahead of the real incipit.
+      .replace(/(\([cf][0-9]\)\s*)Ant\.?\s*/i, "$1");
+    return normalizeGabcCase(g);
   }
   function antLine(text) {
     // In sung mode, if we have the antiphon's own Gregorian melody (GregoBase), draw it.
