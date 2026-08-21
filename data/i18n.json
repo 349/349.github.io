@@ -427,5 +427,17 @@
 "This Hour failed to render:": {
 "de": "Diese Hore konnte nicht dargestellt werden:",
 "fr": "Cette heure n'a pas pu s'afficher :"
+},
+"Notation": {
+"de": "Notation",
+"fr": "Notation"
+},
+"First verse set": {
+"de": "Erster Vers vertont",
+"fr": "Premier verset noté"
+},
+"Every verse set": {
+"de": "Alle Verse vertont",
+"fr": "Tous les versets notés"
 }
 }

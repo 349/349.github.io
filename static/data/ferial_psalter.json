@@ -1,5 +1,5 @@
 {
- "_note": "Ferial psalter, 1960 Roman Breviary (Pius X distribution), extracted from the uploaded Breviarium Romanum. Distinct psalms per weekday/Hour. Ps 118 & long psalms prayed in portions across the Little Hours. laudes = Lauds scheme I; vesperae.sat = Sunday First Vespers. Verification pass pending (task 15).",
+ "_note": "Ferial psalter, 1960 Roman Breviary (Pius X distribution), extracted from the uploaded Breviarium Romanum. Distinct psalms per weekday/Hour. Ps 118 & long psalms prayed in portions across the Little Hours. laudes = Lauds scheme I; vesperae.sat = Sunday First Vespers. Little Hours + Compline distribution verified against Divinum Officium Psalterium/Psalmi/'Psalmi minor.txt' (1960 Roman). Portions are liturgical verse labels, sliced via psalter_labels.json.",
  "matutinum": {
   "sun": [
    1,
@@ -95,111 +95,150 @@
  },
  "prima": {
   "sun": [
-   117,
-   53,
-   118
+   "117",
+   "118(1-16)",
+   "118(17-32)"
   ],
   "mon": [
-   23,
-   18
+   "23",
+   "18(2-7b)",
+   "18(8-15b)"
   ],
   "tue": [
-   24
+   "24(1-7)",
+   "24(8-14)",
+   "24(15-22)"
   ],
   "wed": [
-   25,
-   51,
-   52
+   "25",
+   "51",
+   "52"
   ],
   "thu": [
-   22,
-   71
+   "22",
+   "71(2-8)",
+   "71(9-19)"
   ],
   "fri": [
-   21
+   "21(2-12)",
+   "21(13-23)",
+   "21(24-32)"
   ],
   "sat": [
-   93,
-   107
+   "93(1-11)",
+   "93(12-23)",
+   "107"
   ]
  },
  "tertia": {
   "sun": [
-   118
+   "118(33-48)",
+   "118(49-64)",
+   "118(65-80)"
   ],
   "mon": [
-   26,
-   27
+   "26(1-6)",
+   "26(7-14)",
+   "27"
   ],
   "tue": [
-   39
+   "39(2-9)",
+   "39(10-14)",
+   "39(15-18)"
   ],
   "wed": [
-   53,
-   54
+   "53",
+   "54(2-16)",
+   "54(17-24)"
   ],
   "thu": [
-   72
+   "72(1-9)",
+   "72(10-17)",
+   "72(18-28)"
   ],
   "fri": [
-   79,
-   81
+   "79(2-8)",
+   "79(9-20)",
+   "81"
   ],
   "sat": [
-   101
+   "101(2-13)",
+   "101(14-23)",
+   "101(24-29)"
   ]
  },
  "sexta": {
   "sun": [
-   118
+   "118(81-96)",
+   "118(97-112)",
+   "118(113-128)"
   ],
   "mon": [
-   30
+   "30(2-9)",
+   "30(10-19)",
+   "30(20-25)"
   ],
   "tue": [
-   40,
-   41
+   "40",
+   "41(2-6)",
+   "41(7-12)"
   ],
   "wed": [
-   55,
-   56,
-   57
+   "55",
+   "56",
+   "57"
   ],
   "thu": [
-   73
+   "73(1-9)",
+   "73(10-17)",
+   "73(18-23)"
   ],
   "fri": [
-   83,
-   86
+   "83(2-8)",
+   "83(9-13)",
+   "86"
   ],
   "sat": [
-   103
+   "103(1-12)",
+   "103(13-23)",
+   "103(24-35)"
   ]
  },
  "nona": {
   "sun": [
-   118
+   "118(129-144)",
+   "118(145-160)",
+   "118(161-176)"
   ],
   "mon": [
-   31,
-   32
+   "31",
+   "32(1-11)",
+   "32(12-22)"
   ],
   "tue": [
-   43
+   "43(2-9)",
+   "43(10-20)",
+   "43(21-26)"
   ],
   "wed": [
-   58,
-   59
+   "58(2-11)",
+   "58(12-18)",
+   "59"
   ],
   "thu": [
-   74,
-   75
+   "74",
+   "75(2-7)",
+   "75(8-13)"
   ],
   "fri": [
-   88
+   "88(2-19)",
+   "88(20-38)",
+   "88(39-53)"
   ],
   "sat": [
-   108
+   "108(2-13)",
+   "108(14-21)",
+   "108(22-31)"
   ]
  },
  "vesperae": {
@@ -251,34 +290,39 @@
  },
  "completorium": {
   "sun": [
-   4,
-   90,
-   133
+   "4",
+   "90",
+   "133"
   ],
   "mon": [
-   6,
-   7
+   "6",
+   "7(2-10)",
+   "7(11-18)"
   ],
   "tue": [
-   11,
-   12,
-   15
+   "11",
+   "12",
+   "15"
   ],
   "wed": [
-   33,
-   60
+   "33(2-11)",
+   "33(12-23)",
+   "60"
   ],
   "thu": [
-   69,
-   70
+   "69",
+   "70(1-12)",
+   "70(13-24)"
   ],
   "fri": [
-   76,
-   85
+   "76(2-13)",
+   "76(14-21)",
+   "85"
   ],
   "sat": [
-   87,
-   102
+   "87",
+   "102(1-12)",
+   "102(13-22)"
   ]
  }
 }

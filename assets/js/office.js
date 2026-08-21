@@ -44,13 +44,14 @@
   // The Office data (psalter text, pointing, ordinary, ferial scheme) is fetched
   // as separate JSON files rather than inlined. Inlining ~420 KB of JSON into the
   // page was fragile; fetch + JSON.parse handles the large payloads cleanly.
-  var PSALTER = [], PT = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {}, MOVPROP = {}, I18N = {}, MATINS = {};
+  var PSALTER = [], PT = {}, LABELS = {}, ORD = {}, SCHEME = {}, PS = {}, VESP = {}, LAUD = {}, CANT = {}, LITTLE = {}, SANCT = {}, TEMPORAL = {}, HYMNS = {}, SUNDAY_G = {}, SANCT_O = {}, SANCT_G = {}, COMMONS = {}, CHANT_IDX = {}, FESTAL = {}, LITTLEHR = {}, PRECES = {}, FIRSTVESP = {}, COMM = {}, MARIANC = {}, HYMNC = {}, RESPC = {}, MOVPROP = {}, I18N = {}, MATINS = {};
   // Ferial psalm-antiphon data per Hour (each: weekday → [{n|cant, d?, a}]).
   var FERIAL = {};
   function buildData(d) {
     d = d || {};
     PSALTER = A(dearray(d.PSALTER != null ? d.PSALTER : window.PSALTER));
     PT = dearray(d.POINTED != null ? d.POINTED : window.POINTED) || {};
+    LABELS = dearray(d.LABELS != null ? d.LABELS : window.LABELS) || {};
     ORD = dearray(d.ORDINARY != null ? d.ORDINARY : window.ORDINARY) || {};
     SCHEME = dearray(d.SCHEME != null ? d.SCHEME : window.SCHEME) || {};
     VESP = dearray(d.VESPERS != null ? d.VESPERS : window.VESPERS) || {};
@@ -88,7 +89,7 @@
     // base can't trigger a mixed-content block on the https page.
     try { base = new URL(base, location.href).pathname; } catch (e) {}
     if (base.charAt(base.length - 1) !== "/") base += "/";
-    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json", MOVPROP: "movable_propers.json", I18N: "i18n.json", MATINS: "matins_ferial.json" };
+    var names = { PSALTER: "psalter.json", POINTED: "psalter_pointed.json", LABELS: "psalter_labels.json", ORDINARY: "office_ordinary.json", SCHEME: "ferial_psalter.json", VESPERS: "ferial_vespers.json", LAUDS: "ferial_lauds.json", CANTICLES: "canticles.json", HOURS: "ferial_hours.json", SANCTORAL: "sanctoral.json", TEMPORAL: "temporal.json", HYMNS: "ferial_hymns.json", SUNDAYGOSPEL: "sunday_gospel.json", SANCTCOLLECTS: "sanctoral_collects.json", SANCTGOSPEL: "sanctoral_gospel.json", COMMONS: "commons.json", CHANT: "chant.json", FESTAL: "festal_psalms.json", LITTLEHR: "little_hours.json", PRECES: "preces.json", FIRSTVESP: "first_vespers.json", COMM: "commemorations.json", MARIANC: "marian_chant.json", HYMNC: "hymn_chant.json", RESPC: "resp_chant.json", MOVPROP: "movable_propers.json", I18N: "i18n.json", MATINS: "matins_ferial.json" };
     var keys = Object.keys(names), left = keys.length, out = {};
     if (!window.fetch) { DIAG.push("no window.fetch"); cb(out); return; }
     var ver = window.DATA_VER ? "?v=" + window.DATA_VER : "";
@@ -330,6 +331,10 @@
   // recitation substitute "Domine, exaudi orationem meam / Et clamor meus...".
   var ROLE = "lay";   // default: no ordained minister presiding
   var SUNG = true;    // default: sung (chant notation) vs said (pointed text)
+  // How much of a sung psalm is set to notation. Default "incipit": the tone is set over
+  // the first verse and the rest follow as pointed text, the way a printed psalter does it.
+  // "full" sets every verse. Either way no verse is ever hidden. Remembered per reader.
+  var NOTATION = (function () { try { return localStorage.getItem("officeNotation") === "full" ? "full" : "incipit"; } catch (e) { return "full"; } })();
   // UI language for the English scaffolding (rubric directions, section labels, banners).
   // The Latin liturgical text is never translated. en | de | fr.
   var LANG = (function () { try { return localStorage.getItem("officeLang") || "en"; } catch (e) { return "en"; } })();
@@ -419,7 +424,28 @@
       // Some GregoBase scores carry the rubric "Ant." as a lyric word right after the clef;
       // drop it so it isn't sung as a drop-cap "A" + "nt." ahead of the real incipit.
       .replace(/(\([cf][0-9]\)\s*)Ant\.?\s*/i, "$1");
+    g = sanitizeNeumes(g);
+    // Sanitising can empty a neume group; "()" is the one construct that freezes Exsurge
+    // outright, so sweep again after.
+    g = g.replace(/\(\s*\)/g, "").replace(/\s+/g, " ").trim();
     return normalizeGabcCase(g);
+  }
+  // Exsurge 0.0.0 cannot parse a few GABC constructs and throws while loading the score,
+  // which loses the melody entirely (the antiphon falls back to plain text). Audited against
+  // our whole chant corpus: the oriscus modifier, the accidentals (flat/natural/sharp) and
+  // the cavum are the offenders. Drop just those marks and keep the notes, so the melody
+  // still draws — an oriscus renders as its plain note, and an accidental's note reverts to
+  // the natural degree. Everything Exsurge does understand (' ictus, _ episema, . mora,
+  // ~ liquescent, v virga, w quilisma, s stropha) is left untouched.
+  function sanitizeNeumes(g) {
+    return String(g).replace(/\(([^)]*)\)/g, function (_, inner) {
+      inner = inner
+        .replace(/\|.*$/, "")                 // NABC (St Gall neumes after "|") — not implemented
+        .replace(/([a-mA-M])o/g, "$1")        // oriscus  -> plain note
+        .replace(/[a-mA-M][xy#]/g, "")        // flat / natural / sharp -> drop the accidental
+        .replace(/([a-mA-M])r/g, "$1");       // cavum    -> plain note
+      return "(" + inner + ")";
+    });
   }
   function antLine(text) {
     // In sung mode, if we have the antiphon's own Gregorian melody (GregoBase), draw it.
@@ -928,57 +954,102 @@
     });
   }
 
-  function renderPsalm(num, antiphonHtml, gloria, mode, diff) {
+  // A psalm spec is either a number (the whole psalm) or a portion the way the Hours
+  // actually pray them — "118(1-16)", "18(2-'7b')", "54(17-24)". Portions are sliced by
+  // LITURGICAL VERSE LABEL, not by array index: most psalms split a verse into a/b lines
+  // (Ps 18 runs 5, 6a, 6b, 7b, 8 …), so index arithmetic would silently mis-slice them.
+  // psalter_labels.json carries one label per pointed verse, in the same order.
+  function psalmSpec(spec) {
+    var m = String(spec).match(/^\s*(\d+)\s*(?:\(\s*'?(\d+[a-z]?)'?\s*[-–]\s*'?(\d+[a-z]?)'?\s*\))?\s*$/i);
+    if (!m) return { num: parseInt(spec, 10) || 0, from: "", to: "" };
+    return { num: +m[1], from: m[2] || "", to: m[3] || "" };
+  }
+  // "7b" -> [7, "b"] so labels sort in liturgical order.
+  function labelKey(l) {
+    var m = String(l).match(/^(\d+)([a-z]?)$/i);
+    return m ? [+m[1], (m[2] || "").toLowerCase()] : [parseInt(l, 10) || 0, ""];
+  }
+  function cmpKey(a, b) { return a[0] !== b[0] ? a[0] - b[0] : (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0); }
+  // Indices of the verses of psalm `num` falling within the label range from…to (inclusive).
+  // An endpoint given without a letter is open at that end of the verse: "2-7" takes 7a and 7b.
+  function portionRange(num, from, to) {
+    var labels = A(LABELS && LABELS[num]);
+    var lo = labelKey(from), hi = labelKey(to);
+    if (!hi[1]) hi = [hi[0], "\uffff"];
+    if (!labels.length) return null;           // no label data — caller falls back
+    var first = -1, last = -1;
+    labels.forEach(function (l, i) {
+      var k = labelKey(l);
+      if (cmpKey(k, lo) >= 0 && cmpKey(k, hi) <= 0) { if (first < 0) first = i; last = i; }
+    });
+    return first < 0 ? null : { first: first, last: last };
+  }
+  function renderPsalm(spec, antiphonHtml, gloria, mode, diff) {
+    var sp = psalmSpec(spec), num = sp.num;
     var pointed = A(PT[num]);              // accented, mediant-marked (verified) verses
     var isPointed = pointed.length > 0;
     var verses = isPointed ? pointed : A(PS[num]);  // fall back to plain text
+    var vlabels = A(LABELS && LABELS[num]);
+    if (sp.from) {
+      var rg = isPointed ? portionRange(num, sp.from, sp.to) : null;
+      if (rg) { verses = verses.slice(rg.first, rg.last + 1); vlabels = vlabels.slice(rg.first, rg.last + 1); }
+      else {   // plain-text fallback: the plain psalter is versified 1:1 with the Vulgate
+        var f = labelKey(sp.from)[0], t = labelKey(sp.to)[0];
+        verses = verses.slice(f - 1, t); vlabels = [];
+      }
+    }
+    // Displayed verse number: the real liturgical label when we have one.
+    function vnum(i) { return vlabels.length ? vlabels[i] : (sp.from ? labelKey(sp.from)[0] + i : i + 1); }
     var wrap = el("div", "off-psalm");
     wrap.appendChild(el("p", "off-psalm__title", "Psalmus " + num +
+      (sp.from ? ' <span class="off-pointed">' + sp.from + "–" + sp.to + '</span>' : '') +
       (isPointed ? ' <span class="off-pointed">' + T("pointed") + '</span>' : '') +
       ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">' + T("full") + ' &rsaquo;</a>'));
     if (antiphonHtml) wrap.appendChild(antLine(antiphonHtml));
     if (!verses.length) { wrap.appendChild(el("p", "muted", T("(psalm text not loaded)"))); return wrap; }
 
+    var glo = (gloria !== false) ? GLORIA2 : [];
     // Sung mode: render the psalm to Gregorian notation (Exsurge), dark-recolored.
+    // Every verse is shown — either wholly set to the tone, or (NOTATION === "incipit")
+    // with the first verse set and the remainder as pointed text beneath it, the way a
+    // psalter prints the tone once and points the rest.
     if (SUNG && isPointed) {
-      var many = verses.length > 20;
-      var sungVerses = many ? verses.slice(0, 14) : verses.slice();
-      if (!many && gloria !== false) sungVerses = sungVerses.concat(GLORIA2);
       wrap.appendChild(el("p", "off-tone-label", "Tonus " + romanTone(mode)));
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">' + T("Setting the tone…") + '</p>';
       wrap.appendChild(cont);
-      renderPsalmChant(cont, sungVerses, mode);
-      if (many) wrap.appendChild(el("p", "muted off-chant-more",
-        "… " + verses.length + " " + T("verses; first 14 shown sung —") + " " +
-        '<a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">' + T("full psalm") + ' ›</a>'));
+      if (NOTATION === "incipit" && verses.length) {
+        renderPsalmChant(cont, verses.slice(0, 1), mode);
+        var rest = el("div", "off-verses off-verses--pointed off-chant-rest");
+        verses.slice(1).forEach(function (v, i) {
+          rest.appendChild(el("p", "off-pverse",
+            '<span class="off-vn">' + vnum(i + 1) + "</span>" + pointedHtml(v)));
+        });
+        glo.forEach(function (g) {
+          rest.appendChild(el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g)));
+        });
+        wrap.appendChild(rest);
+      } else {
+        renderPsalmChant(cont, verses.concat(glo), mode);
+      }
       return wrap;
     }
 
     var body = el("div", "off-verses" + (isPointed ? " off-verses--pointed" : ""));
-    var shown = verses.length > 30 ? verses.slice(0, 3) : verses;
-    shown.forEach(function (v, i) {
+    verses.forEach(function (v, i) {
       if (isPointed) {
         body.appendChild(el("p", "off-pverse",
-          '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v)));
+          '<span class="off-vn">' + vnum(i) + "</span>" + pointedHtml(v)));
       } else {
         body.appendChild(el("p", "psalm-verse",
-          '<span class="v-num">' + (i + 1) + '</span><span class="v-text">' + esc(v) + "</span>"));
+          '<span class="v-num">' + vnum(i) + '</span><span class="v-text">' + esc(v) + "</span>"));
       }
     });
-    if (verses.length > 30) {
-      body.appendChild(el("p", isPointed ? "off-pverse muted" : "psalm-verse",
-        (isPointed ? '' : '<span class="v-num"></span>') + '<span class="v-text muted">… (' + verses.length +
-        ' ' + T("verses; prayed here in portions") + ') — <a href="' + (window.PSALTER_BASE || "/psalmi/") + num + '/">' + T("full psalm") + ' ›</a></span>'));
-      gloria = false;
-    }
-    if (gloria !== false) {
-      GLORIA2.forEach(function (g) {
-        body.appendChild(isPointed
-          ? el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g))
-          : el("p", "psalm-verse off-gloria", '<span class="v-num"></span><span class="v-text">' + esc(g) + "</span>"));
-      });
-    }
+    glo.forEach(function (g) {
+      body.appendChild(isPointed
+        ? el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g))
+        : el("p", "psalm-verse off-gloria", '<span class="v-num"></span><span class="v-text">' + esc(g) + "</span>"));
+    });
     wrap.appendChild(body);
     return wrap;
   }
@@ -993,7 +1064,20 @@
       var cont = el("div", "off-exsurge");
       cont.innerHTML = '<p class="muted">' + T("Setting the tone…") + '</p>';
       wrap.appendChild(cont);
-      renderPsalmChant(cont, noGloria ? vv : vv.concat(GLORIA2), mode, true);
+      var cglo = noGloria ? [] : GLORIA2;
+      if (NOTATION === "incipit" && vv.length) {
+        renderPsalmChant(cont, vv.slice(0, 1), mode, true);
+        var crest = el("div", "off-verses off-verses--pointed off-chant-rest");
+        vv.slice(1).forEach(function (v, i) {
+          crest.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 2) + "</span>" + pointedHtml(v)));
+        });
+        cglo.forEach(function (g) {
+          crest.appendChild(el("p", "off-pverse off-gloria", '<span class="off-vn"></span>' + pointedHtml(g)));
+        });
+        wrap.appendChild(crest);
+      } else {
+        renderPsalmChant(cont, vv.concat(cglo), mode, true);
+      }
     } else {
       var body = el("div", "off-verses off-verses--pointed");
       vv.forEach(function (v, i) { body.appendChild(el("p", "off-pverse", '<span class="off-vn">' + (i + 1) + "</span>" + pointedHtml(v))); });
@@ -1380,7 +1464,7 @@
           var a = fpAnts[i], am = modeOf(a), ad = diffOf(a);
           sec.appendChild(antLine(a));
           if (pn === "cant") sec.appendChild(renderCanticle("Trium Puerorum", "Dan. 3, 57-88", CANT["Trium Puerorum"], true, am, ad));
-          else sec.appendChild(renderPsalm(parseInt(pn, 10), null, true, am, ad));
+          else sec.appendChild(renderPsalm(pn, null, true, am, ad));
         });
       } else if (fer.length) {
         // Ferial Lauds/Vespers: each psalm has its own proper antiphon (validated vs DO).
@@ -1394,7 +1478,7 @@
             sec.appendChild(el("p", "off-psalm__title", "Psalmus " + e.n + (e.d ? " · vv. " + e.d : "") +
               ' <a class="off-psalm__link" href="' + (window.PSALTER_BASE || "/psalmi/") + e.n + '/">full &rsaquo;</a>'));
           } else {
-            sec.appendChild(renderPsalm(parseInt(e.n, 10), null, true, em, ed));
+            sec.appendChild(renderPsalm(e.n, null, true, em, ed));
             seen[e.n] = true;
           }
         });
@@ -1403,7 +1487,8 @@
         var lAnt = (LITTLE[hourKey] || {})[li.weekdayKey];
         var lm = modeOf(lAnt), ld = diffOf(lAnt);
         if (lAnt) sec.appendChild(antLine(lAnt));
-        psalms.forEach(function (n) { sec.appendChild(renderPsalm(parseInt(n, 10), null, true, lm, ld)); });
+        // Pass the raw spec: the Little Hours pray portions ("118(1-16)"), which renderPsalm parses.
+        psalms.forEach(function (n) { sec.appendChild(renderPsalm(n, null, true, lm, ld)); });
         if (lAnt) sec.appendChild(antLine(lAnt));
       }
       view.appendChild(sec);
@@ -1665,11 +1750,32 @@
         '<button class="office-role-btn' + (!SUNG ? " is-active" : "") + '" data-mode="said">' + Tlabel("Said · pointed text") + '</button>' +
         '<button class="office-role-btn' + (SUNG ? " is-active" : "") + '" data-mode="sung">' + Tlabel("Sung · chant") + '</button>';
       Array.prototype.forEach.call(modeEl.querySelectorAll("button"), function (b) {
-        b.onclick = function () { SUNG = b.getAttribute("data-mode") === "sung"; paintMode(); renderHour(false); };
+        b.onclick = function () { SUNG = b.getAttribute("data-mode") === "sung"; paintMode(); paintNotation(); renderHour(false); };
       });
     }
     paintMode();
     if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(modeEl, viewEl);
+
+    // How much of a sung psalm carries notation. Only meaningful in sung mode, so the row
+    // hides itself in said mode. Every verse is shown either way — this only chooses
+    // whether the tone is printed once (as a psalter does) or over every verse.
+    var notEl = el("div", "office-roles");
+    function paintNotation() {
+      notEl.style.display = SUNG ? "" : "none";
+      notEl.innerHTML =
+        '<span class="office-roles__label">' + T("Notation") + '</span>' +
+        '<button class="office-role-btn' + (NOTATION === "incipit" ? " is-active" : "") + '" data-not="incipit">' + T("First verse set") + '</button>' +
+        '<button class="office-role-btn' + (NOTATION === "full" ? " is-active" : "") + '" data-not="full">' + T("Every verse set") + '</button>';
+      Array.prototype.forEach.call(notEl.querySelectorAll("button"), function (b) {
+        b.onclick = function () {
+          NOTATION = b.getAttribute("data-not");
+          try { localStorage.setItem("officeNotation", NOTATION); } catch (e) {}
+          paintNotation(); renderHour(false);
+        };
+      });
+    }
+    paintNotation();
+    if (viewEl && viewEl.parentNode) viewEl.parentNode.insertBefore(notEl, viewEl);
 
     // Language selector — English / German / French for the rubric directions and labels
     // (the Latin liturgical text is unchanged). Persists and reloads to re-render everything.

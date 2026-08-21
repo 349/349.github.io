@@ -436,6 +436,8 @@ a.psalm-chip:hover { border-color: var(--accent-dim); color: var(--accent-hi); b
 .off-gloria .v-text { color: var(--ink-muted); font-style: italic; }
 .off-hymn { line-height: 1.7; font-style: italic; color: var(--ink); }
 .off-hymn-rest { margin-top: 0.5rem; }
+/* Verses printed as pointed text beneath a psalm's notated incipit. */
+.off-chant-rest { margin-top: 0.55rem; }
 .off-canticle { margin: 0.5rem 0 1.5rem; }
 .off-chant {
   background: #f4efe2; color: #1a1a1a; border-radius: var(--radius);
